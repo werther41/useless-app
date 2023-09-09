@@ -1,28 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 const App = () => {
-  const [fact, setFact] = useState("");
+  const [funFacts, setFunFacts] = useState([]);
 
-  const generateFact = () => {
-    // Replace this with your own list of useless facts
-    const facts = [
-      "A cat has 32 muscles in each ear.",
-      "The average person spends 6 months of their lifetime waiting for a red light to turn green.",
-      "A sneeze travels out of your mouth at over 100 miles per hour.",
-      "The average person walks the equivalent of three times around the world in a lifetime.",
-      "A single cloud can weigh more than 1 million pounds.",
-    ];
-
-    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-    setFact(randomFact);
+  const generateFunFacts = () => {
+    fetch("https://useless-facts.sameerkumar.website/api", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      params: {
+        amount: 30,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const facts = data.map((item) => item.fact);
+        setFunFacts(facts);
+      })
+      .catch((error) => {
+        console.error("Error fetching fun facts:", error);
+      });
   };
+
+  useEffect(() => {
+    generateFunFacts();
+  }, []);
 
   return (
     <div className="App">
-      <h1>Useless Facts</h1>
-      <p>{fact}</p>
-      <button onClick={generateFact}>Generate Fact</button>
+      <h1>Random Fun Facts</h1>
+      {funFacts.map((fact, index) => (
+        <p key={index}>{fact}</p>
+      ))}
+      <button onClick={generateFunFacts}>Generate Fun Facts</button>
     </div>
   );
 };
