@@ -1,8 +1,12 @@
-import React, { useState } from "react";
-import { Grid, Flex, Box, Heading, Text, Button } from "@radix-ui/themes";
+"use client"
 
-const App = () => {
-  const [fact, setFact] = useState("");
+import React, { useState } from "react"
+
+import { siteConfig } from "@/config/site"
+import { Button } from "@/components/ui/button"
+
+export default function IndexPage() {
+  const [fact, setFact] = useState("")
 
   const generateFact = () => {
     // Replace this with your own list of useless facts
@@ -37,28 +41,22 @@ const App = () => {
       "Wombat feces are cube-shaped.",
       "The longest hiccuping spree lasted for 68 years.",
       "Cows have a magnetic sense and tend to align themselves with Earth's magnetic field when grazing or resting.",
-    ];
-    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-    setFact(randomFact);
-  };
+    ]
+    const randomFact = facts[Math.floor(Math.random() * facts.length)]
+    setFact(randomFact)
+  }
 
   return (
-    <>
-      <Grid columns="1" gap="3" width="auto">
-        <Flex direction="column" gap="3" align="center" justify="center">
-          <Box>
-            <Heading size="7">Useless Facts</Heading>
-          </Box>
-          <Box>
-            <Button onClick={generateFact}>Generate Fact</Button>
-          </Box>
-          <Box>
-            <Text size="5">{fact}</Text>
-          </Box>
-        </Flex>
-      </Grid>
-    </>
-  );
-};
-
-export default App;
+    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
+      <div className="flex max-w-[980px] flex-col items-start gap-2">
+        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
+          Useless Fact
+        </h1>
+        <p className="max-w-[700px] text-lg">{fact}</p>
+      </div>
+      <div className="flex gap-4">
+        <Button onClick={generateFact}>Generate Fact</Button>
+      </div>
+    </section>
+  )
+}
