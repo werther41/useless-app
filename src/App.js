@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./App.css";
+import { Grid, Flex, Box, Heading, Text, Button } from "@radix-ui/themes";
 
 const App = () => {
   const [fact, setFact] = useState("");
@@ -43,11 +43,21 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <h1>Useless Facts</h1>
-      <p>{fact}</p>
-      <button onClick={generateFact}>Generate Fact</button>
-    </div>
+    <>
+      <Grid columns="1" gap="3" width="auto">
+        <Flex direction="column" gap="3" align="center" justify="center">
+          <Box>
+            <Heading size="7">Useless Facts</Heading>
+          </Box>
+          <Box>
+            <Button onClick={generateFact}>Generate Fact</Button>
+          </Box>
+          <Box>
+            <Text size="5">{fact}</Text>
+          </Box>
+        </Flex>
+      </Grid>
+    </>
   );
 };
 
