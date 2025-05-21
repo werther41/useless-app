@@ -7,7 +7,7 @@ export default function Page() {
           Blog
         </h1>
         <p className="max-w-[700px] text-lg">
-          Welcome to the blog! We've recently updated our homepage with an exciting new feature: 
+          Welcome to the blog! We&apos;ve recently updated our homepage with an exciting new feature: 
           you can now rate the useless facts! Check it out on the <a href="/" className="underline">homepage</a> and let us know what you think of the facts.
         </p>
       </div>
