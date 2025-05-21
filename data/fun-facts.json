@@ -1,0 +1,227 @@
+[
+  {
+    "id": 1,
+    "text": "Bananas are berries, but strawberries aren't.",
+    "rating": 0
+  },
+  {
+    "id": 2,
+    "text": "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.",
+    "rating": 0
+  },
+  {
+    "id": 3,
+    "text": "A group of flamingos is called a 'flamboyance.'",
+    "rating": 0
+  },
+  {
+    "id": 4,
+    "text": "Octopuses have three hearts.",
+    "rating": 0
+  },
+  {
+    "id": 5,
+    "text": "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible.",
+    "rating": 0
+  },
+  {
+    "id": 6,
+    "text": "Cows have best friends and can become stressed when they are separated.",
+    "rating": 0
+  },
+  {
+    "id": 7,
+    "text": "The shortest war in history was between Britain and Zanzibar on August 27, 1896. It lasted only 38 minutes.",
+    "rating": 0
+  },
+  {
+    "id": 8,
+    "text": "Penguins have knees but they're inside their bodies, so you can't see them.",
+    "rating": 0
+  },
+  {
+    "id": 9,
+    "text": "A jiffy is an actual unit of time, equivalent to 1/100th of a second.",
+    "rating": 0
+  },
+  {
+    "id": 10,
+    "text": "In Switzerland, it's illegal to own just one guinea pig because they are prone to loneliness.",
+    "rating": 0
+  },
+  {
+    "id": 11,
+    "text": "There are more possible iterations of a game of chess than there are atoms in the known universe.",
+    "rating": 0
+  },
+  {
+    "id": 12,
+    "text": "The unicorn is Scotland's national animal.",
+    "rating": 0
+  },
+  {
+    "id": 13,
+    "text": "The first recorded game of baseball was played in 1846 in Hoboken, New Jersey.",
+    "rating": 0
+  },
+  {
+    "id": 14,
+    "text": "A single strand of spaghetti is called a 'spaghetto.'",
+    "rating": 0
+  },
+  {
+    "id": 15,
+    "text": "A day on Venus is longer than its year. Venus rotates on its axis extremely slowly, taking about 243 Earth days to complete one rotation, while it only takes 225 Earth days to orbit the Sun.",
+    "rating": 0
+  },
+  {
+    "id": 16,
+    "text": "The average person will spend six months of their life waiting for red lights to turn green.",
+    "rating": 0
+  },
+  {
+    "id": 17,
+    "text": "The name for the shape of Pringles is called a 'Hyperbolic Paraboloid.'",
+    "rating": 0
+  },
+  {
+    "id": 18,
+    "text": "The smell of freshly-cut grass is actually a plant distress call.",
+    "rating": 0
+  },
+  {
+    "id": 19,
+    "text": "A flock of crows is known as a 'murder.'",
+    "rating": 0
+  },
+  {
+    "id": 20,
+    "text": "There is a species of jellyfish known as 'Turritopsis dohrnii' or the 'immortal jellyfish' that can revert back to its juvenile form after reaching maturity.",
+    "rating": 0
+  },
+  {
+    "id": 21,
+    "text": "Hippopotomonstrosesquipedaliophobia is the fear of long words.",
+    "rating": 0
+  },
+  {
+    "id": 22,
+    "text": "A group of owls is called a 'parliament.'",
+    "rating": 0
+  },
+  {
+    "id": 23,
+    "text": "The plastic tips at the end of shoelaces are called 'aglets.'",
+    "rating": 0
+  },
+  {
+    "id": 24,
+    "text": "A 'baker's dozen' is actually 13, not 12.",
+    "rating": 0
+  },
+  {
+    "id": 25,
+    "text": "A snail can sleep for three years.",
+    "rating": 0
+  },
+  {
+    "id": 26,
+    "text": "The world's largest desert is not the Sahara, but Antarctica.",
+    "rating": 0
+  },
+  {
+    "id": 27,
+    "text": "The smell of freshly baked bread can reduce stress and make people kinder.",
+    "rating": 0
+  },
+  {
+    "id": 28,
+    "text": "Wombat feces are cube-shaped.",
+    "rating": 0
+  },
+  {
+    "id": 29,
+    "text": "The longest hiccuping spree lasted for 68 years.",
+    "rating": 0
+  },
+  {
+    "id": 30,
+    "text": "Cows have a magnetic sense and tend to align themselves with Earth's magnetic field when grazing or resting.",
+    "rating": 0
+  },
+  {
+    "id": 31,
+    "text": "A group of kittens is called a 'kindle'.",
+    "rating": 0
+  },
+  {
+    "id": 32,
+    "text": "The human nose can detect over 1 trillion different scents.",
+    "rating": 0
+  },
+  {
+    "id": 33,
+    "text": "Slugs have four noses.",
+    "rating": 0
+  },
+  {
+    "id": 34,
+    "text": "Butterflies taste with their feet.",
+    "rating": 0
+  },
+  {
+    "id": 35,
+    "text": "A crocodile cannot stick its tongue out.",
+    "rating": 0
+  },
+  {
+    "id": 36,
+    "text": "The Roman-Persian wars are the longest in history, lasting over 680 years.",
+    "rating": 0
+  },
+  {
+    "id": 37,
+    "text": "A 'moment' is a medieval unit of time equal to 90 seconds.",
+    "rating": 0
+  },
+  {
+    "id": 38,
+    "text": "The fingerprints of a koala are so indistinguishable from humans that they have on occasion been confused at a crime scene.",
+    "rating": 0
+  },
+  {
+    "id": 39,
+    "text": "There are more stars in the universe than grains of sand on all the beaches on Earth.",
+    "rating": 0
+  },
+  {
+    "id": 40,
+    "text": "Sea otters hold hands when they sleep to keep from drifting apart.",
+    "rating": 0
+  },
+  {
+    "id": 41,
+    "text": "The inventor of the Pringles can is now buried in one.",
+    "rating": 0
+  },
+  {
+    "id": 42,
+    "text": "It's impossible for most people to lick their own elbow.",
+    "rating": 0
+  },
+  {
+    "id": 43,
+    "text": "A shrimp's heart is in its head.",
+    "rating": 0
+  },
+  {
+    "id": 44,
+    "text": "The Hawaiian alphabet has only 12 letters.",
+    "rating": 0
+  },
+  {
+    "id": 45,
+    "text": "A cat has 32 muscles in each ear.",
+    "rating": 0
+  }
+]
