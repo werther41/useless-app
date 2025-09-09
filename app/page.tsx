@@ -1,9 +1,19 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
+import {
+  BookOpen,
+  Star,
+  ThumbsDown,
+  ThumbsUp,
+  TrendingUp,
+  Wand2,
+} from "lucide-react"
 
-// import { siteConfig } from "@/config/site" // This import seems unused, commenting out for now.
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+
 import factsData from "../data/fun-facts.json"
 
 interface Fact {
@@ -12,67 +22,238 @@ interface Fact {
   rating: number
 }
 
-export default function IndexPage() {
+export default function UselessFactsHome() {
   const [currentFact, setCurrentFact] = useState<Fact | null>(null)
+  const [hasVoted, setHasVoted] = useState(false)
 
-  const generateFact = () => {
-    const randomFactObject =
-      factsData[Math.floor(Math.random() * factsData.length)]
-    setCurrentFact(randomFactObject)
+  const generateNewFact = () => {
+    const randomFact = factsData[Math.floor(Math.random() * factsData.length)]
+    setCurrentFact(randomFact)
+    setHasVoted(false)
   }
 
-  const handleUpvote = () => {
-    if (!currentFact) return;
+  const handleVote = (vote: "up" | "down") => {
+    if (!currentFact || hasVoted) return
 
-    const factIndex = factsData.findIndex(fact => fact.id === currentFact.id);
-
+    const factIndex = factsData.findIndex((fact) => fact.id === currentFact.id)
     if (factIndex !== -1) {
-      factsData[factIndex].rating += 1;
-      const updatedFact = { ...factsData[factIndex] };
-      setCurrentFact(updatedFact);
-    } else {
-      console.error("Fact not found in factsData for upvoting");
+      factsData[factIndex].rating += vote === "up" ? 1 : -1
+      const updatedFact = { ...factsData[factIndex] }
+      setCurrentFact(updatedFact)
+      setHasVoted(true)
     }
-  };
-
-  const handleDownvote = () => {
-    if (!currentFact) return;
-
-    const factIndex = factsData.findIndex(fact => fact.id === currentFact.id);
-
-    if (factIndex !== -1) {
-      factsData[factIndex].rating -= 1;
-      const updatedFact = { ...factsData[factIndex] };
-      setCurrentFact(updatedFact);
-    } else {
-      console.error("Fact not found in factsData for downvoting");
-    }
-  };
+  }
 
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      <div className="flex max-w-[980px] flex-col items-start gap-2">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          Useless Fact
-        </h1>
-        {currentFact ? (
-          <>
-            <p className="max-w-[700px] text-lg">{currentFact.text}</p>
-            <p className="max-w-[700px] text-md">Rating: {currentFact.rating}</p>
-            <div className="flex gap-2 mt-2">
-              <Button onClick={handleUpvote}>Upvote</Button>
-              <Button onClick={handleDownvote} variant="outline">Downvote</Button>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-card/50 sticky top-0 z-50 border-b border-border backdrop-blur-sm">
+        <div className="container mx-auto p-4">
+          <nav className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                <span className="text-lg font-bold text-primary-foreground">
+                  U
+                </span>
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Useless Facts
+              </h1>
             </div>
-          </>
-        ) : (
-          <p className="max-w-[700px] text-lg">
-            Click the button to see a fun fact!
+            <div className="flex items-center gap-6">
+              <a
+                href="#"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Quick Facts
+              </a>
+              <a
+                href="#infographics"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Infographics
+              </a>
+              <a
+                href="#"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Blog
+              </a>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="px-4 py-16">
+        <div className="container mx-auto max-w-4xl text-center">
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <Star className="h-8 w-8 text-primary" />
+            <Badge variant="secondary" className="px-4 py-2 text-lg">
+              Completely Useless Knowledge
+            </Badge>
+          </div>
+          <h2 className="text-balance mb-6 text-5xl font-bold text-foreground">
+            Discover Facts You&apos;ll Never Need
+          </h2>
+          <p className="text-pretty mb-12 text-xl text-muted-foreground">
+            Expand your mind with wonderfully pointless information that&apos;s
+            guaranteed to impress absolutely no one.
           </p>
-        )}
-      </div>
-      <div className="flex gap-4">
-        <Button onClick={generateFact}>Generate Fact</Button>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {/* Main Fact Display */}
+      <section className="px-4 py-8">
+        <div className="container mx-auto max-w-3xl">
+          <Card className="border-primary/20 border-2 shadow-lg transition-all duration-300 hover:shadow-xl">
+            <CardContent className="p-8">
+              <div className="text-center">
+                <div className="mb-8">
+                  <Button
+                    onClick={generateNewFact}
+                    size="lg"
+                    className="hover:bg-accent/90 bg-accent px-8 py-3 text-lg text-accent-foreground"
+                  >
+                    <Wand2 className="mr-2 h-5 w-5" />
+                    Generate New Fact
+                  </Button>
+                </div>
+
+                <div className="mb-8 flex min-h-[120px] items-center justify-center">
+                  {currentFact ? (
+                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
+                      {currentFact.text}
+                    </h3>
+                  ) : (
+                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
+                      Ready to discover something completely useless?
+                    </h3>
+                  )}
+                </div>
+
+                {currentFact && (
+                  <>
+                    <div className="mb-6 flex items-center justify-center gap-2">
+                      <span className="text-muted-foreground">Rating:</span>
+                      <span className="text-lg font-semibold">
+                        {currentFact.rating}
+                      </span>
+                      {currentFact.rating > 0 && (
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-center gap-4">
+                      <Button
+                        onClick={() => handleVote("up")}
+                        disabled={hasVoted}
+                        variant={hasVoted ? "secondary" : "default"}
+                        size="lg"
+                        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:bg-muted disabled:text-muted-foreground"
+                      >
+                        <ThumbsUp className="h-5 w-5" />
+                        Useful Uselessness
+                      </Button>
+                      <Button
+                        onClick={() => handleVote("down")}
+                        disabled={hasVoted}
+                        variant="outline"
+                        size="lg"
+                        className="flex items-center gap-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white disabled:border-muted disabled:text-muted-foreground disabled:hover:bg-muted disabled:hover:text-muted-foreground"
+                      >
+                        <ThumbsDown className="h-5 w-5" />
+                        Too Useless
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Infographics Preview Section */}
+      <section id="infographics" className="bg-muted/30 px-4 py-16">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <h3 className="mb-4 text-4xl font-bold text-foreground">
+              Deep Dive Infographics
+            </h3>
+            <p className="text-pretty text-xl text-muted-foreground">
+              Explore complex useless topics with beautiful, detailed
+              infographics
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Sample Infographic Cards */}
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-primary" />
+                </div>
+                <h4 className="mb-2 text-xl font-semibold">
+                  Should You Flip Your Burger?
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  A comprehensive analysis of burger flipping techniques and
+                  their impact on taste.
+                </p>
+                <Badge variant="outline" className="mt-3">
+                  Coming Soon
+                </Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="from-accent/20 to-primary/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-accent" />
+                </div>
+                <h4 className="mb-2 text-xl font-semibold">
+                  The Science of Sock Pairing
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Mathematical models for optimal sock matching strategies in
+                  your drawer.
+                </p>
+                <Badge variant="outline" className="mt-3">
+                  Coming Soon
+                </Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-primary" />
+                </div>
+                <h4 className="mb-2 text-xl font-semibold">
+                  Optimal Cereal-to-Milk Ratios
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  A data-driven approach to achieving breakfast perfection.
+                </p>
+                <Badge variant="outline" className="mt-3">
+                  Coming Soon
+                </Badge>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border px-4 py-12">
+        <div className="container mx-auto max-w-4xl text-center">
+          <p className="text-muted-foreground">
+            © 2024 Useless Facts. Making the world slightly more informed about
+            completely irrelevant things.
+          </p>
+        </div>
+      </footer>
+    </div>
   )
 }
