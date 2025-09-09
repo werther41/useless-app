@@ -47,12 +47,12 @@ export default function UselessFactsHome() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-card/50 sticky top-0 z-50 border-b border-border backdrop-blur-sm">
+        <div className="container mx-auto p-4">
           <nav className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                <span className="text-lg font-bold text-primary-foreground">
                   U
                 </span>
               </div>
@@ -63,19 +63,19 @@ export default function UselessFactsHome() {
             <div className="flex items-center gap-6">
               <a
                 href="#"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 Quick Facts
               </a>
               <a
                 href="#infographics"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 Infographics
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 Blog
               </a>
@@ -85,48 +85,48 @@ export default function UselessFactsHome() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-16 px-4">
+      <section className="px-4 py-16">
         <div className="container mx-auto max-w-4xl text-center">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Star className="w-8 h-8 text-primary" />
-            <Badge variant="secondary" className="text-lg px-4 py-2">
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <Star className="h-8 w-8 text-primary" />
+            <Badge variant="secondary" className="px-4 py-2 text-lg">
               Completely Useless Knowledge
             </Badge>
           </div>
-          <h2 className="text-5xl font-bold text-foreground mb-6 text-balance">
-            Discover Facts You'll Never Need
+          <h2 className="text-balance mb-6 text-5xl font-bold text-foreground">
+            Discover Facts You&apos;ll Never Need
           </h2>
-          <p className="text-xl text-muted-foreground mb-12 text-pretty">
-            Expand your mind with wonderfully pointless information that's
+          <p className="text-pretty mb-12 text-xl text-muted-foreground">
+            Expand your mind with wonderfully pointless information that&apos;s
             guaranteed to impress absolutely no one.
           </p>
         </div>
       </section>
 
       {/* Main Fact Display */}
-      <section className="py-8 px-4">
+      <section className="px-4 py-8">
         <div className="container mx-auto max-w-3xl">
-          <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+          <Card className="border-primary/20 border-2 shadow-lg transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-8">
               <div className="text-center">
                 <div className="mb-8">
                   <Button
                     onClick={generateNewFact}
                     size="lg"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 text-lg"
+                    className="hover:bg-accent/90 bg-accent px-8 py-3 text-lg text-accent-foreground"
                   >
-                    <Wand2 className="w-5 h-5 mr-2" />
+                    <Wand2 className="mr-2 h-5 w-5" />
                     Generate New Fact
                   </Button>
                 </div>
 
-                <div className="min-h-[120px] flex items-center justify-center mb-8">
+                <div className="mb-8 flex min-h-[120px] items-center justify-center">
                   {currentFact ? (
-                    <h3 className="text-3xl font-bold text-foreground text-balance leading-relaxed">
+                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
                       {currentFact.text}
                     </h3>
                   ) : (
-                    <h3 className="text-3xl font-bold text-foreground text-balance leading-relaxed">
+                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
                       Ready to discover something completely useless?
                     </h3>
                   )}
@@ -134,13 +134,13 @@ export default function UselessFactsHome() {
 
                 {currentFact && (
                   <>
-                    <div className="flex items-center justify-center gap-2 mb-6">
+                    <div className="mb-6 flex items-center justify-center gap-2">
                       <span className="text-muted-foreground">Rating:</span>
-                      <span className="font-semibold text-lg">
+                      <span className="text-lg font-semibold">
                         {currentFact.rating}
                       </span>
                       {currentFact.rating > 0 && (
-                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <TrendingUp className="h-4 w-4 text-green-500" />
                       )}
                     </div>
 
@@ -150,9 +150,9 @@ export default function UselessFactsHome() {
                         disabled={hasVoted}
                         variant={hasVoted ? "secondary" : "default"}
                         size="lg"
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white disabled:bg-muted disabled:text-muted-foreground"
+                        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:bg-muted disabled:text-muted-foreground"
                       >
-                        <ThumbsUp className="w-5 h-5" />
+                        <ThumbsUp className="h-5 w-5" />
                         Useful Uselessness
                       </Button>
                       <Button
@@ -162,7 +162,7 @@ export default function UselessFactsHome() {
                         size="lg"
                         className="flex items-center gap-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white disabled:border-muted disabled:text-muted-foreground disabled:hover:bg-muted disabled:hover:text-muted-foreground"
                       >
-                        <ThumbsDown className="w-5 h-5" />
+                        <ThumbsDown className="h-5 w-5" />
                         Too Useless
                       </Button>
                     </div>
@@ -175,29 +175,29 @@ export default function UselessFactsHome() {
       </section>
 
       {/* Infographics Preview Section */}
-      <section id="infographics" className="py-16 px-4 bg-muted/30">
+      <section id="infographics" className="bg-muted/30 px-4 py-16">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h3 className="text-4xl font-bold text-foreground mb-4">
+          <div className="mb-12 text-center">
+            <h3 className="mb-4 text-4xl font-bold text-foreground">
               Deep Dive Infographics
             </h3>
-            <p className="text-xl text-muted-foreground text-pretty">
+            <p className="text-pretty text-xl text-muted-foreground">
               Explore complex useless topics with beautiful, detailed
               infographics
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Sample Infographic Cards */}
-            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-6">
-                <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-4 flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-primary" />
+                <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-primary" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">
+                <h4 className="mb-2 text-xl font-semibold">
                   Should You Flip Your Burger?
                 </h4>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   A comprehensive analysis of burger flipping techniques and
                   their impact on taste.
                 </p>
@@ -207,15 +207,15 @@ export default function UselessFactsHome() {
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-6">
-                <div className="aspect-video bg-gradient-to-br from-accent/20 to-primary/20 rounded-lg mb-4 flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-accent" />
+                <div className="from-accent/20 to-primary/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-accent" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">
+                <h4 className="mb-2 text-xl font-semibold">
                   The Science of Sock Pairing
                 </h4>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   Mathematical models for optimal sock matching strategies in
                   your drawer.
                 </p>
@@ -225,15 +225,15 @@ export default function UselessFactsHome() {
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-6">
-                <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-4 flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-primary" />
+                <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <BookOpen className="h-12 w-12 text-primary" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">
+                <h4 className="mb-2 text-xl font-semibold">
                   Optimal Cereal-to-Milk Ratios
                 </h4>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   A data-driven approach to achieving breakfast perfection.
                 </p>
                 <Badge variant="outline" className="mt-3">
@@ -246,7 +246,7 @@ export default function UselessFactsHome() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border">
+      <footer className="border-t border-border px-4 py-12">
         <div className="container mx-auto max-w-4xl text-center">
           <p className="text-muted-foreground">
             © 2024 Useless Facts. Making the world slightly more informed about
