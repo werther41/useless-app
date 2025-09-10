@@ -1,6 +1,6 @@
 # Useless Facts
 
-A playful Next.js 13 app that lets you generate and rate completely useless facts, explore a data‑driven burger flipping infographic, and read a tiny blog. Built with the App Router, Tailwind CSS, and shadcn/ui components.
+A playful Next.js 13 app that lets you generate and rate completely useless facts, explore a data‑driven burger flipping infographic, and read a tiny blog. Built with the App Router, Tailwind CSS, and shadcn/ui components. Live website: [useless-app-nu.vercel.app](https://useless-app-nu.vercel.app/).
 
 ## What this project does
 
