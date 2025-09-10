@@ -5,8 +5,12 @@ export const siteConfig = {
   description: "Trying Next.js and use it to build a useless site",
   mainNav: [
     {
-      title: "Home",
+      title: "Quick Facts",
       href: "/",
+    },
+    {
+      title: "Infographics",
+      href: "#infographics",
     },
     {
       title: "Blog",

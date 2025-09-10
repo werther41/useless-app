@@ -45,45 +45,7 @@ export default function UselessFactsHome() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card/50 sticky top-0 z-50 border-b border-border backdrop-blur-sm">
-        <div className="container mx-auto p-4">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">
-                  U
-                </span>
-              </div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Useless Facts
-              </h1>
-            </div>
-            <div className="flex items-center gap-6">
-              <a
-                href="#"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Quick Facts
-              </a>
-              <a
-                href="#infographics"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Infographics
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Blog
-              </a>
-            </div>
-          </nav>
-        </div>
-      </header>
-
+    <div>
       {/* Hero Section */}
       <section className="px-4 py-16">
         <div className="container mx-auto max-w-4xl text-center">
