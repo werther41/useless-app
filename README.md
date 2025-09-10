@@ -60,6 +60,19 @@ Or use the preview shortcut:
 npm run preview
 ```
 
+## Deployment
+
+This app is deployed on Vercel with automatic CI/CD.
+
+- **Production**: [useless-app-nu.vercel.app](https://useless-app-nu.vercel.app/)
+- **Main branch deploys**: Merging to `main` automatically builds and updates the production site.
+- **Preview deploys for PRs**: Creating a Pull Request triggers a build and deploy to a temporary preview URL for review. Pushing new commits to the PR updates that preview. Merging the PR deploys to production.
+
+**Typical workflow**:
+1) Create a PR from your feature branch
+2) Review the Vercel Preview deployment URL
+3) Merge to `main` to promote changes to production
+
 ## Useful scripts
 
 - `npm run dev` — start Next.js in dev mode
