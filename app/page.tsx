@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import {
   BookOpen,
@@ -26,11 +26,22 @@ interface Fact {
 export default function UselessFactsHome() {
   const [currentFact, setCurrentFact] = useState<Fact | null>(null)
   const [hasVoted, setHasVoted] = useState(false)
+  const [isCardFocused, setIsCardFocused] = useState(false)
+  const factCardRef = useRef<HTMLDivElement>(null)
 
   const generateNewFact = () => {
     const randomFact = factsData[Math.floor(Math.random() * factsData.length)]
     setCurrentFact(randomFact)
     setHasVoted(false)
+    setIsCardFocused(true)
+
+    // Scroll to the fact card with smooth behavior
+    setTimeout(() => {
+      factCardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+    }, 100)
   }
 
   const handleVote = (vote: "up" | "down") => {
@@ -48,15 +59,15 @@ export default function UselessFactsHome() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="px-4 py-16">
+      <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="mb-6 flex items-center justify-center gap-2">
             <Star className="h-8 w-8 text-primary" />
-            <Badge variant="secondary" className="px-4 py-2 text-lg">
+            <Badge variant={"outline"} className="px-4 py-2 text-lg">
               Completely Useless Knowledge
             </Badge>
           </div>
-          <h2 className="text-balance mb-6 text-5xl font-bold text-foreground">
+          <h2 className="text-balance mb-6 text-3xl font-semibold text-foreground">
             Discover Facts You&apos;ll Never Need
           </h2>
           <p className="text-pretty mb-12 text-xl text-muted-foreground">
@@ -67,29 +78,36 @@ export default function UselessFactsHome() {
       </section>
 
       {/* Main Fact Display */}
-      <section className="px-4 py-8">
+      <section id="quick-facts" className="p-4">
         <div className="container mx-auto max-w-3xl">
-          <Card className="border-primary/20 border-2 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <Card
+            ref={factCardRef}
+            className={`border-primary/20 border-2 shadow-lg transition-all duration-500 hover:shadow-xl ${
+              isCardFocused
+                ? "border-primary/40 ring-primary/10 scale-110 shadow-2xl"
+                : "scale-100"
+            }`}
+          >
             <CardContent className="p-8">
               <div className="text-center">
                 <div className="mb-8">
                   <Button
                     onClick={generateNewFact}
                     size="lg"
-                    className="hover:bg-accent/90 bg-accent px-8 py-3 text-lg text-accent-foreground"
+                    className="px-8 py-3 text-lg"
                   >
                     <Wand2 className="mr-2 h-5 w-5" />
                     Generate New Fact
                   </Button>
                 </div>
 
-                <div className="mb-8 flex min-h-[120px] items-center justify-center">
+                <div className="mb-8 flex min-h-[200px] items-center justify-center">
                   {currentFact ? (
-                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
+                    <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
                       {currentFact.text}
                     </h3>
                   ) : (
-                    <h3 className="text-balance text-3xl font-bold leading-relaxed text-foreground">
+                    <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
                       Ready to discover something completely useless?
                     </h3>
                   )}
