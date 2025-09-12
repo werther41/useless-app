@@ -1,118 +1,172 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import IndexPage from './page'; // Path to the component
+import React from "react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
-// Mock the JSON data
-const mockFacts = [
-  { id: 1, text: 'Test Fact 1', rating: 0 },
-  { id: 2, text: 'Test Fact 2', rating: 5 },
-  { id: 3, text: 'Test Fact 3', rating: -2 },
-];
-jest.mock('../data/fun-facts.json', () => mockFacts, { virtual: true });
+import "@testing-library/jest-dom"
+import IndexPage from "./page"
 
-describe('IndexPage', () => {
-  let mathRandomSpy: jest.SpyInstance;
+// Path to the component
+
+// Mock the API response
+const mockApiResponse = {
+  id: "test-id-1",
+  text: "Test Fact from API",
+  source: "Test Source",
+  source_url: "https://example.com",
+  language: "en",
+  permalink: "https://example.com/fact/1",
+}
+
+// Mock fetch globally
+global.fetch = jest.fn()
+
+describe("IndexPage", () => {
+  let mathRandomSpy: jest.SpyInstance
 
   beforeEach(() => {
     // Resetting mocks and spies before each test
-    jest.clearAllMocks();
-    // Mock Math.random to always return 0, so the first fact is chosen
-    mathRandomSpy = jest.spyOn(Math, 'random').mockReturnValue(0);
-  });
+    jest.clearAllMocks()
+    // Mock Math.random to return a consistent value for rating generation
+    mathRandomSpy = jest.spyOn(Math, "random").mockReturnValue(0.5)
+    // Mock fetch to return successful API response
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => mockApiResponse,
+    })
+  })
 
   afterEach(() => {
     // Restore original Math.random implementation
     if (mathRandomSpy) {
-      mathRandomSpy.mockRestore();
+      mathRandomSpy.mockRestore()
     }
-  });
+  })
 
-  it('renders initial state correctly', () => {
-    render(<IndexPage />);
-    expect(screen.getByText('Useless Fact')).toBeInTheDocument();
-    expect(screen.getByText('Click the button to see a fun fact!')).toBeInTheDocument();
-    expect(screen.queryByText('Rating:')).not.toBeInTheDocument();
-    expect(screen.queryByText('Upvote')).not.toBeInTheDocument();
-    expect(screen.queryByText('Downvote')).not.toBeInTheDocument();
-  });
+  it("renders initial state correctly", () => {
+    render(<IndexPage />)
+    expect(screen.getByText("Useless Fact")).toBeInTheDocument()
+    expect(
+      screen.getByText("Ready to discover something completely useless?")
+    ).toBeInTheDocument()
+    expect(screen.queryByText("Rating:")).not.toBeInTheDocument()
+    expect(screen.queryByText("Upvote")).not.toBeInTheDocument()
+    expect(screen.queryByText("Downvote")).not.toBeInTheDocument()
+  })
 
-  it('generates a fact, displays its text, rating, and voting buttons', async () => {
-    render(<IndexPage />);
-    const generateButton = screen.getByText('Generate Fact');
-    fireEvent.click(generateButton);
+  it("generates a fact, displays its text, rating, and voting buttons", async () => {
+    render(<IndexPage />)
+    const generateButton = screen.getByText("Generate New Fact")
+    fireEvent.click(generateButton)
 
-    // The first fact from mockFacts should be chosen due to Math.random mock
-    await waitFor(() => expect(screen.getByText(mockFacts[0].text)).toBeInTheDocument());
-    expect(screen.getByText(`Rating: ${mockFacts[0].rating}`)).toBeInTheDocument();
-    expect(screen.getByText('Upvote')).toBeInTheDocument();
-    expect(screen.getByText('Downvote')).toBeInTheDocument();
-  });
+    // Wait for the API call to complete and fact to be displayed
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
+    expect(screen.getByText("Source:")).toBeInTheDocument()
+    expect(screen.getByText("Test Source")).toBeInTheDocument()
+    expect(screen.getByText("Upvote")).toBeInTheDocument()
+    expect(screen.getByText("Downvote")).toBeInTheDocument()
+  })
 
-  it('upvotes a fact and updates the rating', async () => {
-    render(<IndexPage />);
-    fireEvent.click(screen.getByText('Generate Fact'));
-    await waitFor(() => expect(screen.getByText(mockFacts[0].text)).toBeInTheDocument());
+  it("upvotes a fact and updates the rating", async () => {
+    render(<IndexPage />)
+    fireEvent.click(screen.getByText("Generate New Fact"))
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
 
-    const upvoteButton = screen.getByText('Upvote');
-    fireEvent.click(upvoteButton);
-    expect(screen.getByText(`Rating: ${mockFacts[0].rating + 1}`)).toBeInTheDocument();
-  });
+    const upvoteButton = screen.getByText("Upvote")
+    fireEvent.click(upvoteButton)
+    // With Math.random mocked to 0.5, the rating should be 0, so after upvote it should be 1
+    expect(screen.getByText("Rating: 1")).toBeInTheDocument()
+  })
 
-  it('downvotes a fact and updates the rating', async () => {
-    // Use the second fact which has an initial rating of 5 for this test
-    mathRandomSpy.mockReturnValue(1 / mockFacts.length); // To select the second fact (index 1)
-    
-    render(<IndexPage />);
-    fireEvent.click(screen.getByText('Generate Fact'));
-    await waitFor(() => expect(screen.getByText(mockFacts[1].text)).toBeInTheDocument());
-    expect(screen.getByText(`Rating: ${mockFacts[1].rating}`)).toBeInTheDocument();
+  it("downvotes a fact and updates the rating", async () => {
+    render(<IndexPage />)
+    fireEvent.click(screen.getByText("Generate New Fact"))
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
 
-    const downvoteButton = screen.getByText('Downvote');
-    fireEvent.click(downvoteButton);
-    expect(screen.getByText(`Rating: ${mockFacts[1].rating - 1}`)).toBeInTheDocument();
-  });
+    const downvoteButton = screen.getByText("Downvote")
+    fireEvent.click(downvoteButton)
+    // With Math.random mocked to 0.5, the rating should be 0, so after downvote it should be -1
+    expect(screen.getByText("Rating: -1")).toBeInTheDocument()
+  })
 
-  it('correctly handles multiple upvotes and downvotes', async () => {
-    render(<IndexPage />);
-    fireEvent.click(screen.getByText('Generate Fact'));
-    await waitFor(() => expect(screen.getByText(mockFacts[0].text)).toBeInTheDocument());
-    
-    const initialRating = mockFacts[0].rating; // Should be 0
+  it("correctly handles multiple upvotes and downvotes", async () => {
+    render(<IndexPage />)
+    fireEvent.click(screen.getByText("Generate New Fact"))
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
 
-    const upvoteButton = screen.getByText('Upvote');
-    const downvoteButton = screen.getByText('Downvote');
+    const initialRating = 0 // With Math.random mocked to 0.5, rating should be 0
+
+    const upvoteButton = screen.getByText("Upvote")
+    const downvoteButton = screen.getByText("Downvote")
 
     // Upvote twice
-    fireEvent.click(upvoteButton); // Rating: 1
-    fireEvent.click(upvoteButton); // Rating: 2
-    expect(screen.getByText(`Rating: ${initialRating + 2}`)).toBeInTheDocument();
+    fireEvent.click(upvoteButton) // Rating: 1
+    fireEvent.click(upvoteButton) // Rating: 2
+    expect(screen.getByText(`Rating: ${initialRating + 2}`)).toBeInTheDocument()
 
     // Downvote once
-    fireEvent.click(downvoteButton); // Rating: 1
-    expect(screen.getByText(`Rating: ${initialRating + 1}`)).toBeInTheDocument();
+    fireEvent.click(downvoteButton) // Rating: 1
+    expect(screen.getByText(`Rating: ${initialRating + 1}`)).toBeInTheDocument()
 
     // Downvote again
-    fireEvent.click(downvoteButton); // Rating: 0
-    expect(screen.getByText(`Rating: ${initialRating}`)).toBeInTheDocument();
-  });
+    fireEvent.click(downvoteButton) // Rating: 0
+    expect(screen.getByText(`Rating: ${initialRating}`)).toBeInTheDocument()
+  })
 
-  it('displays the correct rating for a fact with a non-zero initial rating and allows voting', async () => {
-    // Target the second fact (index 1) with initial rating 5
-    mathRandomSpy.mockReturnValue(1 / mockFacts.length); 
-    render(<IndexPage />);
-    fireEvent.click(screen.getByText('Generate Fact'));
-    
-    await waitFor(() => expect(screen.getByText(mockFacts[1].text)).toBeInTheDocument());
-    expect(screen.getByText(`Rating: ${mockFacts[1].rating}`)).toBeInTheDocument(); // Expected: Rating: 5
+  it("displays the correct rating for a fact and allows voting", async () => {
+    // Mock Math.random to return 0.8 to get a rating of 3 (Math.floor(0.8 * 11) - 5 = 3)
+    mathRandomSpy.mockReturnValue(0.8)
 
-    const upvoteButton = screen.getByText('Upvote');
-    fireEvent.click(upvoteButton);
-    expect(screen.getByText(`Rating: ${mockFacts[1].rating + 1}`)).toBeInTheDocument(); // Expected: Rating: 6
-    
-    const downvoteButton = screen.getByText('Downvote');
-    fireEvent.click(downvoteButton); // Back to 5
-    fireEvent.click(downvoteButton); // Down to 4
-    expect(screen.getByText(`Rating: ${mockFacts[1].rating -1}`)).toBeInTheDocument(); // Expected: Rating: 4
-  });
-});
+    render(<IndexPage />)
+    fireEvent.click(screen.getByText("Generate New Fact"))
+
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
+    expect(screen.getByText("Rating: 3")).toBeInTheDocument()
+
+    const upvoteButton = screen.getByText("Upvote")
+    fireEvent.click(upvoteButton)
+    expect(screen.getByText("Rating: 4")).toBeInTheDocument()
+
+    const downvoteButton = screen.getByText("Downvote")
+    fireEvent.click(downvoteButton) // Back to 3
+    fireEvent.click(downvoteButton) // Down to 2
+    expect(screen.getByText("Rating: 2")).toBeInTheDocument()
+  })
+
+  it("shows loading state when generating a fact", async () => {
+    render(<IndexPage />)
+    const generateButton = screen.getByText("Generate New Fact")
+    fireEvent.click(generateButton)
+
+    // Should show loading state
+    expect(screen.getByText("Generating...")).toBeInTheDocument()
+
+    // Wait for loading to complete
+    await waitFor(() =>
+      expect(screen.getByText(mockApiResponse.text)).toBeInTheDocument()
+    )
+  })
+
+  it("handles API error gracefully", async () => {
+    // Mock fetch to return an error
+    ;(global.fetch as jest.Mock).mockRejectedValue(new Error("API Error"))
+
+    render(<IndexPage />)
+    fireEvent.click(screen.getByText("Generate New Fact"))
+
+    // Should show fallback fact
+    await waitFor(() =>
+      expect(
+        screen.getByText(/The API is currently unavailable/)
+      ).toBeInTheDocument()
+    )
+  })
+})

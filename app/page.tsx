@@ -15,25 +15,76 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
-import factsData from "../data/fun-facts.json"
-
 interface Fact {
-  id: number
+  id: string
   text: string
   rating: number
+  source?: string
+  source_url?: string
+}
+
+interface ApiFactResponse {
+  id: string
+  text: string
+  source: string
+  source_url: string
+  language: string
+  permalink: string
+}
+
+const fetchRandomFact = async (): Promise<Fact> => {
+  try {
+    const response = await fetch(
+      "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en"
+    )
+    if (!response.ok) {
+      throw new Error("Failed to fetch fact")
+    }
+    const data: ApiFactResponse = await response.json()
+
+    // Generate a random rating between -5 and 5 for the new fact
+    const randomRating = Math.floor(Math.random() * 11) - 5
+
+    return {
+      id: data.id,
+      text: data.text,
+      rating: randomRating,
+      source: data.source,
+      source_url: data.source_url,
+    }
+  } catch (error) {
+    console.error("Error fetching fact:", error)
+    // Fallback to a default fact if API fails
+    return {
+      id: "fallback-1",
+      text: "The API is currently unavailable, but here's a fun fact: Bananas are berries, but strawberries aren't.",
+      rating: 0,
+      source: "Fallback",
+      source_url: "#",
+    }
+  }
 }
 
 export default function UselessFactsHome() {
   const [currentFact, setCurrentFact] = useState<Fact | null>(null)
   const [hasVoted, setHasVoted] = useState(false)
   const [isCardFocused, setIsCardFocused] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const factCardRef = useRef<HTMLDivElement>(null)
 
-  const generateNewFact = () => {
-    const randomFact = factsData[Math.floor(Math.random() * factsData.length)]
-    setCurrentFact(randomFact)
+  const generateNewFact = async () => {
+    setIsLoading(true)
     setHasVoted(false)
     setIsCardFocused(true)
+
+    try {
+      const randomFact = await fetchRandomFact()
+      setCurrentFact(randomFact)
+    } catch (error) {
+      console.error("Error generating fact:", error)
+    } finally {
+      setIsLoading(false)
+    }
 
     // Scroll to the fact card with smooth behavior
     setTimeout(() => {
@@ -47,13 +98,12 @@ export default function UselessFactsHome() {
   const handleVote = (vote: "up" | "down") => {
     if (!currentFact || hasVoted) return
 
-    const factIndex = factsData.findIndex((fact) => fact.id === currentFact.id)
-    if (factIndex !== -1) {
-      factsData[factIndex].rating += vote === "up" ? 1 : -1
-      const updatedFact = { ...factsData[factIndex] }
-      setCurrentFact(updatedFact)
-      setHasVoted(true)
+    const updatedFact = {
+      ...currentFact,
+      rating: currentFact.rating + (vote === "up" ? 1 : -1),
     }
+    setCurrentFact(updatedFact)
+    setHasVoted(true)
   }
 
   return (
@@ -95,17 +145,33 @@ export default function UselessFactsHome() {
                     onClick={generateNewFact}
                     size="lg"
                     className="px-8 py-3 text-lg"
+                    disabled={isLoading}
                   >
                     <Wand2 className="mr-2 h-5 w-5" />
-                    Generate New Fact
+                    {isLoading ? "Generating..." : "Generate New Fact"}
                   </Button>
                 </div>
 
                 <div className="mb-8 flex min-h-[200px] items-center justify-center">
                   {currentFact ? (
-                    <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
-                      {currentFact.text}
-                    </h3>
+                    <div className="space-y-4">
+                      <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
+                        {currentFact.text}
+                      </h3>
+                      {currentFact.source && (
+                        <p className="text-sm text-muted-foreground">
+                          Source:{" "}
+                          <a
+                            href={currentFact.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            {currentFact.source}
+                          </a>
+                        </p>
+                      )}
+                    </div>
                   ) : (
                     <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
                       Ready to discover something completely useless?
