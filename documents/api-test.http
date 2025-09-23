@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:3000
+
+### Get random fact
+GET {{baseUrl}}/api/facts/random
+
+### Rate fact
+POST {{baseUrl}}/api/facts/1/rate
+Content-Type: application/json
+
+{
+  "rating": 1
+}
+
+### Seed database
+POST {{baseUrl}}/api/seed

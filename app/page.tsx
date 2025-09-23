@@ -18,50 +18,69 @@ import { Card, CardContent } from "@/components/ui/card"
 interface Fact {
   id: string
   text: string
-  rating: number
   source?: string
   source_url?: string
+  created_at: string
+  updated_at: string
+  total_rating: number
+  rating_count: number
+  user_rating?: number
 }
 
-interface ApiFactResponse {
-  id: string
-  text: string
-  source: string
-  source_url: string
-  language: string
-  permalink: string
+interface ApiResponse {
+  success: boolean
+  data: Fact
+  error?: string
 }
 
 const fetchRandomFact = async (): Promise<Fact> => {
   try {
-    const response = await fetch(
-      "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en"
-    )
+    const response = await fetch("/api/facts/random")
     if (!response.ok) {
       throw new Error("Failed to fetch fact")
     }
-    const data: ApiFactResponse = await response.json()
+    const data: ApiResponse = await response.json()
 
-    // Generate a random rating between -5 and 5 for the new fact
-    const randomRating = Math.floor(Math.random() * 11) - 5
-
-    return {
-      id: data.id,
-      text: data.text,
-      rating: randomRating,
-      source: data.source,
-      source_url: data.source_url,
+    if (!data.success) {
+      throw new Error(data.error || "Failed to fetch fact")
     }
+
+    return data.data
   } catch (error) {
     console.error("Error fetching fact:", error)
     // Fallback to a default fact if API fails
     return {
       id: "fallback-1",
       text: "The API is currently unavailable, but here's a fun fact: Bananas are berries, but strawberries aren't.",
-      rating: 0,
       source: "Fallback",
       source_url: "#",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      total_rating: 0,
+      rating_count: 0,
     }
+  }
+}
+
+const rateFact = async (factId: string, rating: number): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/facts/${factId}/rate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rating }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to submit rating")
+    }
+
+    const data = await response.json()
+    return data.success
+  } catch (error) {
+    console.error("Error rating fact:", error)
+    return false
   }
 }
 
@@ -70,6 +89,7 @@ export default function UselessFactsHome() {
   const [hasVoted, setHasVoted] = useState(false)
   const [isCardFocused, setIsCardFocused] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isRating, setIsRating] = useState(false)
   const factCardRef = useRef<HTMLDivElement>(null)
 
   const generateNewFact = async () => {
@@ -80,6 +100,7 @@ export default function UselessFactsHome() {
     try {
       const randomFact = await fetchRandomFact()
       setCurrentFact(randomFact)
+      setHasVoted(!!randomFact.user_rating) // Set hasVoted if user already rated
     } catch (error) {
       console.error("Error generating fact:", error)
     } finally {
@@ -95,15 +116,31 @@ export default function UselessFactsHome() {
     }, 100)
   }
 
-  const handleVote = (vote: "up" | "down") => {
-    if (!currentFact || hasVoted) return
+  const handleVote = async (vote: "up" | "down") => {
+    if (!currentFact || hasVoted || isRating) return
 
-    const updatedFact = {
-      ...currentFact,
-      rating: currentFact.rating + (vote === "up" ? 1 : -1),
+    setIsRating(true)
+    const rating = vote === "up" ? 1 : -1
+
+    try {
+      const success = await rateFact(currentFact.id, rating)
+
+      if (success) {
+        // Update local state optimistically
+        const updatedFact = {
+          ...currentFact,
+          total_rating: currentFact.total_rating + rating,
+          rating_count: currentFact.rating_count + 1,
+          user_rating: rating,
+        }
+        setCurrentFact(updatedFact)
+        setHasVoted(true)
+      }
+    } catch (error) {
+      console.error("Error submitting vote:", error)
+    } finally {
+      setIsRating(false)
     }
-    setCurrentFact(updatedFact)
-    setHasVoted(true)
   }
 
   return (
@@ -184,9 +221,12 @@ export default function UselessFactsHome() {
                     <div className="mb-6 flex items-center justify-center gap-2">
                       <span className="text-muted-foreground">Rating:</span>
                       <span className="text-lg font-semibold">
-                        {currentFact.rating}
+                        {currentFact.total_rating}
                       </span>
-                      {currentFact.rating > 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        ({currentFact.rating_count} votes)
+                      </span>
+                      {currentFact.total_rating > 0 && (
                         <TrendingUp className="h-4 w-4 text-green-500" />
                       )}
                     </div>
@@ -194,20 +234,36 @@ export default function UselessFactsHome() {
                     <div className="flex items-center justify-center gap-4">
                       <Button
                         onClick={() => handleVote("up")}
-                        disabled={hasVoted}
-                        variant={hasVoted ? "secondary" : "default"}
+                        disabled={hasVoted || isRating}
+                        variant={
+                          hasVoted && currentFact.user_rating === 1
+                            ? "default"
+                            : "outline"
+                        }
                         size="lg"
-                        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:bg-muted disabled:text-muted-foreground"
+                        className={`flex items-center gap-2 ${
+                          hasVoted && currentFact.user_rating === 1
+                            ? "bg-green-600 text-white"
+                            : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                        } disabled:bg-muted disabled:text-muted-foreground`}
                       >
                         <ThumbsUp className="h-5 w-5" />
                         Useful Uselessness
                       </Button>
                       <Button
                         onClick={() => handleVote("down")}
-                        disabled={hasVoted}
-                        variant="outline"
+                        disabled={hasVoted || isRating}
+                        variant={
+                          hasVoted && currentFact.user_rating === -1
+                            ? "default"
+                            : "outline"
+                        }
                         size="lg"
-                        className="flex items-center gap-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white disabled:border-muted disabled:text-muted-foreground disabled:hover:bg-muted disabled:hover:text-muted-foreground"
+                        className={`flex items-center gap-2 ${
+                          hasVoted && currentFact.user_rating === -1
+                            ? "bg-red-600 text-white"
+                            : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                        } disabled:bg-muted disabled:text-muted-foreground`}
                       >
                         <ThumbsDown className="h-5 w-5" />
                         Too Useless
