@@ -165,7 +165,7 @@ export async function rateFact(
 
   const row = result.rows[0]
   return {
-    id: row.id as number,
+    id: row.id as string,
     fact_id: row.fact_id as string,
     rating: row.rating as number,
     user_ip: row.user_ip as string | null,

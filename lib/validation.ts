@@ -10,9 +10,7 @@ export const factSchema = z.object({
 
 export const ratingSchema = z.object({
   rating: z.union([z.literal(-1), z.literal(1)], {
-    errorMap: () => ({
-      message: "Rating must be -1 (too useless) or 1 (useful uselessness)",
-    }),
+    message: "Rating must be -1 (too useless) or 1 (useful uselessness)",
   }),
 })
 

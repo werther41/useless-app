@@ -11,7 +11,9 @@
     "preview": "next build && next start",
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
+    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
+    "pre-commit": "npm run typecheck && npm run lint && npm run build",
+    "pre-push": "npm run pre-commit"
   },
   "engines": {
     "node": "22.x"
