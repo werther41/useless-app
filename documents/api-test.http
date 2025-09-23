@@ -1,10 +1,17 @@
-@baseUrl = http://localhost:3000
+# @baseUrl = http://localhost:3000
+@baseUrl = https://useless-app-nu.vercel.app
 
 ### Get random fact
 GET {{baseUrl}}/api/facts/random
 
+### Get fact by id
+GET {{baseUrl}}/api/facts/fact-134
+
+### Get all facts
+GET {{baseUrl}}/api/facts
+
 ### Rate fact
-POST {{baseUrl}}/api/facts/1/rate
+POST {{baseUrl}}/api/facts/fact-1/rate
 Content-Type: application/json
 
 {
