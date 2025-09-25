@@ -17,7 +17,7 @@ We're excited to announce the launch of our new rating system! Now you can rate 
 The rating system is simple and intuitive:
 
 1. **Browse facts** on the homepage
-2. **Click the rating buttons** (�� or 👎)
+2. **Click the rating buttons** (👍 or 👎)
 3. **See real-time results** of community ratings
 4. **Help us improve** the content quality
 

@@ -183,3 +183,17 @@
 .prose em {
   @apply italic;
 }
+
+/* Tables */
+.prose table {
+  @apply w-full border-collapse overflow-x-auto text-sm;
+}
+.prose thead th {
+  @apply border-b bg-muted px-3 py-2 text-left font-semibold;
+}
+.prose tbody td {
+  @apply border-b px-3 py-2 align-top;
+}
+.prose tbody tr:last-child td {
+  @apply border-b-0;
+}

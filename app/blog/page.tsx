@@ -3,14 +3,7 @@ import Link from "next/link"
 import { Calendar, Clock, User } from "lucide-react"
 
 import { getAllPosts } from "@/lib/blog"
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export default function BlogPage() {
   const posts = getAllPosts()
@@ -27,80 +20,68 @@ export default function BlogPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+      <div className="max-w-[980px]">
         {posts.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">
-                No blog posts available yet. Check back soon!
-              </p>
-            </CardContent>
-          </Card>
+          <p className="text-muted-foreground">
+            No blog posts available yet. Check back soon!
+          </p>
         ) : (
           posts.map((post) => (
-            <Card key={post.slug} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <time dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </time>
-                  </div>
-                  {post.updatedDate && post.updatedDate !== post.date && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        Updated{" "}
-                        {new Date(post.updatedDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{post.author}</span>
-                  </div>
-                </div>
-                <CardTitle className="text-xl">
+            <article
+              key={post.slug}
+              className="mb-8 border-b pb-6 last:border-b-0"
+            >
+              <h2 className="text-xl font-semibold leading-snug">
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="hover:text-primary"
+                >
+                  {post.title}
+                </Link>
+              </h2>
+              <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  <time dateTime={post.date}>
+                    {new Date(post.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </time>
+                </span>
+                {post.updatedDate && post.updatedDate !== post.date ? (
+                  <>
+                    {" · Updated "}
+                    {new Date(post.updatedDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </>
+                ) : null}
+                {" · "}
+                <span className="inline-flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {post.author}
+                </span>
+              </p>
+              <p className="mt-3 text-base leading-relaxed">{post.excerpt}</p>
+              {post.tags && post.tags.length > 0 ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Tags: {post.tags.join(", ")}
+                </p>
+              ) : null}
+              <p className="mt-3">
+                <Button variant="ghost" asChild className="mb-6">
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {post.title}
-                  </Link>
-                </CardTitle>
-                <CardDescription className="text-base">
-                  {post.excerpt}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags?.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="text-primary hover:underline font-medium"
+                    className="flex items-center gap-2"
                   >
                     Read more →
                   </Link>
-                </div>
-              </CardContent>
-            </Card>
+                </Button>
+              </p>
+            </article>
           ))
         )}
       </div>
