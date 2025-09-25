@@ -66,11 +66,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </Button>
 
         <header className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
+          <h1 className="mb-4 text-4xl font-bold tracking-tight">
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+          <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <time dateTime={post.date}>
@@ -119,7 +119,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         dangerouslySetInnerHTML={{ __html: content }}
       />
 
-      <div className="mt-12 pt-8 border-t">
+      <div className="mt-12 border-t pt-8">
         <Button variant="outline" asChild>
           <Link href="/blog" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
