@@ -1,16 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { ExternalLink, Star, ThumbsUp, TrendingUp, Trophy } from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { 
-  Trophy, 
-  ThumbsUp, 
-  TrendingUp,
-  Star,
-  ExternalLink
-} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Fact {
   id: string
@@ -84,10 +79,10 @@ export default function TopRatedFactsSection() {
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
-                  <div className="h-6 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                  <div className="h-8 bg-muted rounded w-1/3"></div>
+                  <div className="mb-4 h-4 w-1/4 rounded bg-muted"></div>
+                  <div className="mb-2 h-6 w-full rounded bg-muted"></div>
+                  <div className="mb-4 h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-8 w-1/3 rounded bg-muted"></div>
                 </CardContent>
               </Card>
             ))}
@@ -122,33 +117,38 @@ export default function TopRatedFactsSection() {
             Top Rated Facts
           </h3>
           <p className="text-pretty text-xl text-muted-foreground">
-            The most loved useless facts that users find "Useful Uselessness"
+            The most loved useless facts that users find &quot;Useful
+            Uselessness&quot;
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {facts.map((fact, index) => (
-            <Card 
-              key={fact.id} 
-              className={`border-primary/20 hover:shadow-lg transition-all duration-300 ${
-                index < 3 ? "ring-2 ring-primary/20" : ""
+            <Card
+              key={fact.id}
+              className={`border-primary/20 transition-all duration-300 hover:shadow-lg ${
+                index < 3 ? "ring-primary/20 ring-2" : ""
               }`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {index < 3 ? (
-                      <Trophy className={`h-5 w-5 ${
-                        index === 0 ? "text-yellow-500" : 
-                        index === 1 ? "text-gray-400" : 
-                        "text-amber-600"
-                      }`} />
+                      <Trophy
+                        className={`h-5 w-5 ${
+                          index === 0
+                            ? "text-yellow-500"
+                            : index === 1
+                            ? "text-gray-400"
+                            : "text-amber-600"
+                        }`}
+                      />
                     ) : (
                       <Star className="h-5 w-5 text-primary" />
                     )}
                     #{index + 1} Most Loved
                   </CardTitle>
-                  <Badge 
+                  <Badge
                     variant={index < 3 ? "default" : "outline"}
                     className="px-3 py-1"
                   >
@@ -157,10 +157,10 @@ export default function TopRatedFactsSection() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-foreground mb-4 leading-relaxed">
+                <p className="mb-4 leading-relaxed text-foreground">
                   {fact.text}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
@@ -172,17 +172,18 @@ export default function TopRatedFactsSection() {
                     <div className="flex items-center gap-1">
                       <TrendingUp className="h-4 w-4 text-green-500" />
                       <span className="text-sm font-medium text-green-600">
-                        {fact.total_rating > 0 ? "+" : ""}{fact.total_rating}
+                        {fact.total_rating > 0 ? "+" : ""}
+                        {fact.total_rating}
                       </span>
                     </div>
                   </div>
-                  
+
                   {fact.source && (
                     <Button
                       variant="ghost"
                       size="sm"
                       asChild
-                      className="text-primary hover:text-primary/80"
+                      className="hover:text-primary/80 text-primary"
                     >
                       <a
                         href={fact.source_url}
@@ -203,7 +204,8 @@ export default function TopRatedFactsSection() {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            These facts have received the highest ratings for being "Useful Uselessness"
+            These facts have received the highest ratings for being &quot;Useful
+            Uselessness&quot;
           </p>
         </div>
       </div>

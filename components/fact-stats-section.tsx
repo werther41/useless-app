@@ -1,17 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  Star,
+import { useEffect, useState } from "react"
+import {
+  BarChart3,
+  Calendar,
   Clock,
-  Calendar
+  Star,
+  TrendingDown,
+  TrendingUp,
+  Users,
 } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface FactStatistics {
   total_facts: number
@@ -86,8 +87,8 @@ export default function FactStatsSection() {
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-muted rounded w-1/2"></div>
+                  <div className="mb-2 h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-8 w-1/2 rounded bg-muted"></div>
                 </CardContent>
               </Card>
             ))}
@@ -114,13 +115,15 @@ export default function FactStatsSection() {
     )
   }
 
-  const positivePercentage = stats.total_ratings > 0 
-    ? Math.round((stats.positive_ratings / stats.total_ratings) * 100)
-    : 0
+  const positivePercentage =
+    stats.total_ratings > 0
+      ? Math.round((stats.positive_ratings / stats.total_ratings) * 100)
+      : 0
 
-  const negativePercentage = stats.total_ratings > 0 
-    ? Math.round((stats.negative_ratings / stats.total_ratings) * 100)
-    : 0
+  const negativePercentage =
+    stats.total_ratings > 0
+      ? Math.round((stats.negative_ratings / stats.total_ratings) * 100)
+      : 0
 
   return (
     <section className="px-4 py-16">
@@ -136,7 +139,7 @@ export default function FactStatsSection() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Total Facts */}
-          <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BarChart3 className="h-5 w-5 text-primary" />
@@ -154,7 +157,7 @@ export default function FactStatsSection() {
           </Card>
 
           {/* Total Ratings */}
-          <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="h-5 w-5 text-primary" />
@@ -172,7 +175,7 @@ export default function FactStatsSection() {
           </Card>
 
           {/* Average Rating */}
-          <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Star className="h-5 w-5 text-primary" />
@@ -190,7 +193,7 @@ export default function FactStatsSection() {
           </Card>
 
           {/* Positive Ratings */}
-          <Card className="border-green-200 hover:shadow-lg transition-shadow">
+          <Card className="border-green-200 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5 text-green-600" />
@@ -208,7 +211,7 @@ export default function FactStatsSection() {
           </Card>
 
           {/* Negative Ratings */}
-          <Card className="border-red-200 hover:shadow-lg transition-shadow">
+          <Card className="border-red-200 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingDown className="h-5 w-5 text-red-600" />
@@ -226,7 +229,7 @@ export default function FactStatsSection() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-primary/20 hover:shadow-lg transition-shadow">
+          <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5 text-primary" />
@@ -235,14 +238,18 @@ export default function FactStatsSection() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Last 24h:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Last 24h:
+                  </span>
                   <span className="font-semibold text-foreground">
                     {stats.recent_activity.ratings_last_24h}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Last 7 days:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Last 7 days:
+                  </span>
                   <span className="font-semibold text-foreground">
                     {stats.recent_activity.ratings_last_7d}
                   </span>
@@ -254,7 +261,7 @@ export default function FactStatsSection() {
 
         {/* Most Rated Fact */}
         {stats.most_rated_fact && (
-          <Card className="mt-8 border-primary/20 hover:shadow-lg transition-shadow">
+          <Card className="border-primary/20 mt-8 transition-shadow hover:shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
@@ -264,7 +271,7 @@ export default function FactStatsSection() {
             <CardContent>
               <div className="space-y-3">
                 <p className="text-lg text-foreground">
-                  "{stats.most_rated_fact.text}"
+                  &quot;{stats.most_rated_fact.text}&quot;
                 </p>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="px-3 py-1">

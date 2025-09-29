@@ -1,16 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import {
+  AlertTriangle,
+  ExternalLink,
+  Skull,
+  ThumbsDown,
+  TrendingDown,
+} from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { 
-  Skull, 
-  ThumbsDown, 
-  TrendingDown,
-  AlertTriangle,
-  ExternalLink
-} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Fact {
   id: string
@@ -84,10 +85,10 @@ export default function BottomRatedFactsSection() {
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
-                  <div className="h-6 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                  <div className="h-8 bg-muted rounded w-1/3"></div>
+                  <div className="mb-4 h-4 w-1/4 rounded bg-muted"></div>
+                  <div className="mb-2 h-6 w-full rounded bg-muted"></div>
+                  <div className="mb-4 h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-8 w-1/3 rounded bg-muted"></div>
                 </CardContent>
               </Card>
             ))}
@@ -122,15 +123,15 @@ export default function BottomRatedFactsSection() {
             Bottom Rated Facts
           </h3>
           <p className="text-pretty text-xl text-muted-foreground">
-            The most hated useless facts that users find "Too Useless"
+            The most hated useless facts that users find &quot;Too Useless&quot;
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {facts.map((fact, index) => (
-            <Card 
-              key={fact.id} 
-              className={`border-red-200 hover:shadow-lg transition-all duration-300 ${
+            <Card
+              key={fact.id}
+              className={`border-red-200 transition-all duration-300 hover:shadow-lg ${
                 index < 3 ? "ring-2 ring-red-200" : ""
               }`}
             >
@@ -138,29 +139,30 @@ export default function BottomRatedFactsSection() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {index < 3 ? (
-                      <Skull className={`h-5 w-5 ${
-                        index === 0 ? "text-red-600" : 
-                        index === 1 ? "text-red-500" : 
-                        "text-red-400"
-                      }`} />
+                      <Skull
+                        className={`h-5 w-5 ${
+                          index === 0
+                            ? "text-red-600"
+                            : index === 1
+                            ? "text-red-500"
+                            : "text-red-400"
+                        }`}
+                      />
                     ) : (
                       <AlertTriangle className="h-5 w-5 text-red-500" />
                     )}
                     #{index + 1} Most Hated
                   </CardTitle>
-                  <Badge 
-                    variant="destructive"
-                    className="px-3 py-1"
-                  >
+                  <Badge variant="destructive" className="px-3 py-1">
                     {fact.total_rating} points
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-foreground mb-4 leading-relaxed">
+                <p className="mb-4 leading-relaxed text-foreground">
                   {fact.text}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
@@ -176,13 +178,13 @@ export default function BottomRatedFactsSection() {
                       </span>
                     </div>
                   </div>
-                  
+
                   {fact.source && (
                     <Button
                       variant="ghost"
                       size="sm"
                       asChild
-                      className="text-primary hover:text-primary/80"
+                      className="hover:text-primary/80 text-primary"
                     >
                       <a
                         href={fact.source_url}
@@ -203,7 +205,8 @@ export default function BottomRatedFactsSection() {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            These facts have received the lowest ratings for being "Too Useless"
+            These facts have received the lowest ratings for being &quot;Too
+            Useless&quot;
           </p>
         </div>
       </div>
