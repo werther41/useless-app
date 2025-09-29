@@ -277,6 +277,22 @@ export default function UselessFactsHome() {
         </div>
       </section>
 
+      {/* Statistics Link Section */}
+      <section className="px-4 py-12">
+        <div className="container mx-auto max-w-4xl text-center">
+          <p className="text-pretty text-lg text-muted-foreground">
+            Want to see how our useless facts are performing? Check out our{" "}
+            <Link 
+              href="/statistics" 
+              className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
+            >
+              comprehensive statistics and rankings
+            </Link>
+            {" "}to discover the most loved and hated facts in our collection.
+          </p>
+        </div>
+      </section>
+
       {/* Infographics Preview Section */}
       <section id="infographics" className="bg-muted/30 px-4 py-16">
         <div className="container mx-auto max-w-6xl">
@@ -288,28 +304,6 @@ export default function UselessFactsHome() {
               Explore complex useless topics with beautiful, detailed
               infographics
             </p>
-          </div>
-
-          {/* Statistics Link */}
-          <div className="mb-8 text-center">
-            <Link href="/statistics">
-              <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg border-primary/20">
-                <CardContent className="p-6">
-                  <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
-                    <TrendingUp className="h-12 w-12 text-primary" />
-                  </div>
-                  <h4 className="mb-2 text-xl font-semibold">
-                    Fun Fact Statistics & Rankings
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    View comprehensive statistics, top-rated facts, and community insights.
-                  </p>
-                  <Badge variant="default" className="mt-3">
-                    View Statistics
-                  </Badge>
-                </CardContent>
-              </Card>
-            </Link>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

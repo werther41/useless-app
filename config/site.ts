@@ -9,12 +9,12 @@ export const siteConfig = {
       href: "/",
     },
     {
-      title: "Statistics",
+      title: "Fun Fact Stats",
       href: "/statistics",
     },
     {
       title: "Infographics",
-      href: "#infographics",
+      href: "/#infographics",
     },
     {
       title: "Blog",
