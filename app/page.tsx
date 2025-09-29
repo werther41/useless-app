@@ -14,9 +14,6 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import FactStatsSection from "@/components/fact-stats-section"
-import TopRatedFactsSection from "@/components/top-rated-facts-section"
-import BottomRatedFactsSection from "@/components/bottom-rated-facts-section"
 
 interface Fact {
   id: string
@@ -293,6 +290,28 @@ export default function UselessFactsHome() {
             </p>
           </div>
 
+          {/* Statistics Link */}
+          <div className="mb-8 text-center">
+            <Link href="/statistics">
+              <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg border-primary/20">
+                <CardContent className="p-6">
+                  <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                    <TrendingUp className="h-12 w-12 text-primary" />
+                  </div>
+                  <h4 className="mb-2 text-xl font-semibold">
+                    Fun Fact Statistics & Rankings
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    View comprehensive statistics, top-rated facts, and community insights.
+                  </p>
+                  <Badge variant="default" className="mt-3">
+                    View Statistics
+                  </Badge>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Sample Infographic Cards */}
             <Link href="/burger-infographic">
@@ -352,15 +371,6 @@ export default function UselessFactsHome() {
           </div>
         </div>
       </section>
-
-      {/* Fun Fact Statistics */}
-      <FactStatsSection />
-
-      {/* Top Rated Facts */}
-      <TopRatedFactsSection />
-
-      {/* Bottom Rated Facts */}
-      <BottomRatedFactsSection />
 
       {/* Footer */}
       <footer className="border-t border-border px-4 py-12">
