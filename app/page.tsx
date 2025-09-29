@@ -14,6 +14,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import FactStatsSection from "@/components/fact-stats-section"
+import TopRatedFactsSection from "@/components/top-rated-facts-section"
+import BottomRatedFactsSection from "@/components/bottom-rated-facts-section"
 
 interface Fact {
   id: string
@@ -349,6 +352,15 @@ export default function UselessFactsHome() {
           </div>
         </div>
       </section>
+
+      {/* Fun Fact Statistics */}
+      <FactStatsSection />
+
+      {/* Top Rated Facts */}
+      <TopRatedFactsSection />
+
+      {/* Bottom Rated Facts */}
+      <BottomRatedFactsSection />
 
       {/* Footer */}
       <footer className="border-t border-border px-4 py-12">

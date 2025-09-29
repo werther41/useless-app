@@ -176,7 +176,137 @@ Bulk import facts into the database. Used by the admin interface.
 }
 ```
 
-### 6. Seed Database (Admin)
+### 6. Get Fun Fact Statistics
+
+**GET** `/api/facts/stats`
+
+Returns comprehensive statistics about the fun fact system.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_facts": 150,
+    "total_ratings": 1250,
+    "average_rating": 0.15,
+    "positive_ratings": 700,
+    "negative_ratings": 550,
+    "most_rated_fact": {
+      "id": "fact-42",
+      "text": "A group of flamingos is called a 'flamboyance'.",
+      "rating_count": 45
+    },
+    "recent_activity": {
+      "ratings_last_24h": 12,
+      "ratings_last_7d": 89
+    }
+  }
+}
+```
+
+### 7. Get Top Rated Facts
+
+**GET** `/api/facts/top-rated`
+
+Returns the most positively rated facts (highest "Useful Uselessness" ratings).
+
+**Query Parameters:**
+- `limit` (number, optional): Number of facts to return (default: 10, max: 50)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "fact-42",
+      "text": "A group of flamingos is called a 'flamboyance'.",
+      "source": "Animal Facts",
+      "source_url": "https://example.com",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "total_rating": 25,
+      "rating_count": 45,
+      "user_rating": 1
+    }
+  ],
+  "meta": {
+    "limit": 10,
+    "count": 10
+  }
+}
+```
+
+### 8. Get Bottom Rated Facts
+
+**GET** `/api/facts/bottom-rated`
+
+Returns the most negatively rated facts (lowest ratings, most "Too Useless").
+
+**Query Parameters:**
+- `limit` (number, optional): Number of facts to return (default: 10, max: 50)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "fact-99",
+      "text": "The average person spends 6 months of their life waiting for red lights.",
+      "source": "Traffic Facts",
+      "source_url": "https://example.com",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "total_rating": -18,
+      "rating_count": 32,
+      "user_rating": -1
+    }
+  ],
+  "meta": {
+    "limit": 10,
+    "count": 10
+  }
+}
+```
+
+### 9. Import Facts (Admin)
+
+**POST** `/api/facts/import`
+
+Bulk import facts into the database. Used by the admin interface.
+
+**Request Body:**
+```json
+{
+  "facts": [
+    {
+      "id": "fact-6",
+      "text": "The human brain contains approximately 86 billion neurons.",
+      "source": "Neuroscience Facts",
+      "source_url": "https://example.com"
+    }
+  ],
+  "skipDuplicates": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Import completed",
+  "results": {
+    "imported": 1,
+    "skipped": 0,
+    "errors": 0,
+    "errors_list": []
+  }
+}
+```
+
+### 10. Seed Database (Admin)
 
 **POST** `/api/seed`
 
@@ -224,6 +354,27 @@ interface FactRating {
   rating: number // -1 or 1
   user_ip?: string
   created_at: string
+}
+```
+
+### Fact Statistics
+
+```typescript
+interface FactStatistics {
+  total_facts: number
+  total_ratings: number
+  average_rating: number
+  positive_ratings: number
+  negative_ratings: number
+  most_rated_fact: {
+    id: string
+    text: string
+    rating_count: number
+  } | null
+  recent_activity: {
+    ratings_last_24h: number
+    ratings_last_7d: number
+  }
 }
 ```
 
@@ -288,8 +439,20 @@ await fetch(`/api/facts/${fact.id}/rate`, {
   body: JSON.stringify({ rating: 1 })
 })
 
+// Get fun fact statistics
+const statsResponse = await fetch('/api/facts/stats')
+const { data: stats } = await statsResponse.json()
+
 // Get top rated facts
-const topFacts = await fetch('/api/facts?type=top-rated&limit=5')
+const topFactsResponse = await fetch('/api/facts/top-rated?limit=10')
+const { data: topFacts } = await topFactsResponse.json()
+
+// Get bottom rated facts
+const bottomFactsResponse = await fetch('/api/facts/bottom-rated?limit=10')
+const { data: bottomFacts } = await bottomFactsResponse.json()
+
+// Get all facts with pagination
+const allFacts = await fetch('/api/facts?page=1&limit=10')
 ```
 
 ### cURL
@@ -302,6 +465,15 @@ curl http://localhost:3000/api/facts/random
 curl -X POST http://localhost:3000/api/facts/fact-1/rate \
   -H "Content-Type: application/json" \
   -d '{"rating": 1}'
+
+# Get fun fact statistics
+curl http://localhost:3000/api/facts/stats
+
+# Get top rated facts
+curl "http://localhost:3000/api/facts/top-rated?limit=10"
+
+# Get bottom rated facts
+curl "http://localhost:3000/api/facts/bottom-rated?limit=10"
 
 # Get all facts with pagination
 curl "http://localhost:3000/api/facts?page=1&limit=10"

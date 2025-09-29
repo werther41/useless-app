@@ -1,5 +1,5 @@
 import { db } from "./db"
-import { Fact, FactRating, FactWithRating } from "./schema"
+import { Fact, FactRating, FactWithRating, FactStatistics } from "./schema"
 
 // Create a new fact
 export async function createFact(
@@ -237,6 +237,108 @@ export async function getTopRatedFacts(
     GROUP BY f.id
     HAVING rating_count > 0
     ORDER BY total_rating DESC, rating_count DESC
+    LIMIT ?
+  `,
+    [userIp || null, limit]
+  )
+
+  return result.rows.map((row) => ({
+    id: row.id as string,
+    text: row.text as string,
+    source: row.source as string | null,
+    source_url: row.source_url as string | null,
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+    total_rating: row.total_rating as number,
+    rating_count: row.rating_count as number,
+    user_rating: row.user_rating as number | null,
+  }))
+}
+
+// Get fun fact statistics
+export async function getFactStatistics(): Promise<FactStatistics> {
+  // Get basic counts
+  const [factsCount, ratingsCount, ratingStats, mostRated, recentActivity] = await Promise.all([
+    // Total facts count
+    db.execute("SELECT COUNT(*) as count FROM facts"),
+    
+    // Total ratings count
+    db.execute("SELECT COUNT(*) as count FROM fact_ratings"),
+    
+    // Rating statistics
+    db.execute(`
+      SELECT 
+        COUNT(CASE WHEN rating = 1 THEN 1 END) as positive_ratings,
+        COUNT(CASE WHEN rating = -1 THEN 1 END) as negative_ratings,
+        COALESCE(AVG(CAST(rating AS REAL)), 0) as average_rating
+      FROM fact_ratings
+    `),
+    
+    // Most rated fact
+    db.execute(`
+      SELECT f.id, f.text, COUNT(fr.id) as rating_count
+      FROM facts f
+      LEFT JOIN fact_ratings fr ON f.id = fr.fact_id
+      GROUP BY f.id, f.text
+      ORDER BY rating_count DESC
+      LIMIT 1
+    `),
+    
+    // Recent activity
+    db.execute(`
+      SELECT 
+        COUNT(CASE WHEN created_at >= datetime('now', '-1 day') THEN 1 END) as ratings_last_24h,
+        COUNT(CASE WHEN created_at >= datetime('now', '-7 days') THEN 1 END) as ratings_last_7d
+      FROM fact_ratings
+    `)
+  ])
+
+  const factsRow = factsCount.rows[0]
+  const ratingsRow = ratingsCount.rows[0]
+  const statsRow = ratingStats.rows[0]
+  const mostRatedRow = mostRated.rows[0]
+  const activityRow = recentActivity.rows[0]
+
+  return {
+    total_facts: factsRow.count as number,
+    total_ratings: ratingsRow.count as number,
+    average_rating: statsRow.average_rating as number,
+    positive_ratings: statsRow.positive_ratings as number,
+    negative_ratings: statsRow.negative_ratings as number,
+    most_rated_fact: mostRatedRow ? {
+      id: mostRatedRow.id as string,
+      text: mostRatedRow.text as string,
+      rating_count: mostRatedRow.rating_count as number
+    } : null,
+    recent_activity: {
+      ratings_last_24h: activityRow.ratings_last_24h as number,
+      ratings_last_7d: activityRow.ratings_last_7d as number
+    }
+  }
+}
+
+// Get bottom rated facts (most "Too Useless")
+export async function getBottomRatedFacts(
+  limit = 10,
+  userIp?: string
+): Promise<FactWithRating[]> {
+  const result = await db.execute(
+    `
+    SELECT 
+      f.*,
+      COALESCE(SUM(fr.rating), 0) as total_rating,
+      COUNT(fr.id) as rating_count,
+      (
+        SELECT fr2.rating 
+        FROM fact_ratings fr2 
+        WHERE fr2.fact_id = f.id AND fr2.user_ip = ?
+        LIMIT 1
+      ) as user_rating
+    FROM facts f
+    LEFT JOIN fact_ratings fr ON f.id = fr.fact_id
+    GROUP BY f.id
+    HAVING rating_count > 0
+    ORDER BY total_rating ASC, rating_count DESC
     LIMIT ?
   `,
     [userIp || null, limit]
