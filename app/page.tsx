@@ -277,6 +277,22 @@ export default function UselessFactsHome() {
         </div>
       </section>
 
+      {/* Statistics Link Section */}
+      <section className="px-4 py-12">
+        <div className="container mx-auto max-w-4xl text-center">
+          <p className="text-pretty text-lg text-muted-foreground">
+            Want to see how our useless facts are performing? Check out our{" "}
+            <Link 
+              href="/statistics" 
+              className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
+            >
+              comprehensive statistics and rankings
+            </Link>
+            {" "}to discover the most loved and hated facts in our collection.
+          </p>
+        </div>
+      </section>
+
       {/* Infographics Preview Section */}
       <section id="infographics" className="bg-muted/30 px-4 py-16">
         <div className="container mx-auto max-w-6xl">

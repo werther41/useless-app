@@ -1,5 +1,5 @@
-# @baseUrl = http://localhost:3000
-@baseUrl = https://useless-app-nu.vercel.app
+@baseUrl = http://localhost:3000
+# @baseUrl = https://useless-app-nu.vercel.app
 
 ### Get random fact
 GET {{baseUrl}}/api/facts/random
@@ -7,8 +7,20 @@ GET {{baseUrl}}/api/facts/random
 ### Get fact by id
 GET {{baseUrl}}/api/facts/fact-134
 
-### Get all facts
+### Get all facts (with pagination)
+GET {{baseUrl}}/api/facts?page=1&limit=10
+
+### Get all facts (default parameters)
 GET {{baseUrl}}/api/facts
+
+### Get fun fact statistics
+GET {{baseUrl}}/api/facts/stats
+
+### Get top rated facts
+GET {{baseUrl}}/api/facts/top-rated?limit=10
+
+### Get bottom rated facts
+GET {{baseUrl}}/api/facts/bottom-rated?limit=10
 
 ### Rate fact
 POST {{baseUrl}}/api/facts/fact-1/rate
@@ -16,6 +28,30 @@ Content-Type: application/json
 
 {
   "rating": 1
+}
+
+### Rate fact (negative)
+POST {{baseUrl}}/api/facts/fact-1/rate
+Content-Type: application/json
+
+{
+  "rating": -1
+}
+
+### Import facts (Admin)
+POST {{baseUrl}}/api/facts/import
+Content-Type: application/json
+
+{
+  "facts": [
+    {
+      "id": "test-fact-1",
+      "text": "This is a test fact for API documentation.",
+      "source": "Test Source",
+      "source_url": "https://example.com"
+    }
+  ],
+  "skipDuplicates": true
 }
 
 ### Seed database
