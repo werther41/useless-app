@@ -1,5 +1,5 @@
-# @baseUrl = http://localhost:3000
-@baseUrl = https://useless-app-nu.vercel.app
+@baseUrl = http://localhost:3000
+# @baseUrl = https://useless-app-nu.vercel.app
 
 ### Get random fact
 GET {{baseUrl}}/api/facts/random
@@ -7,7 +7,10 @@ GET {{baseUrl}}/api/facts/random
 ### Get fact by id
 GET {{baseUrl}}/api/facts/fact-134
 
-### Get all facts
+### Get all facts (with pagination)
+GET {{baseUrl}}/api/facts?page=1&limit=10
+
+### Get all facts (default parameters)
 GET {{baseUrl}}/api/facts
 
 ### Get fun fact statistics

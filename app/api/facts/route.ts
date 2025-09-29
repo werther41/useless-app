@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const { page, limit } = paginationSchema.parse({
-      page: searchParams.get("page"),
-      limit: searchParams.get("limit"),
+      page: searchParams.get("page") || "1",
+      limit: searchParams.get("limit") || "10",
     })
 
     const userIp =
