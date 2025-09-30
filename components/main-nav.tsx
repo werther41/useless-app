@@ -28,7 +28,7 @@ export function MainNav({ items }: MainNavProps) {
       </Link>
 
       {items?.length ? (
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-2">
           {items?.map((item, index) => {
             if (!item.href) return null
             const isActive = pathname === item.href
