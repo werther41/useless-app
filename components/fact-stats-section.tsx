@@ -5,6 +5,7 @@ import {
   BarChart3,
   Calendar,
   Clock,
+  RefreshCw,
   Star,
   TrendingDown,
   TrendingUp,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface FactStatistics {
@@ -39,7 +41,15 @@ interface ApiResponse {
 
 const fetchStatistics = async (): Promise<FactStatistics | null> => {
   try {
-    const response = await fetch("/api/facts/stats")
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime()
+    const response = await fetch(`/api/facts/stats?t=${timestamp}`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    })
     if (!response.ok) {
       throw new Error("Failed to fetch statistics")
     }
@@ -60,14 +70,14 @@ export default function FactStatsSection() {
   const [stats, setStats] = useState<FactStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const loadStats = async () => {
-      setIsLoading(true)
-      const data = await fetchStatistics()
-      setStats(data)
-      setIsLoading(false)
-    }
+  const loadStats = async () => {
+    setIsLoading(true)
+    const data = await fetchStatistics()
+    setStats(data)
+    setIsLoading(false)
+  }
 
+  useEffect(() => {
     loadStats()
   }, [])
 
@@ -135,6 +145,19 @@ export default function FactStatsSection() {
           <p className="text-pretty text-xl text-muted-foreground">
             The numbers behind our wonderfully useless knowledge
           </p>
+          <div className="mt-6">
+            <Button
+              onClick={loadStats}
+              disabled={isLoading}
+              variant="outline"
+              className="gap-2"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+              {isLoading ? "Refreshing..." : "Refresh Stats"}
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       facts = await getAllFacts(page, limit, userIp)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: facts,
       pagination: {
@@ -35,6 +35,17 @@ export async function GET(request: NextRequest) {
         total: facts.length,
       },
     })
+
+    // Add cache control headers to prevent caching
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    )
+    response.headers.set("Pragma", "no-cache")
+    response.headers.set("Expires", "0")
+    response.headers.set("Surrogate-Control", "no-store")
+
+    return response
   } catch (error) {
     console.error("Error fetching facts:", error)
     return NextResponse.json(

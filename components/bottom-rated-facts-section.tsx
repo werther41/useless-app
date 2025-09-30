@@ -37,7 +37,18 @@ interface ApiResponse {
 
 const fetchBottomRatedFacts = async (limit = 10): Promise<Fact[]> => {
   try {
-    const response = await fetch(`/api/facts/bottom-rated?limit=${limit}`)
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime()
+    const response = await fetch(
+      `/api/facts/bottom-rated?limit=${limit}&t=${timestamp}`,
+      {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    )
     if (!response.ok) {
       throw new Error("Failed to fetch bottom rated facts")
     }

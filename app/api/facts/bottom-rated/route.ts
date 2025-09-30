@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+
 import { getBottomRatedFacts } from "@/lib/facts"
 import { initializeDatabase } from "@/lib/init-db"
 
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const facts = await getBottomRatedFacts(limit, userIp)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: facts,
       meta: {
@@ -27,6 +28,17 @@ export async function GET(request: NextRequest) {
         count: facts.length,
       },
     })
+
+    // Add cache control headers to prevent caching
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    )
+    response.headers.set("Pragma", "no-cache")
+    response.headers.set("Expires", "0")
+    response.headers.set("Surrogate-Control", "no-store")
+
+    return response
   } catch (error) {
     console.error("Error fetching bottom rated facts:", error)
     return NextResponse.json(
