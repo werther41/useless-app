@@ -1,5 +1,8 @@
+"use client"
+
 import * as React from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import { NavItem } from "@/types/nav"
 import { siteConfig } from "@/config/site"
@@ -11,6 +14,8 @@ interface MainNavProps {
 }
 
 export function MainNav({ items }: MainNavProps) {
+  const pathname = usePathname()
+
   return (
     <div className="flex gap-6 md:gap-10">
       <Link href="/" className="flex items-center space-x-2">
@@ -24,21 +29,26 @@ export function MainNav({ items }: MainNavProps) {
 
       {items?.length ? (
         <nav className="flex items-center gap-6">
-          {items?.map(
-            (item, index) =>
-              item.href && (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className={cn(
-                    "text-muted-foreground transition-colors hover:text-foreground",
-                    item.disabled && "cursor-not-allowed opacity-80"
-                  )}
-                >
-                  {item.title}
-                </Link>
-              )
-          )}
+          {items?.map((item, index) => {
+            if (!item.href) return null
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "inline-flex items-center rounded-full px-4 py-2 font-semibold transition-colors",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground",
+                  item.disabled && "pointer-events-none opacity-60"
+                )}
+              >
+                {item.title}
+              </Link>
+            )
+          })}
         </nav>
       ) : null}
     </div>
