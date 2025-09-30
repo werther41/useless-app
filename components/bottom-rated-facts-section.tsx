@@ -37,15 +37,17 @@ interface ApiResponse {
 
 const fetchBottomRatedFacts = async (limit = 10): Promise<Fact[]> => {
   try {
-    // Add timestamp to prevent caching
+    // Add timestamp and random nonce to prevent caching
     const timestamp = new Date().getTime()
+    const nonce = Math.random().toString(36).substring(7)
     const response = await fetch(
-      `/api/facts/bottom-rated?limit=${limit}&t=${timestamp}`,
+      `/api/facts/bottom-rated?limit=${limit}&t=${timestamp}&n=${nonce}`,
       {
         cache: "no-store",
         headers: {
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
+          "X-Requested-With": "XMLHttpRequest",
         },
       }
     )

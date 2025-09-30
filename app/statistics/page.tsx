@@ -1,6 +1,10 @@
+import BottomRatedFactsSection from "@/components/bottom-rated-facts-section"
 import FactStatsSection from "@/components/fact-stats-section"
 import TopRatedFactsSection from "@/components/top-rated-facts-section"
-import BottomRatedFactsSection from "@/components/bottom-rated-facts-section"
+
+// Force dynamic rendering for this page
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default function StatisticsPage() {
   return (
@@ -12,7 +16,8 @@ export default function StatisticsPage() {
             Fun Fact Statistics & Rankings
           </h1>
           <p className="text-pretty text-xl text-muted-foreground">
-            Explore comprehensive statistics about our useless facts and discover the most loved and hated entries in our collection.
+            Explore comprehensive statistics about our useless facts and
+            discover the most loved and hated entries in our collection.
           </p>
         </div>
       </section>

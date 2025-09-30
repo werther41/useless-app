@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { getAllFacts, getTopRatedFacts } from "@/lib/facts"
 import { paginationSchema } from "@/lib/validation"
 
+// Force dynamic rendering
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -36,14 +40,17 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // Add cache control headers to prevent caching
+    // Add aggressive cache control headers to prevent all caching
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0"
     )
     response.headers.set("Pragma", "no-cache")
     response.headers.set("Expires", "0")
     response.headers.set("Surrogate-Control", "no-store")
+    response.headers.set("CDN-Cache-Control", "no-store")
+    response.headers.set("Vercel-CDN-Cache-Control", "no-store")
+    response.headers.set("Cloudflare-CDN-Cache-Control", "no-store")
 
     return response
   } catch (error) {

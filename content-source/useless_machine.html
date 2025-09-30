@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Useless Machine (tiny demo)</title>
+<style>
+  :root{
+    --wood:#8b5a2b;
+    --wood-dark:#6b3f1a;
+    --table:#e9d9c0;
+    --switch:#111;
+  }
+  body{
+    background: linear-gradient(#efeae3,#e6ded3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin:0;
+  }
+
+  /* table */
+  .scene{
+    width:420px;
+    height:220px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .table-top{
+    position:absolute;
+    left:0;right:0;bottom:28px;
+    height:120px;
+    background: linear-gradient(var(--table), #d6cbb7);
+    border-radius:8px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  /* box */
+  .box{
+    position:relative;
+    width:220px;
+    height:120px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border-radius:6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    transform: translateY(-12px);
+    overflow:visible;
+  }
+
+  /* little lid / top inset where switch sits */
+  .lid{
+    position:absolute;
+    top:10px; left:50%;
+    transform:translateX(-50%);
+    width:160px;
+    height:70px;
+    border-radius:4px;
+    background: linear-gradient(#b58352,#8b5a2b);
+    box-shadow: inset 0 6px 10px rgba(0,0,0,0.08);
+  }
+
+  /* the switch (the thing user clicks) */
+  .switch{
+    position:absolute;
+    top:50%;
+    left:92%;
+    width:36px;
+    height:18px;
+    transform:translate(-50%,-50%);
+    background:var(--switch);
+    border-radius:3px;
+    cursor:pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.35);
+    transition: transform 120ms linear;
+  }
+  /* visual "pressed" when it's being interacted */
+  .switch.flipped{
+    transform: translate(-50%,-50%) translateY(3px) rotate(6deg);
+  }
+
+  /* the retracting arm inside the box */
+  .arm{
+    position:absolute;
+    left:18px;
+    top:46%;
+    width:110px;
+    height:18px;
+    transform-origin: left center;
+    transform: translateX(-4px) rotate(0deg);
+    transition: transform 240ms cubic-bezier(.2,.9,.2,1);
+    pointer-events:none;
+    z-index:5;
+  }
+  .arm .stick{
+    height:100%;
+    background: linear-gradient(#d4a46e,#a46e3a);
+    border-radius:6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.14);
+  }
+  .arm .finger{
+    position:absolute;
+    right:0;
+    top:-6px;
+    width:30px;
+    height:30px;
+    background: linear-gradient(#8b5a2b,#6b3f1a);
+    border-radius:6px;
+    transform: rotate(-18deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+  }
+
+  /* arm popped state: reach to the right to hit the switch */
+  .arm.pop {
+    transform: translateX(90px) rotate(-12deg);
+  }
+
+  /* a small caption */
+  .caption{
+    position:absolute;
+    bottom:-4px;
+    width:100%;
+    text-align:center;
+    font-size:12px;
+    color:#5b3f2a;
+    opacity:0.9;
+  }
+
+  /* small responsive tweak */
+  @media (max-width:480px){
+    .scene{transform:scale(0.9)}
+  }
+</style>
+</head>
+<body>
+  <div class="scene" aria-hidden="false">
+    <div class="table-top"></div>
+
+    <div class="box" role="img" aria-label="Wooden useless machine">
+      <div class="lid"></div>
+
+      <div class="arm" id="arm">
+        <div class="stick"></div>
+        <div class="finger"></div>
+      </div>
+
+      <div class="switch" id="switch" title="push me"></div>
+
+      <div class="caption">Click the switch — it will undo you.</div>
+    </div>
+  </div>
+
+<script>
+  // Simple behavior:
+  // 1) User clicks switch -> play pop animation
+  // 2) Arm pops out, switch shows "flipped" briefly
+  // 3) Arm retreats and switch returns to original state
+  const sw = document.getElementById('switch');
+  const arm = document.getElementById('arm');
+  let busy = false;
+
+  sw.addEventListener('click', () => {
+    if (busy) return;       // ignore while animating
+    busy = true;
+    // visually mark the switch as flipped immediately
+    sw.classList.add('flipped');
+
+    // pop arm out after a very short delay (gives sense of reaction)
+    setTimeout(()=> arm.classList.add('pop'), 80);
+
+    // after the arm reached the switch, quickly "push" it back
+    setTimeout(()=> {
+      // pretend the arm pushed the switch: remove flipped
+      sw.classList.remove('flipped');
+
+      // arm goes back inside
+      arm.classList.remove('pop');
+      // free after the retreat animation finishes
+      setTimeout(()=> busy = false, 260);
+    }, 520); // tweak timing here to change "speed" of reaction
+  });
+
+  // Bonus: keyboard interaction (space)
+  document.addEventListener('keydown', (e)=>{
+    if(e.code === 'Space') {
+      e.preventDefault();
+      sw.click();
+    }
+  });
+</script>
+</body>
+</html>
