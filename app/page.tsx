@@ -197,15 +197,7 @@ export default function UselessFactsHome() {
                       </h3>
                       {currentFact.source && (
                         <p className="text-sm text-muted-foreground">
-                          Source:{" "}
-                          <a
-                            href={currentFact.source_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {currentFact.source}
-                          </a>
+                          Category: {currentFact.source}
                         </p>
                       )}
                     </div>
@@ -282,13 +274,13 @@ export default function UselessFactsHome() {
         <div className="container mx-auto max-w-4xl text-center">
           <p className="text-pretty text-lg text-muted-foreground">
             Want to see how our useless facts are performing? Check out our{" "}
-            <Link 
-              href="/statistics" 
+            <Link
+              href="/statistics"
               className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
             >
               comprehensive statistics and rankings
-            </Link>
-            {" "}to discover the most loved and hated facts in our collection.
+            </Link>{" "}
+            to discover the most loved and hated facts in our collection.
           </p>
         </div>
       </section>

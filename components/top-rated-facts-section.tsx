@@ -192,22 +192,9 @@ export default function TopRatedFactsSection() {
                   </div>
 
                   {fact.source && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="hover:text-primary/80 text-primary"
-                    >
-                      <a
-                        href={fact.source_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        {fact.source}
-                      </a>
-                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      Category: {fact.source}
+                    </p>
                   )}
                 </div>
               </CardContent>
