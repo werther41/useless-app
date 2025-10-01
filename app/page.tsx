@@ -192,7 +192,7 @@ export default function UselessFactsHome() {
                 <div className="mb-8 flex min-h-[200px] items-center justify-center">
                   {currentFact ? (
                     <div className="space-y-4">
-                      <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
+                      <h3 className="text-balance text-xl font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                         {currentFact.text}
                       </h3>
                       {currentFact.source && (
@@ -202,7 +202,7 @@ export default function UselessFactsHome() {
                       )}
                     </div>
                   ) : (
-                    <h3 className="text-balance text-3xl font-semibold leading-relaxed text-foreground">
+                    <h3 className="text-balance text-xl font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       Ready to discover something completely useless?
                     </h3>
                   )}
