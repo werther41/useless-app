@@ -17,18 +17,20 @@ export function MainNav({ items }: MainNavProps) {
   const pathname = usePathname()
 
   return (
-    <div className="flex gap-6 md:gap-10">
+    <div className="flex items-center gap-2 sm:gap-6 md:gap-10">
       <Link href="/" className="flex items-center space-x-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-          <span className="text-lg font-bold text-primary-foreground">U</span>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary sm:h-10 sm:w-10">
+          <span className="text-sm font-bold text-primary-foreground sm:text-lg">
+            U
+          </span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-lg font-bold text-foreground sm:text-2xl">
           {siteConfig.name}
         </h1>
       </Link>
 
       {items?.length ? (
-        <nav className="flex items-center gap-2">
+        <nav className="hidden items-center gap-1 sm:flex sm:gap-2">
           {items?.map((item, index) => {
             if (!item.href) return null
             const isActive = pathname === item.href
@@ -38,7 +40,7 @@ export function MainNav({ items }: MainNavProps) {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "inline-flex items-center rounded-full px-4 py-2 font-semibold transition-colors",
+                  "inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:px-4",
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground",

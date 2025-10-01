@@ -181,7 +181,7 @@ export default function UselessFactsHome() {
                   <Button
                     onClick={generateNewFact}
                     size="lg"
-                    className="px-8 py-3 text-lg"
+                    className="whitespace-nowrap px-4 py-3 text-base sm:px-8 sm:text-lg"
                     disabled={isLoading}
                   >
                     <Wand2 className="mr-2 h-5 w-5" />
@@ -223,7 +223,7 @@ export default function UselessFactsHome() {
                       )}
                     </div>
 
-                    <div className="flex items-center justify-center gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
                       <Button
                         onClick={() => handleVote("up")}
                         disabled={hasVoted || isRating}
@@ -233,7 +233,7 @@ export default function UselessFactsHome() {
                             : "outline"
                         }
                         size="lg"
-                        className={`flex items-center gap-2 ${
+                        className={`flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto ${
                           hasVoted && currentFact.user_rating === 1
                             ? "bg-green-600 text-white"
                             : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
@@ -251,7 +251,7 @@ export default function UselessFactsHome() {
                             : "outline"
                         }
                         size="lg"
-                        className={`flex items-center gap-2 ${
+                        className={`flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto ${
                           hasVoted && currentFact.user_rating === -1
                             ? "bg-red-600 text-white"
                             : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
