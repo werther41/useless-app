@@ -14,8 +14,8 @@ export const siteConfig = {
       href: "/statistics",
     },
     {
-      title: "Infographics",
-      href: "/#infographics",
+      title: "Deep Dive",
+      href: "/deep-dive",
     },
     {
       title: "Blog",

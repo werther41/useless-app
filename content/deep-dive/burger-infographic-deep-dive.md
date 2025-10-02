@@ -10,7 +10,7 @@ published: true
 
 # The Science Behind Our Burger Infographic
 
-Our burger infographic has become one of the most popular features on the platform. Today, we're taking you behind the scenes to explore the fascinating data and methodology that went into creating it.
+Our [burger infographic](/deep-dive/burger-infographic) has become one of the most popular features on the platform. Today, we're taking you behind the scenes to explore the fascinating data and methodology that went into creating it.
 
 # Beyond the Myth: A Scientific and Culinary Analysis of the Great Burger Flip Debate
 
