@@ -3,6 +3,7 @@ export type SiteConfig = typeof siteConfig
 export const siteConfig = {
   name: "Useless",
   description: "Trying Next.js and use it to build a useless site",
+  url: "https://useless-app-nu.vercel.app", // Add your actual domain
   mainNav: [
     {
       title: "Quick Facts",

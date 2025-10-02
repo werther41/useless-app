@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
+  verification: {
+    google: "gmZtLZv6kdrk1DSGp4d1b1o4Yn1iMmUvRmSR4t0hxvA",
+  },
 }
 
 interface RootLayoutProps {
