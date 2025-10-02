@@ -7,7 +7,7 @@ A playful Next.js 13 app that lets you generate and rate completely useless fact
 - **Quick Facts**: Generate a random "useless" fact and vote it up or down with persistent ratings
 - **Database Integration**: All facts and ratings are stored in Turso (libSQL) cloud database
 - **Admin Interface**: Bulk import facts via a user-friendly admin panel at `/admin/import`
-- **Infographics**: Visit `/burger-infographic` for a Chart.js‑powered deep dive on burger flipping myths vs. science
+- **Infographics**: Visit `/deep-dive/burger-infographic` for a Chart.js‑powered deep dive on burger flipping myths vs. science
 - **Blog**: A simple `/blog` page for updates
 - **Theming**: Light/dark mode via `next-themes`
 - **API**: RESTful API for facts management with full CRUD operations
@@ -67,7 +67,7 @@ You can browse:
 
 - `/` — Quick Facts generator with voting and persistent ratings
 - `/admin/import` — Admin interface for bulk importing facts
-- `/burger-infographic` — burger flipping infographic (Chart.js)
+- `/deep-dive/burger-infographic` — burger flipping infographic (Chart.js)
 - `/blog` — project blog
 - `/api/facts/random` — API endpoint for random facts
 
