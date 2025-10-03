@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { BookOpen } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -31,7 +30,7 @@ export function DeepDiveSection({
             <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-6">
                 <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
-                  <BookOpen className="h-12 w-12 text-primary" />
+                  <span className="text-6xl">🍔</span>
                 </div>
                 <h4 className="mb-2 text-xl font-semibold">
                   Should You Flip Your Burger?
@@ -47,28 +46,30 @@ export function DeepDiveSection({
             </Card>
           </Link>
 
-          <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
-            <CardContent className="p-6">
-              <div className="from-accent/20 to-primary/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
-                <BookOpen className="h-12 w-12 text-accent" />
-              </div>
-              <h4 className="mb-2 text-xl font-semibold">
-                The Science of Sock Pairing
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Mathematical models for optimal sock matching strategies in your
-                drawer.
-              </p>
-              <Badge variant="outline" className="mt-3">
-                Coming Soon
-              </Badge>
-            </CardContent>
-          </Card>
+          <Link href="/deep-dive/sock-pairing-mathematics">
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="from-accent/20 to-primary/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <span className="text-6xl">🧦</span>
+                </div>
+                <h4 className="mb-2 text-xl font-semibold">
+                  The Science of Sock Pairing
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Mathematical models for optimal sock matching strategies in
+                  your drawer.
+                </p>
+                <Badge variant="default" className="mt-3">
+                  Available Now
+                </Badge>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
             <CardContent className="p-6">
               <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
-                <BookOpen className="h-12 w-12 text-primary" />
+                <span className="text-6xl">🥣</span>
               </div>
               <h4 className="mb-2 text-xl font-semibold">
                 Optimal Cereal-to-Milk Ratios
