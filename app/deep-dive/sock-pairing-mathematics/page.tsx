@@ -301,8 +301,8 @@ export default function SockPairingMathematics() {
           <p className="mx-auto mb-10 max-w-3xl text-center text-lg text-slate-600">
             How do these strategies compare as your sock collection grows? Use
             the slider below to adjust the number of sock pairs and see how the
-            theoretical number of "steps" (comparisons) changes for each
-            strategy.
+            theoretical number of &quot;steps&quot; (comparisons) changes for
+            each strategy.
           </p>
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-lg">
             <div className="mb-6 flex flex-col items-center justify-center gap-4 md:flex-row">
@@ -368,9 +368,9 @@ export default function SockPairingMathematics() {
                 <span className="font-medium text-blue-600">
                   Pigeonhole Principle
                 </span>{" "}
-                states that if you have 'P' pairs (pigeonholes), you must draw
-                P+1 socks (pigeons) to guarantee you have at least one matched
-                pair. Try it:
+                states that if you have &apos;P&apos; pairs (pigeonholes), you
+                must draw P+1 socks (pigeons) to guarantee you have at least one
+                matched pair. Try it:
               </p>
               <div className="flex items-center justify-center gap-4">
                 <input
