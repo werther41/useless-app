@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Science of Sock Pairing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Cool Neutrals with Blue & Orange Accents -->
+    <!-- Application Structure Plan: A narrative, single-page structure was chosen to guide the user through the "problem" of sock pairing to the "solution." The flow is logical: 1. Introduction to the problem. 2. Definition of key variables. 3. Exploration of different matching strategies. 4. An interactive 'Efficiency Lab' to compare these strategies with a dynamic chart. 5. A 'Math Corner' to explain the underlying principles. 6. A concluding recommendation. This structure turns a potentially dry analysis into an engaging story, where the user can interactively discover the most efficient sock-pairing method. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Core problem of unpaired socks. Goal: Inform/Engage. Viz: Large stat cards for variables (Pairs, Odd Socks). Interaction: Hover effects. Justification: Quickly establishes the scope of the problem.
+        - Report Info: Different pairing strategies. Goal: Organize/Explain. Viz: Interactive Cards (HTML/CSS/JS). Interaction: Click to reveal pros and cons. Justification: Breaks down complex strategies into digestible, interactive chunks.
+        - Report Info: Efficiency comparison of strategies. Goal: Compare. Viz: Bar Chart (Chart.js/Canvas) linked to a slider. Interaction: User drags a slider to change the number of sock pairs, and the chart updates in real-time to show the change in relative efficiency. Justification: This is the core interactive element, allowing users to actively explore the model's conclusions.
+        - Report Info: Pigeonhole Principle. Goal: Inform/Interact. Viz: Simple calculator UI (HTML inputs, JS logic). Interaction: User inputs a number of pairs, and the app calculates the "guaranteed pair" number. Justification: Turns an abstract mathematical principle into a concrete, interactive example.
+        - Report Info: Probability of finding a match. Goal: Show Change/Trend. Viz: Static Line Chart (Chart.js/Canvas). Justification: Visually demonstrates the diminishing returns of random draws without overcomplicating the UI. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Slate 50 */
+            color: #334155; /* Slate 700 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #3B82F6; /* Blue 600 */
+            border-bottom-color: #3B82F6;
+        }
+        .strategy-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3B82F6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #3B82F6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800">The Science of Sock Pairing</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problem" class="nav-link font-medium pb-1">The Problem</a>
+                <a href="#strategies" class="nav-link font-medium pb-1">Strategies</a>
+                <a href="#lab" class="nav-link font-medium pb-1">Efficiency Lab</a>
+                <a href="#math" class="nav-link font-medium pb-1">The Math</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+
+        <section id="intro" class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Mathematical Models for Your Laundry Pile</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                Ever faced a mountain of clean laundry and despaired at the chaos of unpaired socks? This is a surprisingly common problem of probability and computational complexity. This report explores mathematical models to find the most efficient sock matching strategies.
+            </p>
+        </section>
+
+        <section id="problem" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Defining the Sock Drawer Problem</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-10 text-center">
+                To analyze the problem, we first need to define our variables. A typical laundry load can be modeled with a few key numbers that determine the complexity of the pairing task.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 text-center">
+                    <h3 class="text-lg font-semibold text-slate-500 mb-2">P (Number of Pairs)</h3>
+                    <p class="text-4xl font-bold text-blue-600">50</p>
+                    <p class="text-sm text-slate-500 mt-2">The number of unique sock pairs in the pile.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 text-center">
+                    <h3 class="text-lg font-semibold text-slate-500 mb-2">N (Total Socks)</h3>
+                    <p class="text-4xl font-bold text-blue-600">103</p>
+                     <p class="text-sm text-slate-500 mt-2">The total count of individual socks (2 * P + U).</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 text-center">
+                    <h3 class="text-lg font-semibold text-slate-500 mb-2">U (Unmatched Odds)</h3>
+                    <p class="text-4xl font-bold text-orange-500">3</p>
+                     <p class="text-sm text-slate-500 mt-2">The tragic single socks whose mates are lost forever.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategies" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Sock Pairing Strategies</h2>
+             <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-10 text-center">
+                There are several common approaches to sock pairing, each with different mathematical efficiencies. Click on a strategy to see its pros and cons.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="strategy-card bg-white rounded-lg shadow-lg border border-slate-200 p-6 cursor-pointer">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-700">1. Random Grab</h3>
+                    <p class="text-slate-600">Pick one sock, then rummage through the entire pile for its match. Repeat until all socks are paired.</p>
+                    <div class="description hidden mt-4 pt-4 border-t border-slate-200">
+                        <h4 class="font-semibold text-slate-800">Analysis:</h4>
+                        <ul class="list-disc list-inside text-slate-600 mt-2">
+                            <li><strong>Pro:</strong> Requires no setup or surface space.</li>
+                            <li><strong>Con:</strong> Highly inefficient. The search time increases quadratically with the number of socks.</li>
+                            <li><strong>Complexity:</strong> O(n²)</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="strategy-card bg-white rounded-lg shadow-lg border border-slate-200 p-6 cursor-pointer">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-700">2. Single Pass</h3>
+                    <p class="text-slate-600">Lay out all socks on a surface. Pick up one sock and visually scan the array of laid-out socks to find its mate.</p>
+                    <div class="description hidden mt-4 pt-4 border-t border-slate-200">
+                         <h4 class="font-semibold text-slate-800">Analysis:</h4>
+                        <ul class="list-disc list-inside text-slate-600 mt-2">
+                            <li><strong>Pro:</strong> Much faster than random grabbing.</li>
+                            <li><strong>Con:</strong> Requires a large flat surface area.</li>
+                            <li><strong>Complexity:</strong> O(n)</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="strategy-card bg-white rounded-lg shadow-lg border border-slate-200 p-6 cursor-pointer">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-700">3. Categorical Sort</h3>
+                    <p class="text-slate-600">First, sort all socks into piles based on color/pattern. Then, pair the socks within each smaller, manageable pile.</p>
+                    <div class="description hidden mt-4 pt-4 border-t border-slate-200">
+                         <h4 class="font-semibold text-slate-800">Analysis:</h4>
+                        <ul class="list-disc list-inside text-slate-600 mt-2">
+                            <li><strong>Pro:</strong> The most efficient method for large numbers of socks.</li>
+                            <li><strong>Con:</strong> Requires some initial sorting effort.</li>
+                            <li><strong>Complexity:</strong> O(n log n)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="lab" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Interactive Efficiency Lab</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-10 text-center">
+                How do these strategies compare as your sock collection grows? Use the slider below to adjust the number of sock pairs and see how the theoretical number of "steps" (comparisons) changes for each strategy.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
+                    <label for="sockPairs" class="font-medium text-slate-700">Number of Sock Pairs:</label>
+                    <input type="range" id="sockPairs" min="5" max="100" value="25" class="w-full max-w-xs cursor-pointer">
+                    <span id="sockPairsValue" class="font-bold text-2xl text-blue-600 w-16 text-center">25</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="math" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">The Math Corner</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-10 text-center">
+                Two key mathematical principles govern the world of sock pairing: the Pigeonhole Principle and basic probability.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                    <h3 class="text-xl font-semibold text-center mb-4">Guaranteed Pair Calculator</h3>
+                    <p class="text-slate-600 mb-4 text-center">The <a href="#" class="text-blue-600 font-medium">Pigeonhole Principle</a> states that if you have 'P' pairs (pigeonholes), you must draw P+1 socks (pigeons) to guarantee you have at least one matched pair. Try it:</p>
+                    <div class="flex items-center justify-center gap-4">
+                        <input type="number" id="pigeonholeInput" value="10" class="w-24 p-2 border border-slate-300 rounded-md text-center">
+                        <button id="pigeonholeBtn" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition">Calculate</button>
+                        <p id="pigeonholeResult" class="text-xl font-bold text-orange-500">You need 11 socks.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                    <h3 class="text-xl font-semibold text-center mb-4">Probability of a Random Match</h3>
+                    <p class="text-slate-600 mb-4 text-center">The probability of finding a match decreases as you pair up socks and the pile shrinks.</p>
+                     <div class="chart-container h-64 md:h-72">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="text-center">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">The Optimal Strategy</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                For small numbers of socks, any method works. But as your laundry pile grows, the data is clear: the <strong>Categorical Sort</strong> strategy is mathematically superior. Taking a moment to sort by color or type first dramatically reduces the total time and cognitive load required to pair your socks. Happy pairing!
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-4 text-center">
+            <p>&copy; 2025 Institute of Applied Laundry Mathematics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Inter' }, color: '#334155' } },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF', titleColor: '#1E293B', bodyColor: '#475569',
+                        borderColor: '#E2E8F0', borderWidth: 1, titleFont: { weight: 'bold', family: 'Inter' },
+                        bodyFont: { family: 'Inter' }, padding: 10, cornerRadius: 4
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#E2E8F0' }, ticks: { color: '#64748B', font: { family: 'Inter' } } },
+                    x: { grid: { display: false }, ticks: { color: '#64748B', font: { family: 'Inter' } } }
+                }
+            };
+            
+            let efficiencyChart;
+            const efficiencyCtx = document.getElementById('efficiencyChart')?.getContext('2d');
+            const sockPairsSlider = document.getElementById('sockPairs');
+            const sockPairsValue = document.getElementById('sockPairsValue');
+
+            function calculateEfficiency(pairs) {
+                const n = pairs * 2;
+                const randomGrab = n * n; 
+                const singlePass = n * 2; 
+                const categoricalSort = n * Math.log(n);
+                return [randomGrab, singlePass, categoricalSort];
+            }
+
+            function updateEfficiencyChart() {
+                const pairs = parseInt(sockPairsSlider.value);
+                sockPairsValue.textContent = pairs;
+                const efficiencyData = calculateEfficiency(pairs);
+                
+                if (efficiencyChart) {
+                    efficiencyChart.data.datasets[0].data = efficiencyData;
+                    efficiencyChart.update();
+                } else if(efficiencyCtx) {
+                    efficiencyChart = new Chart(efficiencyCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Random Grab', 'Single Pass', 'Categorical Sort'],
+                            datasets: [{
+                                label: 'Relative Steps to Complete',
+                                data: efficiencyData,
+                                backgroundColor: ['#F97316', '#3B82F6', '#10B981'],
+                                borderRadius: 4
+                            }]
+                        },
+                        options: { ...chartOptions, plugins: {...chartOptions.plugins, legend: {display: false} }, scales: { y: {...chartOptions.scales.y, type: 'logarithmic' } } }
+                    });
+                }
+            }
+            
+            sockPairsSlider.addEventListener('input', updateEfficiencyChart);
+            updateEfficiencyChart();
+
+            const pigeonholeInput = document.getElementById('pigeonholeInput');
+            const pigeonholeBtn = document.getElementById('pigeonholeBtn');
+            const pigeonholeResult = document.getElementById('pigeonholeResult');
+            pigeonholeBtn.addEventListener('click', () => {
+                const pairs = parseInt(pigeonholeInput.value) || 0;
+                pigeonholeResult.textContent = `You need ${pairs + 1} socks.`;
+            });
+            
+            const probabilityCtx = document.getElementById('probabilityChart')?.getContext('2d');
+            if(probabilityCtx) {
+                new Chart(probabilityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['100 socks left', '80 socks left', '60 socks left', '40 socks left', '20 socks left', '10 socks left'],
+                        datasets: [{
+                            label: 'Probability of Next Pick Being a Match',
+                            data: [0.01, 0.012, 0.016, 0.025, 0.05, 0.1],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            document.querySelectorAll('.strategy-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    card.querySelector('.description').classList.toggle('hidden');
+                });
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            window.addEventListener('scroll', () => {
+                let current = 'intro';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 70) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    const linkHref = link.getAttribute('href');
+                    if (linkHref && linkHref.includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
