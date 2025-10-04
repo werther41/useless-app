@@ -174,16 +174,7 @@ export default function AllFactsPage() {
                     {fact.source && (
                       <span className="truncate">Source: {fact.source}</span>
                     )}
-                    {fact.source_url && (
-                      <Link
-                        href={fact.source_url}
-                        className="text-primary underline underline-offset-4 hover:text-primary/80"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        View source
-                      </Link>
-                    )}
+                    {/* Source URL link removed as requested */}
                   </div>
                 </CardContent>
               </Card>

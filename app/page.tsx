@@ -291,7 +291,7 @@ export default function UselessFactsHome() {
             >
               All Facts
             </Link>{" "}
-            page with easy pagination.
+            page.
           </p>
         </div>
       </section>
