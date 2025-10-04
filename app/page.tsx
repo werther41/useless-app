@@ -283,6 +283,16 @@ export default function UselessFactsHome() {
             </Link>{" "}
             to discover the most loved and hated facts in our collection.
           </p>
+          <p className="text-pretty mt-6 text-lg text-muted-foreground">
+            Prefer to browse everything yourself? Explore our full catalog on the{" "}
+            <Link
+              href="/facts"
+              className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
+            >
+              All Facts
+            </Link>{" "}
+            page with easy pagination.
+          </p>
         </div>
       </section>
 
