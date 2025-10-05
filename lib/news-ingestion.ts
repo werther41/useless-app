@@ -43,7 +43,7 @@ const RSS_FEEDS = [
 const parser = new Parser()
 
 /**
- * Fetch and store news articles from RSS feeds
+ * Fetch and store news articles from RSS feeds (last 48 hours only)
  * @returns Promise<{success: number, skipped: number, errors: number}>
  */
 export async function fetchAndStoreNews(): Promise<{
@@ -52,6 +52,9 @@ export async function fetchAndStoreNews(): Promise<{
   errors: number
   details: string[]
 }> {
+  // Only fetch articles from the last 48 hours
+  const cutoffDate = new Date()
+  cutoffDate.setHours(cutoffDate.getHours() - 48)
   const results = {
     success: 0,
     skipped: 0,
@@ -73,6 +76,13 @@ export async function fetchAndStoreNews(): Promise<{
         try {
           // Skip if missing required fields
           if (!item.title || !item.link) {
+            results.skipped++
+            continue
+          }
+
+          // Skip if article is older than 48 hours
+          const articleDate = item.pubDate ? new Date(item.pubDate) : new Date()
+          if (articleDate < cutoffDate) {
             results.skipped++
             continue
           }

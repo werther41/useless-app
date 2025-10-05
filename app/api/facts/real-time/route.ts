@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Generate the streaming response using Gemini
     const result = await streamText({
-      model: google("models/gemini-1.5-flash"),
+      model: google("models/gemini-2.0-flash-lite"),
       system: systemPrompt,
       prompt: userPrompt,
     })
