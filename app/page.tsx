@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DeepDiveSection } from "@/components/deep-dive-section"
+import { RealTimeFactSection } from "@/components/real-time-fact-section"
 
 interface Fact {
   id: string
@@ -295,6 +296,9 @@ export default function UselessFactsHome() {
           </p>
         </div>
       </section>
+
+      {/* Real-Time News Facts Section */}
+      <RealTimeFactSection />
 
       {/* Infographics Preview Section */}
       <DeepDiveSection sectionId="infographics" />

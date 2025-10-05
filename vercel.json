@@ -14,8 +14,20 @@
     },
     "app/api/facts/bottom-rated/route.ts": {
       "maxDuration": 10
+    },
+    "app/api/facts/real-time/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/cron/retrieve-news/route.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/retrieve-news",
+      "schedule": "0 0 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/api/facts/(.*)",

@@ -38,3 +38,14 @@ export interface FactStatistics {
     ratings_last_7d: number
   }
 }
+
+export interface NewsArticle {
+  id: string
+  title: string
+  content: string
+  url: string
+  source: string
+  published_at: string
+  created_at: string
+  embedding: number[] // Array of float32 values for vector embedding
+}

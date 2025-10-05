@@ -38,11 +38,13 @@ npm ci
 
 ### 2) Environment Setup
 
-Create a `.env.development.local` file with your Turso credentials:
+Create a `.env.local` file with your credentials:
 
 ```env
 TURSO_DATABASE_URL=libsql://your-database-name.turso.io
 TURSO_AUTH_TOKEN=your-auth-token-here
+GOOGLE_API_KEY=your-google-gemini-api-key
+CRON_SECRET=your-random-secret-key-for-cron-jobs
 ```
 
 ### 3) Initialize Database
@@ -110,6 +112,8 @@ This app is deployed on Vercel with automatic CI/CD and Turso database integrati
 
 - `TURSO_DATABASE_URL` — Your Turso database URL
 - `TURSO_AUTH_TOKEN` — Your Turso authentication token
+- `GOOGLE_API_KEY` — Your Google Gemini API key for AI features
+- `CRON_SECRET` — Secret key for securing cron job endpoints
 
 **Typical workflow**:
 
