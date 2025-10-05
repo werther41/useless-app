@@ -63,20 +63,10 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         if (done) break
 
         const chunk = decoder.decode(value)
-        const lines = chunk.split("\n")
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6))
-              if (data.type === "text-delta" && data.textDelta) {
-                fullFact += data.textDelta
-                setFact(fullFact)
-              }
-            } catch (e) {
-              // Ignore JSON parse errors for streaming
-            }
-          }
+        // For toTextStreamResponse(), the content comes directly as text
+        if (chunk.trim()) {
+          fullFact += chunk
+          setFact(fullFact)
         }
       }
     } catch (error) {
