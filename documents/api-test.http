@@ -56,3 +56,15 @@ Content-Type: application/json
 
 ### Seed database
 POST {{baseUrl}}/api/seed
+
+### Get real-time fact info (testing)
+GET {{baseUrl}}/api/facts/real-time
+
+### Generate real-time fact (streaming)
+POST {{baseUrl}}/api/facts/real-time
+Content-Type: application/json
+
+### News ingestion cron job (requires CRON_SECRET)
+POST {{baseUrl}}/api/cron/retrieve-news
+Authorization: Bearer YOUR_CRON_SECRET_HERE
+Content-Type: application/json

@@ -6,7 +6,7 @@ The Useless Facts API provides endpoints for managing and retrieving useless fac
 
 ## Base URL
 
-All API endpoints are prefixed with `/api/facts`
+Most API endpoints are prefixed with `/api/facts`. Real-time news endpoints use `/api/facts/real-time` and cron jobs use `/api/cron/retrieve-news`.
 
 ## Authentication
 
@@ -21,6 +21,7 @@ Currently, no authentication is required. User tracking is done via IP address f
 Returns a random fact with rating information.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -39,6 +40,7 @@ Returns a random fact with rating information.
 ```
 
 **Error Response:**
+
 ```json
 {
   "error": "No facts available"
@@ -52,11 +54,13 @@ Returns a random fact with rating information.
 Returns a specific fact by ID with rating information.
 
 **Parameters:**
+
 - `id` (string): The fact ID
 
 **Response:** Same format as random fact endpoint.
 
 **Error Response:**
+
 ```json
 {
   "error": "Fact not found"
@@ -70,9 +74,11 @@ Returns a specific fact by ID with rating information.
 Submit a rating for a fact.
 
 **Parameters:**
+
 - `id` (string): The fact ID
 
 **Request Body:**
+
 ```json
 {
   "rating": 1
@@ -80,10 +86,12 @@ Submit a rating for a fact.
 ```
 
 **Rating Values:**
+
 - `1`: "Useful Uselessness" (thumbs up)
 - `-1`: "Too Useless" (thumbs down)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -99,6 +107,7 @@ Submit a rating for a fact.
 ```
 
 **Error Response:**
+
 ```json
 {
   "error": "Rating must be -1 (too useless) or 1 (useful uselessness)"
@@ -112,11 +121,13 @@ Submit a rating for a fact.
 Get paginated list of all facts.
 
 **Query Parameters:**
+
 - `page` (number, optional): Page number (default: 1)
 - `limit` (number, optional): Items per page (default: 10, max: 100)
 - `type` (string, optional): "top-rated" for top rated facts
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -148,6 +159,7 @@ Get paginated list of all facts.
 Bulk import facts into the database. Used by the admin interface.
 
 **Request Body:**
+
 ```json
 {
   "facts": [
@@ -163,6 +175,7 @@ Bulk import facts into the database. Used by the admin interface.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -183,6 +196,7 @@ Bulk import facts into the database. Used by the admin interface.
 Returns comprehensive statistics about the fun fact system.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -212,9 +226,11 @@ Returns comprehensive statistics about the fun fact system.
 Returns the most positively rated facts (highest "Useful Uselessness" ratings).
 
 **Query Parameters:**
+
 - `limit` (number, optional): Number of facts to return (default: 10, max: 50)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -245,9 +261,11 @@ Returns the most positively rated facts (highest "Useful Uselessness" ratings).
 Returns the most negatively rated facts (lowest ratings, most "Too Useless").
 
 **Query Parameters:**
+
 - `limit` (number, optional): Number of facts to return (default: 10, max: 50)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -278,6 +296,7 @@ Returns the most negatively rated facts (lowest ratings, most "Too Useless").
 Bulk import facts into the database. Used by the admin interface.
 
 **Request Body:**
+
 ```json
 {
   "facts": [
@@ -293,6 +312,7 @@ Bulk import facts into the database. Used by the admin interface.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -313,6 +333,7 @@ Bulk import facts into the database. Used by the admin interface.
 Initialize the database with sample facts.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -381,6 +402,7 @@ interface FactStatistics {
 ## Error Handling
 
 All endpoints return errors in this format:
+
 ```json
 {
   "error": "Error message"
@@ -388,6 +410,7 @@ All endpoints return errors in this format:
 ```
 
 **Common HTTP Status Codes:**
+
 - `200`: Success
 - `400`: Bad Request (validation errors)
 - `404`: Not Found
@@ -400,6 +423,7 @@ Currently no rate limiting is implemented. Consider implementing rate limiting f
 ## Database Schema
 
 ### Facts Table
+
 ```sql
 CREATE TABLE facts (
   id TEXT PRIMARY KEY,
@@ -412,6 +436,7 @@ CREATE TABLE facts (
 ```
 
 ### Fact Ratings Table
+
 ```sql
 CREATE TABLE fact_ratings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -429,30 +454,30 @@ CREATE TABLE fact_ratings (
 
 ```typescript
 // Get a random fact
-const response = await fetch('/api/facts/random')
+const response = await fetch("/api/facts/random")
 const { data: fact } = await response.json()
 
 // Rate a fact
 await fetch(`/api/facts/${fact.id}/rate`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ rating: 1 })
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ rating: 1 }),
 })
 
 // Get fun fact statistics
-const statsResponse = await fetch('/api/facts/stats')
+const statsResponse = await fetch("/api/facts/stats")
 const { data: stats } = await statsResponse.json()
 
 // Get top rated facts
-const topFactsResponse = await fetch('/api/facts/top-rated?limit=10')
+const topFactsResponse = await fetch("/api/facts/top-rated?limit=10")
 const { data: topFacts } = await topFactsResponse.json()
 
 // Get bottom rated facts
-const bottomFactsResponse = await fetch('/api/facts/bottom-rated?limit=10')
+const bottomFactsResponse = await fetch("/api/facts/bottom-rated?limit=10")
 const { data: bottomFacts } = await bottomFactsResponse.json()
 
 // Get all facts with pagination
-const allFacts = await fetch('/api/facts?page=1&limit=10')
+const allFacts = await fetch("/api/facts?page=1&limit=10")
 ```
 
 ### cURL
@@ -478,6 +503,128 @@ curl "http://localhost:3000/api/facts/bottom-rated?limit=10"
 # Get all facts with pagination
 curl "http://localhost:3000/api/facts?page=1&limit=10"
 ```
+
+### 8. Generate Real-Time Fact
+
+**POST** `/api/facts/real-time`
+
+Generates a quirky fun fact based on recent news articles using AI. Returns a streaming response.
+
+**Headers:**
+
+- `Content-Type: application/json`
+
+**Response:** Streaming text response with the generated fact
+
+**Custom Headers:**
+
+- `X-Article-Source`: News source (e.g., "BBC News")
+- `X-Article-URL`: Original article URL
+- `X-Article-Title`: Article title
+
+**Example Response:**
+
+```
+The concept of blog feeds emerged around the same time as the first commercial email systems.
+```
+
+**Error Response:**
+
+```json
+{
+  "success": false,
+  "error": "No news articles available. Please run the news ingestion cron job first."
+}
+```
+
+### 9. Get Real-Time Fact Info (Testing)
+
+**GET** `/api/facts/real-time`
+
+Returns information about the most relevant news article without generating a fact. Useful for testing.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "article": {
+      "id": "news_1234567890_abc123",
+      "title": "Blog Feeds",
+      "source": "Hacker News",
+      "url": "https://blogfeeds.net",
+      "published_at": "2025-10-04T19:08:46.000Z"
+    },
+    "message": "Use POST to generate streaming fact"
+  }
+}
+```
+
+### 10. News Ingestion Cron Job
+
+**POST** `/api/cron/retrieve-news`
+
+Fetches and stores news articles from RSS feeds. Requires authorization header.
+
+**Headers:**
+
+- `Authorization: Bearer {CRON_SECRET}`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "News retrieval completed",
+  "results": {
+    "articlesAdded": 99,
+    "articlesSkipped": 68,
+    "errors": 2,
+    "totalArticlesInDatabase": 99,
+    "duration": "41813ms"
+  },
+  "details": [
+    "BBC News: Added \"Netanyahu says he hopes to announce hostage releas...\"",
+    "TechCrunch: Added \"A breach every month raises doubts about South Kor...\""
+  ],
+  "timestamp": "2025-10-05T05:32:25.847Z"
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "success": false,
+  "error": "Unauthorized"
+}
+```
+
+## Real-Time News Features
+
+### RSS Feed Sources
+
+The system fetches news from 8 diverse sources:
+
+- **General News**: BBC News, Reuters
+- **Tech**: TechCrunch, Hacker News
+- **Science**: Science Daily, NASA Breaking News
+- **Programming**: GitHub Blog, Dev.to
+
+### Date Filtering
+
+Only articles from the last 48 hours are processed to ensure relevance.
+
+### Vector Search
+
+Uses Turso's native vector search with cosine similarity to find the most relevant news articles for fact generation.
+
+### AI Integration
+
+- **Embedding Model**: Google Gemini `text-embedding-004` (768 dimensions)
+- **LLM**: Google Gemini `gemini-2.0-flash-lite`
+- **Streaming**: Real-time fact generation with word-by-word display
 
 ## Development
 

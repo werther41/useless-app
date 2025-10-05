@@ -2,9 +2,9 @@ import { db } from "./db"
 import { NewsArticle } from "./schema"
 
 /**
- * Find the most similar article to a given query embedding
+ * Find a similar article to a given query embedding (with some randomness)
  * @param queryEmbedding - The embedding vector to search for
- * @returns Promise<NewsArticle | null> - The most similar article or null if none found
+ * @returns Promise<NewsArticle | null> - A similar article or null if none found
  */
 export async function findSimilarArticle(
   queryEmbedding: number[]
@@ -13,14 +13,14 @@ export async function findSimilarArticle(
     // Convert embedding array to JSON string for SQL query
     const embeddingJson = JSON.stringify(queryEmbedding)
 
-    // Use Turso's vector distance function to find the most similar article
+    // Get top 5 most similar articles and randomly pick one for variety
     const result = await db.execute({
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
         WHERE embedding IS NOT NULL
         ORDER BY vector_distance_cos(embedding, ?) ASC
-        LIMIT 1
+        LIMIT 5
       `,
       args: [embeddingJson],
     })
@@ -29,7 +29,10 @@ export async function findSimilarArticle(
       return null
     }
 
-    const row = result.rows[0]
+    // Randomly select from the top 5 most similar articles for variety
+    const randomIndex = Math.floor(Math.random() * result.rows.length)
+    const row = result.rows[randomIndex]
+
     return {
       id: row.id as string,
       title: row.title as string,
