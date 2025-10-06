@@ -1,5 +1,6 @@
 import BottomRatedFactsSection from "@/components/bottom-rated-facts-section"
 import FactStatsSection from "@/components/fact-stats-section"
+import { Footer } from "@/components/footer"
 import TopRatedFactsSection from "@/components/top-rated-facts-section"
 
 // Force dynamic rendering for this page
@@ -32,14 +33,7 @@ export default function StatisticsPage() {
       <BottomRatedFactsSection />
 
       {/* Footer */}
-      <footer className="border-t border-border px-4 py-12">
-        <div className="container mx-auto max-w-4xl text-center">
-          <p className="text-muted-foreground">
-            © 2024 Useless Facts. Making the world slightly more informed about
-            completely irrelevant things.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

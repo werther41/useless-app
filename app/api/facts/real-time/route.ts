@@ -4,6 +4,8 @@ import { streamText } from "ai"
 
 import { generateEmbedding } from "@/lib/embeddings"
 import { initializeDatabase } from "@/lib/init-db"
+import { SYSTEM_PROMPT, createUserPrompt } from "@/lib/prompts"
+import { getRandomQueryText } from "@/lib/query-texts"
 import { findSimilarArticle } from "@/lib/vector-search"
 
 // Force dynamic rendering
@@ -20,14 +22,18 @@ export async function POST(request: NextRequest) {
     // Initialize database if needed
     await initializeDatabase()
 
-    // Generate query embedding for finding relevant news
-    const queryText = "interesting and unusual recent event"
+    // Generate random query text and embedding for finding relevant news
+    const queryText = getRandomQueryText()
+    console.log(`🔍 Query Text: "${queryText}"`)
+
     const queryEmbedding = await generateEmbedding(queryText)
+    console.log(`📊 Query Embedding: ${queryEmbedding.length} dimensions`)
 
     // Find the most similar article
     const article = await findSimilarArticle(queryEmbedding)
 
     if (!article) {
+      console.log("❌ No articles found in database")
       return NextResponse.json(
         {
           success: false,
@@ -38,25 +44,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create the prompt for generating a fun fact
-    const systemPrompt = `You are an assistant that creates short, quirky, and 'useless' fun facts from news articles. The fact should be surprising and tangentially related to the main point of the article. Do not state the obvious. Output only the fact itself.`
+    console.log(`📰 Article Found:`, {
+      id: article.id,
+      title: article.title,
+      source: article.source,
+      url: article.url,
+      published_at: article.published_at,
+    })
 
-    const userPrompt = `Here is the article: "${article.title}\n\n${article.content}". Please generate a fun fact.`
+    // Create the prompt for generating a fun fact
+    const systemPrompt = SYSTEM_PROMPT
+    const userPrompt = createUserPrompt(article.title, article.content)
+
+    console.log(`🤖 System Prompt: "${systemPrompt}"`)
+    console.log(`💬 User Prompt: "${userPrompt}"`)
 
     // Generate the streaming response using Gemini
+    console.log(`🚀 Starting AI generation with Gemini...`)
     const result = await streamText({
       model: google("models/gemini-2.0-flash-lite"),
       system: systemPrompt,
       prompt: userPrompt,
     })
 
+    console.log(`✅ AI generation completed, creating streaming response...`)
+    console.log(`📝 Expected JSON format: {"funFact": "..."}`)
     // Create response with metadata
     const response = result.toTextStreamResponse()
 
-    // Add custom headers with article metadata
-    response.headers.set("X-Article-Source", article.source)
+    // Add custom headers with article metadata (sanitize for HTTP headers)
+    response.headers.set(
+      "X-Article-Source",
+      article.source.replace(/[^\x00-\x7F]/g, "")
+    )
     response.headers.set("X-Article-URL", article.url)
-    response.headers.set("X-Article-Title", article.title)
+    response.headers.set(
+      "X-Article-Title",
+      article.title.replace(/[^\x00-\x7F]/g, "")
+    )
+    response.headers.set(
+      "X-Article-Date",
+      article.published_at || article.created_at
+    )
 
     // Add cache control headers matching existing patterns
     response.headers.set(
@@ -91,11 +120,16 @@ export async function GET(request: NextRequest) {
   try {
     await initializeDatabase()
 
-    const queryText = "interesting and unusual recent event"
+    const queryText = getRandomQueryText()
+    console.log(`🔍 GET - Query Text: "${queryText}"`)
+
     const queryEmbedding = await generateEmbedding(queryText)
+    console.log(`📊 GET - Query Embedding: ${queryEmbedding.length} dimensions`)
+
     const article = await findSimilarArticle(queryEmbedding)
 
     if (!article) {
+      console.log("❌ GET - No articles found in database")
       return NextResponse.json(
         {
           success: false,
@@ -104,6 +138,14 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       )
     }
+
+    console.log(`📰 GET - Article Found:`, {
+      id: article.id,
+      title: article.title,
+      source: article.source,
+      url: article.url,
+      published_at: article.published_at,
+    })
 
     return NextResponse.json({
       success: true,
@@ -115,6 +157,7 @@ export async function GET(request: NextRequest) {
           url: article.url,
           published_at: article.published_at,
         },
+        queryText,
         message: "Use POST to generate streaming fact",
       },
     })

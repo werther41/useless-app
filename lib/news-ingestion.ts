@@ -2,43 +2,8 @@ import Parser from "rss-parser"
 
 import { db } from "./db"
 import { generateArticleEmbedding } from "./embeddings"
+import { RSS_FEEDS } from "./rss-feeds"
 import { NewsArticle } from "./schema"
-
-// RSS feed sources
-const RSS_FEEDS = [
-  {
-    url: "http://feeds.bbci.co.uk/news/rss.xml",
-    source: "BBC News",
-  },
-  {
-    url: "https://feeds.reuters.com/reuters/topNews",
-    source: "Reuters",
-  },
-  {
-    url: "https://techcrunch.com/feed/",
-    source: "TechCrunch",
-  },
-  {
-    url: "https://hnrss.org/frontpage",
-    source: "Hacker News",
-  },
-  {
-    url: "https://www.sciencedaily.com/rss/all.xml",
-    source: "Science Daily",
-  },
-  {
-    url: "https://www.nasa.gov/rss/dyn/breaking_news.rss",
-    source: "NASA Breaking News",
-  },
-  {
-    url: "https://github.blog/feed/",
-    source: "GitHub Blog",
-  },
-  {
-    url: "https://dev.to/feed",
-    source: "Dev.to",
-  },
-]
 
 const parser = new Parser()
 

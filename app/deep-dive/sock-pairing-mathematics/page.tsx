@@ -432,7 +432,7 @@ export default function SockPairingMathematics() {
         </section>
 
         {/* Conclusion */}
-        <section id="conclusion" className="text-center">
+        <section id="conclusion" className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold text-slate-900">
             The Optimal Strategy
           </h2>
@@ -444,14 +444,47 @@ export default function SockPairingMathematics() {
             cognitive load required to pair your socks. Happy pairing!
           </p>
         </section>
+
+        {/* Research Reference */}
+        <section className="mb-16 rounded-lg border border-slate-200 bg-white p-6 shadow-lg">
+          <h3 className="mb-4 text-center text-xl font-semibold text-slate-900">
+            Full Mathematical Model
+          </h3>
+          <p className="mb-4 text-center text-slate-600">
+            For the complete mathematical models, detailed algorithms, and
+            comprehensive computational analysis, read our full research
+            article:
+          </p>
+          <div className="text-center">
+            <a
+              href="/deep-dive/sock-pairing-mathematics-deep-dive"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700"
+            >
+              <span>Read Full Mathematical Model</span>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </a>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
       <footer className="mt-16 bg-slate-800 text-white">
         <div className="container mx-auto px-6 py-4 text-center">
           <p>
-            &copy; 2025 Institute of Applied Laundry Mathematics. All rights
-            reserved.
+            &copy; 2025 Useless Facts. Making the world slightly more informed
+            about completely irrelevant things.
           </p>
         </div>
       </footer>

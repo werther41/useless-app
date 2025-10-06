@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
+interface FunFactResponse {
+  funFact: string
+}
+
 interface RealTimeFactProps {
   className?: string
 }
@@ -17,6 +21,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [articleSource, setArticleSource] = useState<string>("")
   const [articleTitle, setArticleTitle] = useState<string>("")
   const [articleUrl, setArticleUrl] = useState<string>("")
+  const [articleDate, setArticleDate] = useState<string>("")
   const [error, setError] = useState<string>("")
 
   const generateRealTimeFact = async () => {
@@ -26,6 +31,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     setArticleSource("")
     setArticleTitle("")
     setArticleUrl("")
+    setArticleDate("")
 
     try {
       const response = await fetch("/api/facts/real-time", {
@@ -44,10 +50,12 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
       const source = response.headers.get("X-Article-Source") || "Unknown"
       const url = response.headers.get("X-Article-URL") || ""
       const title = response.headers.get("X-Article-Title") || ""
+      const date = response.headers.get("X-Article-Date") || ""
 
       setArticleSource(source)
       setArticleTitle(title)
       setArticleUrl(url)
+      setArticleDate(date)
 
       // Handle streaming response
       const reader = response.body?.getReader()
@@ -55,7 +63,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         throw new Error("No response body")
       }
 
-      let fullFact = ""
+      let fullResponse = ""
       const decoder = new TextDecoder()
 
       while (true) {
@@ -65,8 +73,30 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         const chunk = decoder.decode(value)
         // For toTextStreamResponse(), the content comes directly as text
         if (chunk.trim()) {
-          fullFact += chunk
-          setFact(fullFact)
+          fullResponse += chunk
+          // Show streaming text while building
+          setFact(fullResponse)
+        }
+      }
+
+      // Try to parse the final response as JSON
+      try {
+        const jsonResponse: FunFactResponse = JSON.parse(fullResponse)
+        if (jsonResponse.funFact) {
+          setFact(jsonResponse.funFact)
+        }
+      } catch (error) {
+        // If JSON parsing fails, try to extract the funFact from the text
+        console.log(
+          "Could not parse JSON response, trying to extract funFact:",
+          error
+        )
+        const funFactMatch = fullResponse.match(/"funFact":\s*"([^"]+)"/)
+        if (funFactMatch && funFactMatch[1]) {
+          setFact(funFactMatch[1])
+        } else {
+          // If all else fails, keep the raw response
+          console.log("Could not extract funFact, using raw text")
         }
       }
     } catch (error) {
@@ -146,12 +176,17 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                       {fact}
                     </h3>
                     {articleSource && (
-                      <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <p>
                           Based on news from: <strong>{articleSource}</strong>
+                          {articleDate && (
+                            <span className="ml-2 text-sm">
+                              ({new Date(articleDate).toLocaleDateString()})
+                            </span>
+                          )}
                         </p>
                         {articleTitle && (
-                          <p className="max-w-md text-center text-xs">
+                          <p className="max-w-md text-center">
                             &quot;{articleTitle}&quot;
                           </p>
                         )}
