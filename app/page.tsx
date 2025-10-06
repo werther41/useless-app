@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DeepDiveSection } from "@/components/deep-dive-section"
+import { Footer } from "@/components/footer"
 import { RealTimeFactSection } from "@/components/real-time-fact-section"
 
 interface Fact {
@@ -285,7 +286,8 @@ export default function UselessFactsHome() {
             to discover the most loved and hated facts in our collection.
           </p>
           <p className="text-pretty mt-6 text-lg text-muted-foreground">
-            Prefer to browse everything yourself? Explore our full catalog on the{" "}
+            Prefer to browse everything yourself? Explore our full catalog on
+            the{" "}
             <Link
               href="/facts"
               className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
@@ -304,14 +306,7 @@ export default function UselessFactsHome() {
       <DeepDiveSection sectionId="infographics" />
 
       {/* Footer */}
-      <footer className="border-t border-border px-4 py-12">
-        <div className="container mx-auto max-w-4xl text-center">
-          <p className="text-muted-foreground">
-            © 2024 Useless Facts. Making the world slightly more informed about
-            completely irrelevant things.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

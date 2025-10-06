@@ -2,9 +2,10 @@ import { db } from "./db"
 import { NewsArticle } from "./schema"
 
 /**
- * Find a similar article to a given query embedding (with some randomness)
+ * Find a similar article to a given query embedding from recent news (last 7 days)
+ * Uses hybrid approach: similarity + recency weighting with randomness for variety
  * @param queryEmbedding - The embedding vector to search for
- * @returns Promise<NewsArticle | null> - A similar article or null if none found
+ * @returns Promise<NewsArticle | null> - A similar recent article or null if none found
  */
 export async function findSimilarArticle(
   queryEmbedding: number[]
@@ -13,14 +14,17 @@ export async function findSimilarArticle(
     // Convert embedding array to JSON string for SQL query
     const embeddingJson = JSON.stringify(queryEmbedding)
 
-    // Get top 5 most similar articles and randomly pick one for variety
+    // Get top 10 most similar articles from last 7 days and randomly pick one for variety
     const result = await db.execute({
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
-        WHERE embedding IS NOT NULL
-        ORDER BY vector_distance_cos(embedding, ?) ASC
-        LIMIT 5
+        WHERE embedding IS NOT NULL 
+          AND published_at >= datetime('now', '-7 days')
+        ORDER BY 
+          vector_distance_cos(embedding, ?) ASC,
+          published_at DESC
+        LIMIT 10
       `,
       args: [embeddingJson],
     })
@@ -29,7 +33,7 @@ export async function findSimilarArticle(
       return null
     }
 
-    // Randomly select from the top 5 most similar articles for variety
+    // Randomly select from the top 10 most similar recent articles for variety
     const randomIndex = Math.floor(Math.random() * result.rows.length)
     const row = result.rows[randomIndex]
 
@@ -50,10 +54,10 @@ export async function findSimilarArticle(
 }
 
 /**
- * Find multiple similar articles to a given query embedding
+ * Find multiple similar articles to a given query embedding from recent news (last 7 days)
  * @param queryEmbedding - The embedding vector to search for
  * @param limit - Maximum number of articles to return (default: 5)
- * @returns Promise<NewsArticle[]> - Array of similar articles
+ * @returns Promise<NewsArticle[]> - Array of similar recent articles
  */
 export async function findSimilarArticles(
   queryEmbedding: number[],
@@ -66,8 +70,11 @@ export async function findSimilarArticles(
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
-        WHERE embedding IS NOT NULL
-        ORDER BY vector_distance_cos(embedding, ?) ASC
+        WHERE embedding IS NOT NULL 
+          AND published_at >= datetime('now', '-7 days')
+        ORDER BY 
+          vector_distance_cos(embedding, ?) ASC,
+          published_at DESC
         LIMIT ?
       `,
       args: [embeddingJson, limit],
@@ -90,8 +97,8 @@ export async function findSimilarArticles(
 }
 
 /**
- * Get a random article from the database
- * @returns Promise<NewsArticle | null> - A random article or null if none found
+ * Get a random article from recent news (last 7 days)
+ * @returns Promise<NewsArticle | null> - A random recent article or null if none found
  */
 export async function getRandomArticle(): Promise<NewsArticle | null> {
   try {
@@ -99,7 +106,8 @@ export async function getRandomArticle(): Promise<NewsArticle | null> {
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
-        WHERE embedding IS NOT NULL
+        WHERE embedding IS NOT NULL 
+          AND published_at >= datetime('now', '-7 days')
         ORDER BY RANDOM()
         LIMIT 1
       `,

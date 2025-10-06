@@ -4,6 +4,7 @@ import { Calendar, Clock, User } from "lucide-react"
 import { getAllDeepDiveArticles } from "@/lib/deep-dive"
 import { Button } from "@/components/ui/button"
 import { DeepDiveSection } from "@/components/deep-dive-section"
+import { Footer } from "@/components/footer"
 
 export default function DeepDivePage() {
   const articles = getAllDeepDiveArticles()
@@ -114,14 +115,7 @@ export default function DeepDivePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border px-4 py-12">
-        <div className="container mx-auto max-w-4xl text-center">
-          <p className="text-muted-foreground">
-            © 2024 Useless Facts. Making the world slightly more informed about
-            completely irrelevant things.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

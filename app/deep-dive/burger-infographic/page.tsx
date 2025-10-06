@@ -450,15 +450,43 @@ export default function BurgerInfographic() {
         </section>
       </main>
 
+      {/* Research Reference */}
+      <section className="mb-8 rounded-lg bg-white p-6 shadow-lg">
+        <h3 className="mb-4 text-center text-xl font-semibold text-[#00796B]">
+          Full Research Article
+        </h3>
+        <p className="mb-4 text-center text-gray-600">
+          For the complete scientific methodology, detailed data analysis, and
+          comprehensive cooking experiments, read our full research article:
+        </p>
+        <div className="text-center">
+          <a
+            href="/deep-dive/burger-infographic-deep-dive"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#00796B] px-6 py-3 text-white transition-colors hover:bg-[#005a4a]"
+          >
+            <span>Read Full Research Article</span>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+          </a>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="mt-8 bg-gray-100 p-6 text-center text-sm text-gray-600">
         <p>
-          Infographic created based on the principles from J. Kenji
-          López-Alt&apos;s &quot;The Food Lab&quot;.
-        </p>
-        <p>
-          This visualization uses Chart.js for canvas-based rendering. No SVG or
-          Mermaid JS was used.
+          &copy; 2025 Useless Facts. Making the world slightly more informed
+          about completely irrelevant things.
         </p>
       </footer>
     </div>

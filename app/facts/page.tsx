@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -43,8 +43,8 @@ export default function AllFactsPage() {
   }, [searchParams])
 
   const limit = useMemo(() => {
-    const l = Number(searchParams.get("limit") || 10)
-    if (!Number.isFinite(l)) return 10
+    const l = Number(searchParams.get("limit") || 50)
+    if (!Number.isFinite(l)) return 50
     return Math.min(Math.max(l, 1), 100)
   }, [searchParams])
 
@@ -125,7 +125,7 @@ export default function AllFactsPage() {
             <div>
               <Link
                 href={pathname}
-                className="text-sm text-primary underline underline-offset-4 hover:text-primary/80"
+                className="hover:text-primary/80 text-sm text-primary underline underline-offset-4"
                 prefetch
               >
                 Reset filters
@@ -134,7 +134,7 @@ export default function AllFactsPage() {
           </div>
 
           {error && (
-            <div className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+            <div className="border-destructive/30 bg-destructive/10 mb-6 rounded-md border p-4 text-destructive">
               {error}
             </div>
           )}
@@ -143,7 +143,9 @@ export default function AllFactsPage() {
             {isLoading && facts.length === 0 && (
               <Card>
                 <CardContent className="p-6">
-                  <p className="text-center text-muted-foreground">Loading facts…</p>
+                  <p className="text-center text-muted-foreground">
+                    Loading facts…
+                  </p>
                 </CardContent>
               </Card>
             )}
@@ -151,7 +153,9 @@ export default function AllFactsPage() {
             {!isLoading && facts.length === 0 && !error && (
               <Card>
                 <CardContent className="p-6">
-                  <p className="text-center text-muted-foreground">No facts found.</p>
+                  <p className="text-center text-muted-foreground">
+                    No facts found.
+                  </p>
                 </CardContent>
               </Card>
             )}
@@ -166,10 +170,12 @@ export default function AllFactsPage() {
                 <CardContent className="pt-0">
                   <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <span>
-                      Rating: <span className="font-semibold">{fact.total_rating}</span>
+                      Rating:{" "}
+                      <span className="font-semibold">{fact.total_rating}</span>
                     </span>
                     <span>
-                      Votes: <span className="font-semibold">{fact.rating_count}</span>
+                      Votes:{" "}
+                      <span className="font-semibold">{fact.rating_count}</span>
                     </span>
                     {fact.source && (
                       <span className="truncate">Source: {fact.source}</span>
@@ -204,7 +210,7 @@ export default function AllFactsPage() {
           <div className="mt-8 text-center text-sm">
             <Link
               href="/"
-              className="text-primary underline underline-offset-4 hover:text-primary/80"
+              className="hover:text-primary/80 text-primary underline underline-offset-4"
             >
               Back to home
             </Link>
