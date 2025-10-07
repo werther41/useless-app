@@ -2,7 +2,8 @@
 
 ## Change log
 
-- Earlier - Look and feel update - redesigned with v0.dev
+- At the very begining - 2024 - chatGPT generated the code with Next.js and Shadcn for this site as demo.
+- Earlier 2025 - Look and feel update - redesigned with v0.dev
 - Sep 11 - external API, Added Info-graphic for burger flipping
 - Sep 22 - implemented SQLite based back-end and API, real-rating, imported 1000+ fun fact into DB.
 - Sep 28 - added Markdown driven Blog
@@ -29,7 +30,7 @@
    - Feature is implemented, however it's less engaging. the search and generate works this way: search vector db with "**interesting and unusual recent event**", find relevant news (mathematically closed), get top 5, randomly pick one, and generate fun fact based on that. need to fix this.
      - [x] fine tune done, externalized Vector DB query array, updated system and user prompt.
        - [ ] To implement more engaging/interactive features.
-10. [ ] Try to combine the fixed fun fact in DB with dynamicaaly generated real-time fun fact.
+10. [ ] Try to combine the fixed fun fact in DB with dynamicaaly generated real-time fun fact. Store the generated fact as well.
 
 ### Feature & Improvement candidate
 
