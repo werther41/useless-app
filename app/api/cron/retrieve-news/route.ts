@@ -72,11 +72,33 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const isVercelCron = !!request.headers.get("x-vercel-cron")
+    const authHeader = request.headers.get("authorization")
+    const cronSecret = process.env.CRON_SECRET
+
+    if (!isVercelCron) {
+      if (!cronSecret) {
+        console.error("CRON_SECRET environment variable not set")
+        return NextResponse.json(
+          { error: "Cron secret not configured" },
+          { status: 500 }
+        )
+      }
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json(
+          {
+            error:
+              "Unauthorized. Use POST with Authorization or scheduled cron.",
+            timestamp: new Date().toISOString(),
+          },
+          { status: 401 }
+        )
+      }
+    }
     await initializeDatabase()
 
     console.log(
       "Starting news retrieval cron job (GET)",
-      isVercelCron ? "[vercel-cron]" : "[no-cron-header]"
+      isVercelCron ? "[vercel-cron]" : "[auth-header]"
     )
     const startTime = Date.now()
 
