@@ -25,7 +25,7 @@
   "crons": [
     {
       "path": "/api/cron/retrieve-news",
-      "schedule": "0 0 * * *"
+      "schedule": "/5 * *"
     }
   ],
   "headers": [
