@@ -25,11 +25,7 @@
   "crons": [
     {
       "path": "/api/cron/retrieve-news",
-      "schedule": "0 0 * * *",
-      "method": "POST",
-      "headers": {
-        "Authorization": "Bearer {CRON_SECRET}"
-      }
+      "schedule": "0 0 * * *"
     }
   ],
   "headers": [

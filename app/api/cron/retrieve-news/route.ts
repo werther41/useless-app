@@ -70,12 +70,57 @@ export async function POST(request: NextRequest) {
 
 // Allow GET for testing purposes (remove in production)
 export async function GET(request: NextRequest) {
-  return NextResponse.json(
-    {
-      message:
-        "News retrieval cron job endpoint. Use POST with proper authorization.",
+  const isVercelCron = !!request.headers.get("x-vercel-cron")
+  if (!isVercelCron) {
+    return NextResponse.json(
+      {
+        error: "Use POST with Authorization for manual trigger.",
+        timestamp: new Date().toISOString(),
+      },
+      { status: 405 }
+    )
+  }
+
+  try {
+    await initializeDatabase()
+
+    console.log("Starting news retrieval cron job (GET via Vercel Cron)...")
+    const startTime = Date.now()
+
+    const results = await fetchAndStoreNews()
+    const totalArticles = await getNewsArticleCount()
+
+    const duration = Date.now() - startTime
+
+    const response = {
+      success: true,
+      message: "News retrieval completed (GET via Vercel Cron)",
+      results: {
+        articlesAdded: results.success,
+        articlesSkipped: results.skipped,
+        errors: results.errors,
+        totalArticlesInDatabase: totalArticles,
+        duration: `${duration}ms`,
+      },
+      details: results.details,
       timestamp: new Date().toISOString(),
-    },
-    { status: 200 }
-  )
+    }
+
+    console.log("News retrieval completed (GET via Vercel Cron):", response)
+
+    return NextResponse.json(response)
+  } catch (error) {
+    console.error(
+      "Error in news retrieval cron job (GET via Vercel Cron):",
+      error
+    )
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    )
+  }
 }
