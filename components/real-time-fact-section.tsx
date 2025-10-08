@@ -148,11 +148,11 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                   <div className="space-y-4 w-full max-w-2xl mx-auto">
                     <div className="flex items-center justify-center gap-2">
                       <Clock className="h-5 w-5 animate-spin text-primary" />
-                      <span className="text-lg text-muted-foreground">
+                      <span className="text-base sm:text-lg text-muted-foreground">
                         Analyzing news articles...
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       This may take a few moments
                     </p>
                   </div>
@@ -172,7 +172,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                   </div>
                 ) : fact ? (
                   <div className="space-y-4 w-full max-w-2xl mx-auto">
-                    <h3 className="text-balance text-xl font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
+                    <h3 className="text-balance text-lg font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       {fact}
                     </h3>
                     {articleSource && (
@@ -206,7 +206,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                   </div>
                 ) : (
                   <div className="w-full max-w-2xl mx-auto">
-                    <h3 className="text-balance text-xl font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
+                    <h3 className="text-balance text-lg font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       Ready to discover a fact from today&apos;s news?
                     </h3>
                   </div>
