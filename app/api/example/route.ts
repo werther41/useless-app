@@ -12,9 +12,9 @@ export async function GET() {
       )
     `)
 
-    // Example: Insert a user
+    // Example: Insert a user (ignore if already exists)
     const result = await db.execute({
-      sql: "INSERT INTO users (name, email) VALUES (?, ?)",
+      sql: "INSERT OR IGNORE INTO users (name, email) VALUES (?, ?)",
       args: ["John Doe", "john@example.com"],
     })
 

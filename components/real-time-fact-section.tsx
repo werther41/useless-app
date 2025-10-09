@@ -110,7 +110,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   }
 
   return (
-    <section className={`px-2 sm:px-4 py-12 ${className || ""}`}>
+    <section className={`px-2 py-12 sm:px-4 ${className || ""}`}>
       <div className="container mx-auto max-w-4xl">
         <div className="mb-8 text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
@@ -135,7 +135,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                 <Button
                   onClick={generateRealTimeFact}
                   size="lg"
-                  className="w-full sm:w-auto whitespace-nowrap px-6 py-3 text-base sm:px-8 sm:text-lg"
+                  className="w-full whitespace-nowrap px-6 py-3 text-base sm:w-auto sm:px-8 sm:text-lg"
                   disabled={isLoading}
                 >
                   <Wand2 className="mr-2 h-5 w-5" />
@@ -145,19 +145,19 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
 
               <div className="mb-8 flex min-h-[200px] items-center justify-center">
                 {isLoading ? (
-                  <div className="space-y-4 w-full max-w-2xl mx-auto">
+                  <div className="mx-auto w-full max-w-2xl space-y-4">
                     <div className="flex items-center justify-center gap-2">
                       <Clock className="h-5 w-5 animate-spin text-primary" />
-                      <span className="text-base sm:text-lg text-muted-foreground">
+                      <span className="text-base text-muted-foreground sm:text-lg">
                         Analyzing news articles...
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground sm:text-sm">
                       This may take a few moments
                     </p>
                   </div>
                 ) : error ? (
-                  <div className="space-y-4 w-full max-w-2xl mx-auto">
+                  <div className="mx-auto w-full max-w-2xl space-y-4">
                     <h3 className="text-xl font-semibold text-red-600">
                       Error generating fact
                     </h3>
@@ -171,7 +171,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                     </Button>
                   </div>
                 ) : fact ? (
-                  <div className="space-y-4 w-full max-w-2xl mx-auto">
+                  <div className="mx-auto w-full max-w-2xl space-y-4">
                     <h3 className="text-balance text-lg font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       {fact}
                     </h3>
@@ -205,7 +205,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                     )}
                   </div>
                 ) : (
-                  <div className="w-full max-w-2xl mx-auto">
+                  <div className="mx-auto w-full max-w-2xl">
                     <h3 className="text-balance text-lg font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       Ready to discover a fact from today&apos;s news?
                     </h3>
