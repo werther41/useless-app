@@ -6,6 +6,7 @@ import { generateEmbedding } from "@/lib/embeddings"
 import { initializeDatabase } from "@/lib/init-db"
 import { SYSTEM_PROMPT, createUserPrompt } from "@/lib/prompts"
 import { getRandomQueryText } from "@/lib/query-texts"
+import { findArticlesByTopics } from "@/lib/topic-search"
 import { findSimilarArticle } from "@/lib/vector-search"
 
 // Force dynamic rendering
@@ -22,15 +23,60 @@ export async function POST(request: NextRequest) {
     // Initialize database if needed
     await initializeDatabase()
 
-    // Generate random query text and embedding for finding relevant news
-    const queryText = getRandomQueryText()
-    console.log(`🔍 Query Text: "${queryText}"`)
+    // Parse request body for selected topics
+    let selectedTopics: string[] = []
+    let matchedTopics: string[] = []
 
-    const queryEmbedding = await generateEmbedding(queryText)
-    console.log(`📊 Query Embedding: ${queryEmbedding.length} dimensions`)
+    try {
+      const body = await request.json()
+      selectedTopics = body.selectedTopics || []
+    } catch (error) {
+      // If no body or invalid JSON, continue with empty topics (fallback to random)
+      console.log("No selected topics provided, using random query")
+    }
 
-    // Find the most similar article
-    const article = await findSimilarArticle(queryEmbedding)
+    let article: any = null
+
+    // Try topic-based search first if topics are provided
+    if (selectedTopics.length > 0) {
+      console.log(
+        `🎯 Searching for articles with topics: ${selectedTopics.join(", ")}`
+      )
+
+      const topicArticles = await findArticlesByTopics(selectedTopics, {
+        matchType: "any",
+        limit: 5,
+        timeWindow: 48,
+      })
+
+      if (topicArticles.length > 0) {
+        article = topicArticles[0] // Use the most relevant article
+        matchedTopics = selectedTopics.filter(
+          (topic) =>
+            article.title.toLowerCase().includes(topic.toLowerCase()) ||
+            article.content.toLowerCase().includes(topic.toLowerCase())
+        )
+        console.log(
+          `✅ Found article matching topics: ${matchedTopics.join(", ")}`
+        )
+      } else {
+        console.log(
+          "❌ No articles found for selected topics, falling back to random query"
+        )
+      }
+    }
+
+    // Fallback to random query if no topics or no matches
+    if (!article) {
+      const queryText = getRandomQueryText()
+      console.log(`🔍 Fallback Query Text: "${queryText}"`)
+
+      const queryEmbedding = await generateEmbedding(queryText)
+      console.log(`📊 Query Embedding: ${queryEmbedding.length} dimensions`)
+
+      // Find the most similar article
+      article = await findSimilarArticle(queryEmbedding)
+    }
 
     if (!article) {
       console.log("❌ No articles found in database")
@@ -86,6 +132,11 @@ export async function POST(request: NextRequest) {
       "X-Article-Date",
       article.published_at || article.created_at
     )
+
+    // Add matched topics header if topics were used
+    if (matchedTopics.length > 0) {
+      response.headers.set("X-Matched-Topics", matchedTopics.join(", "))
+    }
 
     // Add cache control headers matching existing patterns
     response.headers.set(

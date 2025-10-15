@@ -4,6 +4,7 @@ import { db } from "./db"
 import { generateArticleEmbedding } from "./embeddings"
 import { RSS_FEEDS } from "./rss-feeds"
 import { NewsArticle } from "./schema"
+import { extractAndStoreTopics } from "./topic-extraction"
 
 const parser = new Parser()
 
@@ -96,6 +97,11 @@ export async function fetchAndStoreNews(): Promise<{
           results.success++
           results.details.push(
             `${feed.source}: Added "${item.title.substring(0, 50)}..."`
+          )
+
+          // Fire-and-forget topic extraction (don't block ingestion)
+          extractAndStoreTopics(articleId, item.title, content).catch((err) =>
+            console.error(`Topic extraction failed for ${articleId}:`, err)
           )
         } catch (itemError) {
           console.error(`Error processing item from ${feed.source}:`, itemError)
