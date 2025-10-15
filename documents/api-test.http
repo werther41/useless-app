@@ -68,3 +68,6 @@ Content-Type: application/json
 POST {{baseUrl}}/api/cron/retrieve-news
 Authorization: Bearer YOUR_CRON_SECRET_HERE
 Content-Type: application/json
+
+### Topics API
+GET {{baseUrl}}/api/topics?limit=10
