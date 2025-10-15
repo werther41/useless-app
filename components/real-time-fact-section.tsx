@@ -35,7 +35,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     setArticleTitle("")
     setArticleUrl("")
     setArticleDate("")
-    setMatchedTopics("")
+    setMatchedTopics([])
 
     try {
       const response = await fetch("/api/facts/real-time", {
