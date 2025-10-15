@@ -1,3 +1,6 @@
+// Load environment variables first
+import { config } from "dotenv"
+
 import { db } from "../lib/db"
 import {
   extractAndStoreTopics,
@@ -7,6 +10,8 @@ import {
   storeArticleTopics,
   updateTrendingTopics,
 } from "../lib/topic-extraction"
+
+config()
 
 async function testTopicExtraction() {
   console.log("🧪 Testing Topic Extraction Service")
