@@ -4,10 +4,15 @@ import { useEffect, useState } from "react"
 import {
   Building,
   Calendar,
+  Code,
+  FileText,
   Hash,
   Lightbulb,
   Loader2,
   MapPin,
+  Microscope,
+  Palette,
+  Scale,
   TrendingUp,
   User,
   X,
@@ -33,41 +38,67 @@ interface TopicSelectorProps {
   className?: string
 }
 
-// Icon mapping for entity types
+// Icon mapping for entity types (updated for new types)
 const getEntityIcon = (type: string) => {
   switch (type) {
-    case "TECH":
-      return <Hash className="h-3 w-3" />
-    case "ORG":
-      return <Building className="h-3 w-3" />
     case "PERSON":
       return <User className="h-3 w-3" />
+    case "ORG":
+      return <Building className="h-3 w-3" />
     case "LOCATION":
       return <MapPin className="h-3 w-3" />
-    case "CONCEPT":
+    case "PRODUCT":
+      return <Hash className="h-3 w-3" />
+    case "PROGRAMMING_LANGUAGE":
+      return <Code className="h-3 w-3" />
+    case "SCIENTIFIC_TERM":
+      return <Microscope className="h-3 w-3" />
+    case "FIELD_OF_STUDY":
       return <Lightbulb className="h-3 w-3" />
     case "EVENT":
       return <Calendar className="h-3 w-3" />
+    case "WORK_OF_ART":
+      return <Palette className="h-3 w-3" />
+    case "LAW_OR_POLICY":
+      return <Scale className="h-3 w-3" />
+    // Legacy types for backward compatibility
+    case "TECH":
+      return <Hash className="h-3 w-3" />
+    case "CONCEPT":
+      return <Lightbulb className="h-3 w-3" />
     default:
       return <TrendingUp className="h-3 w-3" />
   }
 }
 
-// Color mapping for entity types
+// Color mapping for entity types (updated for new types)
 const getEntityColor = (type: string) => {
   switch (type) {
-    case "TECH":
-      return "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
-    case "ORG":
-      return "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200"
     case "PERSON":
       return "bg-green-100 text-green-800 border-green-200 hover:bg-green-200"
+    case "ORG":
+      return "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200"
     case "LOCATION":
       return "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200"
-    case "CONCEPT":
+    case "PRODUCT":
+      return "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
+    case "PROGRAMMING_LANGUAGE":
+      return "bg-cyan-100 text-cyan-800 border-cyan-200 hover:bg-cyan-200"
+    case "SCIENTIFIC_TERM":
+      return "bg-indigo-100 text-indigo-800 border-indigo-200 hover:bg-indigo-200"
+    case "FIELD_OF_STUDY":
       return "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200"
     case "EVENT":
       return "bg-red-100 text-red-800 border-red-200 hover:bg-red-200"
+    case "WORK_OF_ART":
+      return "bg-pink-100 text-pink-800 border-pink-200 hover:bg-pink-200"
+    case "LAW_OR_POLICY":
+      return "bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200"
+    // Legacy types for backward compatibility
+    case "TECH":
+      return "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
+    case "CONCEPT":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200"
     default:
       return "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200"
   }

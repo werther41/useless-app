@@ -46,3 +46,75 @@ export function createUserPrompt(
 ): string {
   return `Analyze the following article and generate a fun fact based on the rules. Article: "${articleTitle}\n\n${articleContent}"`
 }
+
+// --- TOPIC EXTRACTION PROMPTS ---
+
+/**
+ * Build the entity extraction prompt for Gemini
+ */
+export function buildEntityExtractionPrompt(
+  title: string,
+  content: string
+): string {
+  return `You are an expert NLP system. Your task is to extract the 5-10 most important named entities and key concepts from the following news article.
+
+Focus on identifying specific and relevant items. Use the following entity types:
+- **PERSON**: People, scientists, researchers.
+- **ORG**: Organizations, companies, institutions (e.g., "NASA", "Google").
+- **LOCATION**: Geographical places, countries, cities.
+- **PRODUCT**: Specific software, hardware, or services (e.g., "iPhone 17", "GitHub Copilot").
+- **PROGRAMMING_LANGUAGE**: Programming languages (e.g., "Python", "Rust").
+- **SCIENTIFIC_TERM**: Specific scientific concepts, theories, species, or astronomical bodies (e.g., "black hole", "CRISPR").
+- **FIELD_OF_STUDY**: Broader domains of knowledge (e.g., "Machine Learning", "Astrophysics").
+- **EVENT**: Specific named events, conferences, or historical periods (e.g., "WWDC 2025", "The Renaissance").
+- **WORK_OF_ART**: Named creative works like books, films, or paintings.
+- **LAW_OR_POLICY**: Named laws, regulations, or policies (e.g., "GDPR").
+
+**Article to Analyze:**
+Title: ${title}
+Content: ${content}
+
+**Instructions:**
+1.  Analyze the title and content to find the most significant topics.
+2.  Do not extract generic or overly broad terms (e.g., "science", "research").
+3.  Return **ONLY** a raw JSON array with the specified format. Do not add any introductory text, explanations, or markdown formatting like \`\`\`json.
+
+**JSON Output Format:**
+[
+  {"text": "entity name", "type": "TYPE_FROM_LIST_ABOVE"},
+  {"text": "another entity", "type": "TYPE_FROM_LIST_ABOVE"}
+]`
+}
+
+/**
+ * Entity types supported by the system
+ */
+export const SUPPORTED_ENTITY_TYPES = [
+  "PERSON",
+  "ORG",
+  "LOCATION",
+  "PRODUCT",
+  "PROGRAMMING_LANGUAGE",
+  "SCIENTIFIC_TERM",
+  "FIELD_OF_STUDY",
+  "EVENT",
+  "WORK_OF_ART",
+  "LAW_OR_POLICY",
+] as const
+
+/**
+ * Legacy entity types for backward compatibility
+ */
+export const LEGACY_ENTITY_TYPES = ["TECH", "CONCEPT", "OTHER"] as const
+
+/**
+ * All supported entity types (new + legacy)
+ */
+export const ALL_ENTITY_TYPES = [
+  ...SUPPORTED_ENTITY_TYPES,
+  ...LEGACY_ENTITY_TYPES,
+] as const
+
+export type SupportedEntityType = (typeof SUPPORTED_ENTITY_TYPES)[number]
+export type LegacyEntityType = (typeof LEGACY_ENTITY_TYPES)[number]
+export type EntityType = (typeof ALL_ENTITY_TYPES)[number]

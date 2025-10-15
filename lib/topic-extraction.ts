@@ -3,6 +3,7 @@ import { generateObject } from "ai"
 import { z } from "zod"
 
 import { db } from "./db"
+import { SUPPORTED_ENTITY_TYPES, buildEntityExtractionPrompt } from "./prompts"
 import { ArticleTopic, ExtractedEntity, TrendingTopic } from "./schema"
 
 // Initialize Gemini
@@ -10,16 +11,8 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_API_KEY!,
 })
 
-// Entity types for NER
-const ENTITY_TYPES = [
-  "TECH",
-  "ORG",
-  "PERSON",
-  "LOCATION",
-  "CONCEPT",
-  "EVENT",
-  "OTHER",
-] as const
+// Entity types for NER (updated)
+const ENTITY_TYPES = SUPPORTED_ENTITY_TYPES
 
 // Schema for Gemini NER response
 const EntitySchema = z.object({
@@ -40,17 +33,10 @@ export async function extractEntitiesFromArticle(
   content: string
 ): Promise<ExtractedEntity[]> {
   try {
-    const prompt = `Extract named entities from this news article. Return a JSON array of entities.
-
-Article Title: ${title}
-Content: ${content.substring(0, 2000)} // Limit content length
-
-For each entity, provide:
-- text: The entity text
-- type: One of ${ENTITY_TYPES.join(", ")}
-- confidence: 0.0-1.0
-
-Focus on extracting meaningful entities that could be trending topics.`
+    const prompt = buildEntityExtractionPrompt(
+      title,
+      content.substring(0, 1500)
+    )
 
     const result = await generateObject({
       model: google("models/gemini-2.0-flash-lite"),
