@@ -49,3 +49,35 @@ export interface NewsArticle {
   created_at: string
   embedding: number[] // Array of float32 values for vector embedding
 }
+
+export interface ArticleTopic {
+  id: string
+  article_id: string
+  entity_text: string
+  entity_type: string
+  tfidf_score: number
+  ner_confidence: number
+  created_at: string
+}
+
+export interface TrendingTopic {
+  id: string
+  topic_text: string
+  entity_type: string
+  occurrence_count: number
+  avg_tfidf_score: number
+  article_ids: string
+  last_seen_at: string
+  created_at: string
+}
+
+export interface ExtractedEntity {
+  text: string
+  type: string
+  confidence: number
+  tfidfScore?: number
+}
+
+export interface TopicWithMetadata extends TrendingTopic {
+  related_articles: Array<{ id: string; title: string }>
+}

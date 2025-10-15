@@ -62,6 +62,56 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_news_articles_source ON news_articles(source)
     `)
 
+    // Create article_topics table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS article_topics (
+        id TEXT PRIMARY KEY,
+        article_id TEXT NOT NULL,
+        entity_text TEXT NOT NULL,
+        entity_type TEXT,
+        tfidf_score REAL,
+        ner_confidence REAL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (article_id) REFERENCES news_articles (id) ON DELETE CASCADE
+      )
+    `)
+
+    // Create trending_topics table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS trending_topics (
+        id TEXT PRIMARY KEY,
+        topic_text TEXT UNIQUE NOT NULL,
+        entity_type TEXT,
+        occurrence_count INTEGER DEFAULT 1,
+        avg_tfidf_score REAL,
+        article_ids TEXT,
+        last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Create indexes for article_topics table
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_article_topics_article_id ON article_topics(article_id)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_article_topics_tfidf_score ON article_topics(tfidf_score DESC)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_article_topics_entity_type ON article_topics(entity_type)
+    `)
+
+    // Create indexes for trending_topics table
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_trending_topics_score ON trending_topics(avg_tfidf_score DESC)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_trending_topics_count ON trending_topics(occurrence_count DESC)
+    `)
+
     console.log("Database initialized successfully")
   } catch (error) {
     console.error("Error initializing database:", error)

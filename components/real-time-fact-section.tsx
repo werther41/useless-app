@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Clock, ExternalLink, Wand2 } from "lucide-react"
+import { Clock, ExternalLink, Wand2, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { TopicSelector } from "@/components/topic-selector"
 
 interface FunFactResponse {
   funFact: string
@@ -23,6 +24,8 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [articleUrl, setArticleUrl] = useState<string>("")
   const [articleDate, setArticleDate] = useState<string>("")
   const [error, setError] = useState<string>("")
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
+  const [matchedTopics, setMatchedTopics] = useState<string[]>([])
 
   const generateRealTimeFact = async () => {
     setIsLoading(true)
@@ -32,6 +35,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     setArticleTitle("")
     setArticleUrl("")
     setArticleDate("")
+    setMatchedTopics([])
 
     try {
       const response = await fetch("/api/facts/real-time", {
@@ -39,6 +43,9 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          selectedTopics: selectedTopics,
+        }),
       })
 
       if (!response.ok) {
@@ -51,11 +58,15 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
       const url = response.headers.get("X-Article-URL") || ""
       const title = response.headers.get("X-Article-Title") || ""
       const date = response.headers.get("X-Article-Date") || ""
+      const matchedTopicsHeader = response.headers.get("X-Matched-Topics") || ""
 
       setArticleSource(source)
       setArticleTitle(title)
       setArticleUrl(url)
       setArticleDate(date)
+      setMatchedTopics(
+        matchedTopicsHeader ? matchedTopicsHeader.split(", ") : []
+      )
 
       // Handle streaming response
       const reader = response.body?.getReader()
@@ -131,6 +142,15 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         <Card className="border-primary/20 border-2 shadow-lg">
           <CardContent className="p-4 sm:p-8">
             <div className="text-center">
+              {/* Topic Selector */}
+              <div className="mb-6">
+                <TopicSelector
+                  onTopicsChange={setSelectedTopics}
+                  maxSelection={5}
+                  className="mb-4"
+                />
+              </div>
+
               <div className="mb-8">
                 <Button
                   onClick={generateRealTimeFact}
@@ -200,6 +220,24 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                             <ExternalLink className="h-3 w-3" />
                             Read original article
                           </a>
+                        )}
+                        {matchedTopics.length > 0 && (
+                          <div className="mt-3">
+                            <p className="mb-2 text-sm text-muted-foreground">
+                              Matched topics:
+                            </p>
+                            <div className="flex flex-wrap justify-center gap-1">
+                              {matchedTopics.map((topic, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="bg-primary/10 text-xs text-primary"
+                                >
+                                  {topic}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
                         )}
                       </div>
                     )}
