@@ -1,5 +1,7 @@
-# @baseUrl = http://localhost:3000
-@baseUrl = https://useless-app-nu.vercel.app
+@baseUrl = http://localhost:3000
+# @baseUrl = https://useless-app-nu.vercel.app
+
+@cronSecret = 06c08a60aa74b3ac20eeb85bf90bdb02950bd2b79aa82aaa6f4e4c287ba94efd
 
 ### Get random fact
 GET {{baseUrl}}/api/facts/random
@@ -66,5 +68,8 @@ Content-Type: application/json
 
 ### News ingestion cron job (requires CRON_SECRET)
 POST {{baseUrl}}/api/cron/retrieve-news
-Authorization: Bearer YOUR_CRON_SECRET_HERE
+Authorization: Bearer {{cronSecret}}
 Content-Type: application/json
+
+### Topics API
+GET {{baseUrl}}/api/topics?limit=10

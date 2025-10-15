@@ -14,7 +14,8 @@
 - Oct 3 - Added deep dive page and article related to math on socks paring.
 - Oct 4 - Generate fun fact based on recent news with AI feature
 - Oct 5 - fine tuned AI generation: RSS feed source update, vector DB query text update and query, system prompt update.
--
+- Oct 14 - Implemented Topic picker: Topic extraction with NER extraction (Gemini), Allow user to pick the news topic for generating real-time facts.
+- Oct 15 - Fixed TF-IDF Scoring.
 
 ### Todo and future improvement Ideas
 
@@ -29,7 +30,7 @@
 9. [x] Generate fun fact based on recent news feature
    - Feature is implemented, however it's less engaging. the search and generate works this way: search vector db with "**interesting and unusual recent event**", find relevant news (mathematically closed), get top 5, randomly pick one, and generate fun fact based on that. need to fix this.
      - [x] fine tune done, externalized Vector DB query array, updated system and user prompt.
-       - [ ] To implement more engaging/interactive features.
+       - [x] To implement more engaging/interactive features.
 10. [ ] Try to combine the fixed fun fact in DB with dynamicaaly generated real-time fun fact. Store the generated fact as well.
 
 ### Feature & Improvement candidate
