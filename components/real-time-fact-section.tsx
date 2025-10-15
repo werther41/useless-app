@@ -146,7 +146,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
               <div className="mb-6">
                 <TopicSelector
                   onTopicsChange={setSelectedTopics}
-                  maxSelection={5}
+                  maxSelection={2}
                   className="mb-4"
                 />
               </div>

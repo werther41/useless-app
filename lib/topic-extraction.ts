@@ -143,41 +143,132 @@ export async function updateTrendingTopics(
       const normalizedText = normalizeEntityText(entity.text)
       const tfidfScore = entity.tfidfScore || 0.0
 
-      // Check if topic already exists
-      const existingResult = await db.execute(
-        "SELECT id, occurrence_count, avg_tfidf_score FROM trending_topics WHERE topic_text = ?",
-        [normalizedText]
-      )
+      // Use INSERT OR IGNORE with UPDATE to handle race conditions
+      const topicId = `trending_${Date.now()}_${Math.abs(
+        normalizedText.split("").reduce((a, b) => a + b.charCodeAt(0), 0)
+      )}_${Math.random().toString(36).substring(2, 9)}`
 
-      if (existingResult.rows.length > 0) {
-        // Update existing topic
-        const existing = existingResult.rows[0] as any
-        const newCount = existing.occurrence_count + 1
-        const newAvgScore =
-          (existing.avg_tfidf_score * existing.occurrence_count + tfidfScore) /
-          newCount
-
+      try {
+        // Try to insert first (this will fail if topic exists due to UNIQUE constraint)
         await db.execute(
-          "UPDATE trending_topics SET occurrence_count = ?, avg_tfidf_score = ?, last_seen_at = CURRENT_TIMESTAMP WHERE id = ?",
-          [newCount, newAvgScore, existing.id]
-        )
-      } else {
-        // Insert new topic
-        const topicId = `trending_${Date.now()}_${Math.abs(
-          normalizedText.split("").reduce((a, b) => a + b.charCodeAt(0), 0)
-        )}`
-        await db.execute(
-          "INSERT INTO trending_topics (id, topic_text, entity_type, occurrence_count, avg_tfidf_score) VALUES (?, ?, ?, ?, ?)",
+          "INSERT OR IGNORE INTO trending_topics (id, topic_text, entity_type, occurrence_count, avg_tfidf_score) VALUES (?, ?, ?, ?, ?)",
           [topicId, normalizedText, entity.type, 1, tfidfScore]
         )
+
+        // Then update (this will work whether insert succeeded or was ignored)
+        const existingResult = await db.execute(
+          "SELECT id, occurrence_count, avg_tfidf_score FROM trending_topics WHERE topic_text = ?",
+          [normalizedText]
+        )
+
+        if (existingResult.rows.length > 0) {
+          const existing = existingResult.rows[0] as any
+
+          // If this isn't the record we just inserted, update it
+          if (existing.occurrence_count > 1 || existing.id !== topicId) {
+            const newCount = existing.occurrence_count + 1
+            const newAvgScore =
+              (existing.avg_tfidf_score * existing.occurrence_count +
+                tfidfScore) /
+              newCount
+
+            await db.execute(
+              "UPDATE trending_topics SET occurrence_count = ?, avg_tfidf_score = ?, last_seen_at = CURRENT_TIMESTAMP WHERE topic_text = ?",
+              [newCount, newAvgScore, normalizedText]
+            )
+          }
+        }
+      } catch (insertError) {
+        // If insert fails for any reason, try update directly
+        const existingResult = await db.execute(
+          "SELECT id, occurrence_count, avg_tfidf_score FROM trending_topics WHERE topic_text = ?",
+          [normalizedText]
+        )
+
+        if (existingResult.rows.length > 0) {
+          const existing = existingResult.rows[0] as any
+          const newCount = existing.occurrence_count + 1
+          const newAvgScore =
+            (existing.avg_tfidf_score * existing.occurrence_count +
+              tfidfScore) /
+            newCount
+
+          await db.execute(
+            "UPDATE trending_topics SET occurrence_count = ?, avg_tfidf_score = ?, last_seen_at = CURRENT_TIMESTAMP WHERE id = ?",
+            [newCount, newAvgScore, existing.id]
+          )
+        }
       }
     }
 
     console.log(`✅ Updated trending topics for ${entities.length} entities`)
   } catch (error) {
     console.error("Error updating trending topics:", error)
-    throw error
+    // Don't throw - allow the process to continue
   }
+}
+
+/**
+ * Calculate simple TF-IDF scores for entities in an article
+ * TF = frequency of entity in this article
+ * IDF = log(total articles / articles containing this entity)
+ */
+async function calculateTfIdfScores(
+  entities: ExtractedEntity[],
+  articleText: string
+): Promise<Map<string, number>> {
+  const scores = new Map<string, number>()
+
+  try {
+    // Get total article count
+    const totalResult = await db.execute(
+      "SELECT COUNT(*) as count FROM news_articles"
+    )
+    const totalArticles = (totalResult.rows[0]?.count as number) || 1
+
+    // Normalize article text for term frequency
+    const normalizedText = articleText.toLowerCase()
+    const words = normalizedText.split(/\s+/)
+
+    for (const entity of entities) {
+      const normalizedEntity = normalizeEntityText(entity.text)
+
+      // Calculate TF: How many times does this entity appear in THIS article?
+      const entityWords = normalizedEntity.split(/\s+/)
+      let termFrequency = 0
+
+      // Count occurrences (simple word matching)
+      for (let i = 0; i <= words.length - entityWords.length; i++) {
+        const slice = words.slice(i, i + entityWords.length).join(" ")
+        if (slice.includes(normalizedEntity)) {
+          termFrequency++
+        }
+      }
+
+      // Normalize TF by article length
+      const tf = termFrequency / words.length
+
+      // Calculate IDF: How rare is this entity across ALL articles?
+      const docFreqResult = await db.execute(
+        "SELECT COUNT(DISTINCT article_id) as count FROM article_topics WHERE LOWER(entity_text) LIKE ?",
+        [`%${normalizedEntity}%`]
+      )
+      const documentsWithEntity = Math.max(
+        (docFreqResult.rows[0]?.count as number) || 1,
+        1
+      )
+      const idf = Math.log(totalArticles / documentsWithEntity)
+
+      // TF-IDF = TF * IDF
+      const tfidfScore = tf * idf
+      scores.set(normalizedEntity, tfidfScore)
+    }
+  } catch (error) {
+    console.error("Error calculating TF-IDF scores:", error)
+    // Return empty map on error - will use 0 scores
+  }
+
+  return scores
 }
 
 /**
@@ -191,8 +282,18 @@ export async function extractAndStoreTopics(
   try {
     const entities = await extractEntitiesFromArticle(title, content)
     if (entities.length > 0) {
-      await storeArticleTopics(articleId, entities)
-      await updateTrendingTopics(entities)
+      // Calculate TF-IDF scores for entities
+      const articleText = `${title} ${content}`
+      const tfidfScores = await calculateTfIdfScores(entities, articleText)
+
+      // Add TF-IDF scores to entities
+      const entitiesWithScores = entities.map((entity) => ({
+        ...entity,
+        tfidfScore: tfidfScores.get(normalizeEntityText(entity.text)) || 0,
+      }))
+
+      await storeArticleTopics(articleId, entitiesWithScores)
+      await updateTrendingTopics(entitiesWithScores)
     }
   } catch (error) {
     console.error(`Topic extraction failed for ${articleId}:`, error)
