@@ -69,5 +69,14 @@ POST {{baseUrl}}/api/cron/retrieve-news
 Authorization: Bearer YOUR_CRON_SECRET_HERE
 Content-Type: application/json
 
-### Topics API
-GET {{baseUrl}}/api/topics?limit=10
+### Topics API (GET)
+GET {{baseUrl}}/api/topics?limit=10&timeWindow=72
+
+### Topics API (POST)
+POST {{baseUrl}}/api/topics
+Content-Type: application/json
+
+{
+  "query": "DNA",
+  "limit": 10
+}
