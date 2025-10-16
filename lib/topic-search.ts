@@ -194,6 +194,157 @@ export async function getTopicSuggestions(
 }
 
 /**
+ * Get diverse topics with category balancing
+ */
+export async function getDiverseTopics(options?: {
+  timeWindow?: number
+  limit?: number
+  entityType?: string
+  randomize?: boolean
+}): Promise<
+  Array<{
+    id: string
+    text: string
+    type: string
+    occurrenceCount: number
+    avgTfidfScore: number
+    lastSeenAt: string
+    combinedScore: number
+  }>
+> {
+  const {
+    timeWindow = 48,
+    limit = 20,
+    entityType,
+    randomize = false,
+  } = options || {}
+
+  try {
+    let query = `
+      SELECT id, topic_text, entity_type, occurrence_count, avg_tfidf_score, last_seen_at, created_at
+      FROM trending_topics
+      WHERE last_seen_at > datetime('now', '-${timeWindow} hours')
+    `
+    const params: any[] = []
+
+    if (entityType) {
+      query += " AND entity_type = ?"
+      params.push(entityType)
+    }
+
+    if (randomize) {
+      query += `
+        ORDER BY RANDOM()
+        LIMIT ?
+      `
+      params.push(limit * 3) // Get more for randomization
+    } else {
+      query += `
+        ORDER BY (occurrence_count * avg_tfidf_score) DESC
+        LIMIT ?
+      `
+      params.push(limit * 2) // Get more to filter for diversity
+    }
+
+    const result = await db.execute(query, params)
+    const allTopics = result.rows.map((row) => {
+      const occurrenceCount = (row.occurrence_count as number) || 0
+      const avgTfidfScore = (row.avg_tfidf_score as number) || 0
+      return {
+        id: row.id as string,
+        text: row.topic_text as string,
+        type: row.entity_type as string,
+        occurrenceCount,
+        avgTfidfScore,
+        lastSeenAt: row.last_seen_at as string,
+        combinedScore: occurrenceCount * avgTfidfScore,
+      }
+    })
+
+    // Apply diversity filtering
+    return selectDiverseTopics(allTopics, limit)
+  } catch (error) {
+    console.error("Error getting diverse topics:", error)
+    return []
+  }
+}
+
+/**
+ * Select diverse topics by balancing entity types and avoiding similar topics
+ */
+function selectDiverseTopics(
+  topics: Array<{
+    id: string
+    text: string
+    type: string
+    occurrenceCount: number
+    avgTfidfScore: number
+    lastSeenAt: string
+    combinedScore: number
+  }>,
+  limit: number
+): Array<{
+  id: string
+  text: string
+  type: string
+  occurrenceCount: number
+  avgTfidfScore: number
+  lastSeenAt: string
+  combinedScore: number
+}> {
+  const selected: typeof topics = []
+  const typeCounts: Record<string, number> = {}
+  const maxPerType = Math.ceil(limit / 5) // Max 5 different types, distribute evenly
+
+  for (const topic of topics) {
+    if (selected.length >= limit) break
+
+    // Check if we already have enough of this entity type
+    const currentTypeCount = typeCounts[topic.type] || 0
+    if (currentTypeCount >= maxPerType) continue
+
+    // Check for similarity with already selected topics
+    const isSimilar = selected.some((selectedTopic) =>
+      isTopicSimilar(topic.text, selectedTopic.text)
+    )
+
+    if (!isSimilar) {
+      selected.push(topic)
+      typeCounts[topic.type] = (typeCounts[topic.type] || 0) + 1
+    }
+  }
+
+  return selected
+}
+
+/**
+ * Check if two topics are similar (simple similarity check)
+ */
+function isTopicSimilar(topic1: string, topic2: string): boolean {
+  const t1 = topic1.toLowerCase().trim()
+  const t2 = topic2.toLowerCase().trim()
+
+  // Exact match
+  if (t1 === t2) return true
+
+  // One contains the other
+  if (t1.includes(t2) || t2.includes(t1)) return true
+
+  // Check for common words (if both have multiple words)
+  const words1 = t1.split(/\s+/)
+  const words2 = t2.split(/\s+/)
+
+  if (words1.length > 1 && words2.length > 1) {
+    const commonWords = words1.filter((word) => words2.includes(word))
+    const similarity =
+      commonWords.length / Math.min(words1.length, words2.length)
+    return similarity > 0.5 // 50% word overlap
+  }
+
+  return false
+}
+
+/**
  * Get articles by topic with relevance scoring
  */
 export async function findArticlesByTopicsWithRelevance(

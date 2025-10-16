@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { getTrendingTopics } from "@/lib/topic-extraction"
+import { getDiverseTopics } from "@/lib/topic-search"
 
 // Cache for 15 minutes
 export const revalidate = 900
@@ -13,6 +14,8 @@ export async function GET(request: NextRequest) {
     const timeWindow = parseInt(searchParams.get("timeWindow") || "48")
     const limit = parseInt(searchParams.get("limit") || "10")
     const entityType = searchParams.get("entityType") || undefined
+    const diverse = searchParams.get("diverse") === "true"
+    const randomize = searchParams.get("_t") !== null // If timestamp parameter exists, randomize
 
     // Validate parameters
     if (timeWindow < 1 || timeWindow > 168) {
@@ -30,28 +33,38 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get trending topics
-    const topics = await getTrendingTopics({
-      timeWindow,
-      limit,
-      entityType,
-    })
+    // Get topics (diverse or regular)
+    const topics = diverse
+      ? await getDiverseTopics({ timeWindow, limit, entityType, randomize })
+      : await getTrendingTopics({ timeWindow, limit, entityType })
 
     // Transform to API response format
     const response = {
       topics: topics.map((topic) => ({
         id: topic.id,
-        text: topic.topic_text,
-        type: topic.entity_type,
-        occurrenceCount: topic.occurrence_count,
-        avgTfidfScore: topic.avg_tfidf_score,
-        lastSeenAt: topic.last_seen_at,
-        combinedScore: topic.occurrence_count * topic.avg_tfidf_score,
+        text: "text" in topic ? topic.text : topic.topic_text,
+        type: "type" in topic ? topic.type : topic.entity_type,
+        occurrenceCount:
+          "occurrenceCount" in topic
+            ? topic.occurrenceCount
+            : topic.occurrence_count,
+        avgTfidfScore:
+          "avgTfidfScore" in topic
+            ? topic.avgTfidfScore
+            : topic.avg_tfidf_score,
+        lastSeenAt:
+          "lastSeenAt" in topic ? topic.lastSeenAt : topic.last_seen_at,
+        combinedScore:
+          "combinedScore" in topic
+            ? topic.combinedScore
+            : topic.occurrence_count * topic.avg_tfidf_score,
       })),
       metadata: {
         timeWindow,
         limit,
         entityType,
+        diverse,
+        randomize,
         totalTopics: topics.length,
         generatedAt: new Date().toISOString(),
       },
