@@ -1,0 +1,63 @@
+---
+globs: "*.tsx,*.css,styles/**/*.css"
+description: "Styling patterns using Tailwind CSS and shadcn/ui"
+---
+
+# Styling Patterns
+
+## Tailwind CSS Conventions
+
+- Use Tailwind CSS with custom CSS variables for theming
+- Use `cn()` utility from [lib/utils.ts](mdc:lib/utils.ts) for className merging
+- Prefer Tailwind utilities over custom CSS
+- Use CSS variables for light/dark mode support
+- Follow the design system with consistent spacing, colors, and typography
+
+## Tailwind Class Ordering
+
+- **CRITICAL**: Always run `npm run lint:fix` after generating Tailwind classes to fix ordering issues
+- The project uses ESLint with `eslint-plugin-tailwindcss` for automatic class ordering
+- AI-generated Tailwind classes often have incorrect ordering that needs to be fixed
+- Follow this order: layout → spacing → typography → colors → effects → transforms
+- Example correct order: `"flex items-center justify-center p-4 text-lg font-bold text-blue-500 hover:bg-blue-100 rounded-lg shadow-md"`
+
+## shadcn/ui Components
+
+- Use shadcn/ui components as base building blocks from [components/ui/](mdc:components/ui/)
+- Follow compound component pattern (Card, CardHeader, CardContent)
+- Use `class-variance-authority` (cva) for component variants
+- Extend HTML attributes in prop interfaces
+
+## Styling Patterns
+
+```typescript
+// Use cn() for className merging
+className={cn(
+  "base-classes",
+  variant === "primary" && "primary-classes",
+  className
+)}
+```
+
+## CSS Variables
+
+- Use custom CSS variables defined in [styles/globals.css](mdc:styles/globals.css)
+- Support light/dark mode with CSS variables
+- Use consistent color palette and design tokens
+- Follow the established radius and spacing system
+
+## Component Styling
+
+- Use Tailwind classes for responsive design
+- Implement proper focus states and accessibility
+- Use consistent spacing and typography scales
+- Follow the established component patterns
+
+## Anti-Patterns to Avoid
+
+- Don't use inline styles
+- Don't mix different styling approaches
+- Don't skip responsive design considerations
+- Don't ignore accessibility requirements
+- **Don't skip running `npm run lint:fix` after generating Tailwind classes**
+- Don't manually reorder Tailwind classes - let the linter handle it

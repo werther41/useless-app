@@ -1,0 +1,66 @@
+---
+globs: "lib/*.ts,app/api/**/*.ts"
+description: "Database patterns and conventions using Turso (libSQL)"
+---
+
+# Database Patterns
+
+## Turso (libSQL) Client
+
+- Use Turso client from [lib/db.ts](mdc:lib/db.ts)
+- Always initialize database with `initializeDatabase()` from [lib/init-db.ts](mdc:lib/init-db.ts)
+- Use prepared statements for all queries to prevent SQL injection
+
+## Database Schema
+
+- Use proper TypeScript interfaces from [lib/schema.ts](mdc:lib/schema.ts)
+- Use consistent naming conventions (snake_case for DB, camelCase for TypeScript)
+- Include proper indexes for performance
+- Use UUIDs for primary keys
+- Include created_at/updated_at timestamps
+- Use proper foreign key relationships
+
+## Query Patterns
+
+```typescript
+// Always use prepared statements
+const result = await db.execute("SELECT * FROM table WHERE id = ?", [id])
+
+// Handle errors properly
+try {
+  const result = await db.execute(query, params)
+  return result.rows
+} catch (error) {
+  console.error('Database error:', error)
+  throw new Error('Database operation failed')
+}
+```
+
+## Database Tables
+
+- **facts**: Core facts with ratings and metadata
+- **fact_ratings**: User ratings for facts (IP-based tracking)
+- **news_articles**: RSS feed articles with embeddings
+- **article_topics**: Extracted entities with NER confidence and TF-IDF scores
+- **trending_topics**: Aggregated topics with occurrence counts
+
+## AI/ML Integration
+
+- Use Google Gemini for NER (Named Entity Recognition)
+- Use structured outputs with Zod schemas
+- Handle AI API errors gracefully
+- Implement fallback mechanisms for AI failures
+- Use OpenAI embeddings for vector search
+
+## Data Validation
+
+- Use Zod schemas from [lib/validation.ts](mdc:lib/validation.ts) for all data validation
+- Validate inputs before database operations
+- Use proper error handling for validation failures
+
+## Performance
+
+- Use proper indexes for frequently queried columns
+- Implement pagination for large result sets
+- Use vector search for similarity queries
+- Cache frequently accessed data when appropriate

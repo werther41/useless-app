@@ -1,0 +1,68 @@
+---
+globs: "*.ts,*.tsx"
+description: "TypeScript and React coding patterns for the Useless Facts app"
+---
+
+# TypeScript & React Patterns
+
+## TypeScript Conventions
+
+- Use strict TypeScript with `strict: true` and `strictNullChecks: true`
+- Prefer `interface` over `type` for object shapes
+- Use proper TypeScript generics for component props
+- Never use `any` type - use proper typing instead
+
+## React Component Patterns
+
+- Use `React.forwardRef` for all UI components that need ref forwarding
+- Always include `displayName` for forwardRef components
+- Prefer function declarations over arrow functions for components
+- Use proper prop interfaces extending HTML attributes
+
+## Component Architecture
+
+- Use shadcn/ui components as base building blocks from [components/ui/](mdc:components/ui/)
+- Follow compound component pattern (Card, CardHeader, CardContent)
+- Use `class-variance-authority` (cva) for component variants
+- Use `cn()` utility from [lib/utils.ts](mdc:lib/utils.ts) for className merging
+- Extend HTML attributes in prop interfaces
+
+## Example Component Pattern
+
+```typescript
+interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "secondary"
+  size?: "sm" | "md" | "lg"
+}
+
+const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "base-classes",
+          variant === "primary" && "primary-classes",
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
+Component.displayName = "Component"
+```
+
+## State Management
+
+- Use React hooks for local state management
+- Prefer `useState` and `useEffect` for simple state
+- Use `useMemo` for expensive calculations
+- Implement proper loading and error states
+- Use URL search params for pagination and filters
+
+## Error Handling
+
+- Handle network errors gracefully in client components
+- Use `AbortController` for request cancellation
+- Implement proper error boundaries in React components

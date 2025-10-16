@@ -1,0 +1,70 @@
+---
+globs: "app/api/**/*.ts"
+description: "API route patterns and conventions for Next.js 13 App Router"
+---
+
+# API Route Patterns
+
+## Next.js 13 App Router Conventions
+
+- Use Next.js 13 App Router API routes in [app/api/](mdc:app/api/)
+- Always include proper error handling with try-catch blocks
+- Use `NextRequest` and `NextResponse` from `next/server`
+- Add cache control headers for dynamic content (`revalidate = 0`)
+
+## Request Validation
+
+- Use Zod schemas from [lib/validation.ts](mdc:lib/validation.ts) for request validation
+- Validate all inputs with descriptive error messages
+- Use proper HTTP status codes
+
+## Response Format
+
+- Return consistent JSON responses with `success` boolean
+- Use this standard response format:
+
+```typescript
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  error?: string
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+  }
+}
+```
+
+## Database Integration
+
+- Always initialize database with `initializeDatabase()` from [lib/init-db.ts](mdc:lib/init-db.ts)
+- Use Turso (libSQL) client from [lib/db.ts](mdc:lib/db.ts)
+- Use prepared statements for all queries
+- Handle database errors gracefully
+
+## Error Handling
+
+- Use consistent error response format: `{ success: false, error: string }`
+- Log errors with context for debugging
+- Handle network errors gracefully
+
+## Cache Control
+
+- Add aggressive cache control headers to prevent all caching for dynamic content:
+
+```typescript
+response.headers.set(
+  "Cache-Control",
+  "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0"
+)
+response.headers.set("Pragma", "no-cache")
+response.headers.set("Expires", "0")
+```
+
+## Security
+
+- Use environment variables for sensitive data
+- Implement proper CORS handling
+- Use IP-based rate limiting where appropriate
+- Sanitize user inputs

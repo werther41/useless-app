@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+description: "Project structure and architecture guide for the Useless Facts app"
+---
+
+# Useless Facts App - Project Structure
+
+## Project Overview
+
+Next.js 13 app with AI-powered fact generation, topic extraction (NER/TF-IDF), and admin interface. Built with TypeScript, Tailwind CSS, shadcn/ui, and Turso database.
+
+## Tech Stack
+
+- **Frontend**: Next.js 13 (App Router), React 18, TypeScript, Tailwind CSS + shadcn/ui
+- **Backend**: Next.js API Routes, Turso (libSQL) database
+- **AI/ML**: Google Gemini 2.0 Flash Lite for NER, OpenAI embeddings
+- **Styling**: Tailwind CSS with custom CSS variables, shadcn/ui components
+- **Validation**: Zod schemas for type-safe data validation
+- **Deployment**: Vercel with automatic CI/CD
+
+## File Organization
+
+- **Components**: [components/](mdc:components/) - UI components
+  - [components/ui/](mdc:components/ui/) - shadcn/ui base components
+- **API Routes**: [app/api/](mdc:app/api/) - Next.js 13 App Router API routes
+- **Library**: [lib/](mdc:lib/) - utilities, database functions, validation
+- **Types**: [types/](mdc:types/) - TypeScript type definitions
+- **Configuration**: [config/](mdc:config/) - site configuration
+- **Styles**: [styles/](mdc:styles/) - global Tailwind CSS
+
+## Key Files
+
+- Main database client: [lib/db.ts](mdc:lib/db.ts)
+- Database schema: [lib/schema.ts](mdc:lib/schema.ts)
+- Validation schemas: [lib/validation.ts](mdc:lib/validation.ts)
+- Utility functions: [lib/utils.ts](mdc:lib/utils.ts)
+- Database initialization: [lib/init-db.ts](mdc:lib/init-db.ts)
+
+## Environment Variables
+
+- `TURSO_DATABASE_URL`: Database connection string
+- `TURSO_AUTH_TOKEN`: Database authentication token
+- `GOOGLE_API_KEY`: Google Gemini API key
+- `CRON_SECRET`: Secret for cron job authentication
