@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import {
   Clock,
   ExternalLink,
@@ -38,6 +38,8 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [savedFactId, setSavedFactId] = useState<string | null>(null)
   const [hasVoted, setHasVoted] = useState(false)
   const [isRating, setIsRating] = useState(false)
+  const [isCardFocused, setIsCardFocused] = useState(false)
+  const factCardRef = useRef<HTMLDivElement>(null)
 
   const generateRealTimeFact = async () => {
     setIsLoading(true)
@@ -50,6 +52,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     setMatchedTopics([])
     setSavedFactId(null)
     setHasVoted(false)
+    setIsCardFocused(true)
 
     try {
       const response = await fetch("/api/facts/real-time", {
@@ -168,6 +171,14 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     } finally {
       setIsLoading(false)
     }
+
+    // Scroll to the fact card with smooth behavior
+    setTimeout(() => {
+      factCardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+    }, 100)
   }
 
   const rateFact = async (rating: number) => {
@@ -229,15 +240,9 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   }
 
   return (
-    <section className={`px-2 py-12 sm:px-4 ${className || ""}`}>
-      <div className="container mx-auto max-w-4xl">
-        <div className="mb-8 text-center">
-          <div className="mb-4 flex items-center justify-center gap-2">
-            <Wand2 className="h-6 w-6 text-primary" />
-            <Badge variant="outline" className="px-4 py-2 text-lg">
-              Real-Time News Facts
-            </Badge>
-          </div>
+    <section className={`p-2 ${className || ""}`}>
+      <div className="container mx-auto max-w-5xl">
+        <div className="mb-6 text-center">
           <h2 className="text-balance mb-4 text-2xl font-semibold text-foreground">
             Facts from Today&apos;s News
           </h2>
@@ -247,7 +252,14 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
           </p>
         </div>
 
-        <Card className="border-primary/20 border-2 shadow-lg">
+        <Card
+          ref={factCardRef}
+          className={`border-primary/20 border-2 shadow-lg transition-all duration-500 hover:shadow-xl ${
+            isCardFocused
+              ? "border-primary/40 ring-primary/10 scale-110 shadow-2xl"
+              : "scale-100"
+          }`}
+        >
           <CardContent className="p-4 sm:p-8">
             <div className="text-center">
               {/* Topic Selector */}

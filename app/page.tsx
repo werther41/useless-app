@@ -3,9 +3,8 @@ import { Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { DeepDiveSection } from "@/components/deep-dive-section"
+import { FactTabs } from "@/components/fact-tabs"
 import { Footer } from "@/components/footer"
-import { RealTimeFactSection } from "@/components/real-time-fact-section"
-import { StaticFactSection } from "@/components/static-fact-section"
 
 export default function UselessFactsHome() {
   return (
@@ -13,27 +12,21 @@ export default function UselessFactsHome() {
       {/* Hero Section */}
       <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <Star className="h-8 w-8 text-primary" />
-            <Badge variant={"outline"} className="px-4 py-2 text-lg">
-              Completely Useless Knowledge
-            </Badge>
-          </div>
           <h2 className="text-balance mb-6 text-3xl font-semibold text-foreground">
             Discover Facts You&apos;ll Never Need
           </h2>
-          <p className="text-pretty mb-12 text-xl text-muted-foreground">
+          <p className="text-pretty mb-6 text-xl text-muted-foreground">
             Expand your mind with wonderfully pointless information that&apos;s
             guaranteed to impress absolutely no one.
           </p>
         </div>
       </section>
 
-      {/* Main Fact Display */}
-      <StaticFactSection />
+      {/* Fact Tabs Section */}
+      <FactTabs />
 
       {/* Statistics Link Section */}
-      <section className="px-4 py-12">
+      <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
           <p className="text-pretty text-lg text-muted-foreground">
             Want to see how our useless facts are performing? Check out our{" "}
@@ -58,9 +51,6 @@ export default function UselessFactsHome() {
           </p>
         </div>
       </section>
-
-      {/* Real-Time News Facts Section */}
-      <RealTimeFactSection />
 
       {/* Infographics Preview Section */}
       <DeepDiveSection sectionId="infographics" />
