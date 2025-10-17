@@ -14,18 +14,19 @@ export async function findArticlesByTopics(
   topicTexts: string[],
   options: TopicSearchOptions = {}
 ): Promise<NewsArticle[]> {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
   }
 
   try {
-    // Normalize topic texts for matching
+    // Normalize topic texts for matching (must match database normalization)
     const normalizedTopics = topicTexts.map((text) =>
       text
         .toLowerCase()
         .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "") // Remove spaces to match database normalization
         .trim()
     )
 
@@ -92,7 +93,7 @@ export async function findArticlesByTopicsFuzzy(
   topicTexts: string[],
   options: TopicSearchOptions = {}
 ): Promise<NewsArticle[]> {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
@@ -353,7 +354,7 @@ export async function findArticlesByTopicsWithRelevance(
 ): Promise<
   Array<NewsArticle & { relevanceScore: number; matchedTopics: string[] }>
 > {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
@@ -364,6 +365,7 @@ export async function findArticlesByTopicsWithRelevance(
       text
         .toLowerCase()
         .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "") // Remove spaces to match database normalization
         .trim()
     )
 
