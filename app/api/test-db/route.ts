@@ -1,6 +1,15 @@
+import { NextRequest } from "next/server"
+
+import { requireAdminAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Check admin authentication
+  const authError = requireAdminAuth(request)
+  if (authError) {
+    return Response.json(authError, { status: authError.status })
+  }
+
   try {
     // Test the connection by running a simple query
     const result = await db.execute("SELECT 1 as test")

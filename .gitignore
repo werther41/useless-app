@@ -46,3 +46,9 @@ __pycache__/
 env/
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Internal documentation (sensitive)
+documents/feature-planning/
+documents/IMPLEMENTATION_SUMMARY*.md
+documents/QUICK_REFERENCE.md
+documents/TOPIC_SELECTION_IMPROVEMENTS.md
