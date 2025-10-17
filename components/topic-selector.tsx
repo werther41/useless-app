@@ -335,12 +335,12 @@ export function TopicSelector({
     <Card className={`border-primary/20 ${className}`}>
       <CardContent className="p-4">
         <div className="mb-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
+          <div className="mb-2">
+            <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold sm:mb-0">
               <TrendingUp className="h-5 w-5" />
               {showSearchResults ? "Search Results" : "Trending Topics"}
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               {!showSearchResults && (
                 <Button
                   variant="ghost"
@@ -354,7 +354,8 @@ export function TopicSelector({
                   ) : (
                     <Dices className="mr-1 h-4 w-4" />
                   )}
-                  Randomize
+                  <span className="hidden sm:inline">Randomize</span>
+                  <span className="sm:hidden">Random</span>
                 </Button>
               )}
               {showSearchResults && (
@@ -365,7 +366,8 @@ export function TopicSelector({
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X className="mr-1 h-4 w-4" />
-                  Clear Search
+                  <span className="hidden sm:inline">Clear Search</span>
+                  <span className="sm:hidden">Clear</span>
                 </Button>
               )}
               {selectedTopics.length > 0 && (
@@ -376,7 +378,10 @@ export function TopicSelector({
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X className="mr-1 h-4 w-4" />
-                  Clear ({selectedTopics.length})
+                  <span className="hidden sm:inline">
+                    Clear ({selectedTopics.length})
+                  </span>
+                  <span className="sm:hidden">Clear</span>
                 </Button>
               )}
             </div>

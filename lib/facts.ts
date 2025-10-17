@@ -1,5 +1,5 @@
 import { db } from "./db"
-import { Fact, FactRating, FactWithRating, FactStatistics } from "./schema"
+import { Fact, FactRating, FactStatistics, FactWithRating } from "./schema"
 
 // Create a new fact
 export async function createFact(
@@ -9,14 +9,15 @@ export async function createFact(
 
   await db.execute({
     sql: `
-      INSERT INTO facts (id, text, source, source_url, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO facts (id, text, source, source_url, fact_type, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     args: [
       fact.id,
       fact.text,
       fact.source || null,
       fact.source_url || null,
+      fact.fact_type || "static",
       now,
       now,
     ],
@@ -27,12 +28,23 @@ export async function createFact(
 
 // Get a random fact with rating information
 export async function getRandomFact(
-  userIp?: string
+  userIp?: string,
+  factType?: string | null
 ): Promise<FactWithRating | null> {
+  // Build WHERE clause based on fact type filter
+  const whereClause = factType ? "WHERE f.fact_type = ?" : ""
+  const params = factType ? [userIp || null, factType] : [userIp || null]
+
   const result = await db.execute(
     `
     SELECT 
-      f.*,
+      f.id,
+      f.text,
+      f.source,
+      f.source_url,
+      f.fact_type,
+      f.created_at,
+      f.updated_at,
       COALESCE(SUM(fr.rating), 0) as total_rating,
       COUNT(fr.id) as rating_count,
       (
@@ -43,11 +55,12 @@ export async function getRandomFact(
       ) as user_rating
     FROM facts f
     LEFT JOIN fact_ratings fr ON f.id = fr.fact_id
+    ${whereClause}
     GROUP BY f.id
     ORDER BY RANDOM()
     LIMIT 1
   `,
-    [userIp || null]
+    params
   )
 
   if (result.rows.length === 0) {
@@ -60,6 +73,7 @@ export async function getRandomFact(
     text: row.text as string,
     source: row.source as string | null,
     source_url: row.source_url as string | null,
+    fact_type: (row.fact_type as "static" | "realtime" | null) || "static",
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
     total_rating: row.total_rating as number,
@@ -76,7 +90,13 @@ export async function getFactById(
   const result = await db.execute(
     `
     SELECT 
-      f.*,
+      f.id,
+      f.text,
+      f.source,
+      f.source_url,
+      f.fact_type,
+      f.created_at,
+      f.updated_at,
       COALESCE(SUM(fr.rating), 0) as total_rating,
       COUNT(fr.id) as rating_count,
       (
@@ -103,6 +123,7 @@ export async function getFactById(
     text: row.text as string,
     source: row.source as string | null,
     source_url: row.source_url as string | null,
+    fact_type: (row.fact_type as "static" | "realtime" | null) || "static",
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
     total_rating: row.total_rating as number,
@@ -184,7 +205,13 @@ export async function getAllFacts(
   const result = await db.execute(
     `
     SELECT 
-      f.*,
+      f.id,
+      f.text,
+      f.source,
+      f.source_url,
+      f.fact_type,
+      f.created_at,
+      f.updated_at,
       COALESCE(SUM(fr.rating), 0) as total_rating,
       COUNT(fr.id) as rating_count,
       (
@@ -223,7 +250,13 @@ export async function getTopRatedFacts(
   const result = await db.execute(
     `
     SELECT 
-      f.*,
+      f.id,
+      f.text,
+      f.source,
+      f.source_url,
+      f.fact_type,
+      f.created_at,
+      f.updated_at,
       COALESCE(SUM(fr.rating), 0) as total_rating,
       COUNT(fr.id) as rating_count,
       (
@@ -258,24 +291,25 @@ export async function getTopRatedFacts(
 // Get fun fact statistics
 export async function getFactStatistics(): Promise<FactStatistics> {
   // Get basic counts
-  const [factsCount, ratingsCount, ratingStats, mostRated, recentActivity] = await Promise.all([
-    // Total facts count
-    db.execute("SELECT COUNT(*) as count FROM facts"),
-    
-    // Total ratings count
-    db.execute("SELECT COUNT(*) as count FROM fact_ratings"),
-    
-    // Rating statistics
-    db.execute(`
+  const [factsCount, ratingsCount, ratingStats, mostRated, recentActivity] =
+    await Promise.all([
+      // Total facts count
+      db.execute("SELECT COUNT(*) as count FROM facts"),
+
+      // Total ratings count
+      db.execute("SELECT COUNT(*) as count FROM fact_ratings"),
+
+      // Rating statistics
+      db.execute(`
       SELECT 
         COUNT(CASE WHEN rating = 1 THEN 1 END) as positive_ratings,
         COUNT(CASE WHEN rating = -1 THEN 1 END) as negative_ratings,
         COALESCE(AVG(CAST(rating AS REAL)), 0) as average_rating
       FROM fact_ratings
     `),
-    
-    // Most rated fact
-    db.execute(`
+
+      // Most rated fact
+      db.execute(`
       SELECT f.id, f.text, COUNT(fr.id) as rating_count
       FROM facts f
       LEFT JOIN fact_ratings fr ON f.id = fr.fact_id
@@ -283,15 +317,15 @@ export async function getFactStatistics(): Promise<FactStatistics> {
       ORDER BY rating_count DESC
       LIMIT 1
     `),
-    
-    // Recent activity
-    db.execute(`
+
+      // Recent activity
+      db.execute(`
       SELECT 
         COUNT(CASE WHEN created_at >= datetime('now', '-1 day') THEN 1 END) as ratings_last_24h,
         COUNT(CASE WHEN created_at >= datetime('now', '-7 days') THEN 1 END) as ratings_last_7d
       FROM fact_ratings
-    `)
-  ])
+    `),
+    ])
 
   const factsRow = factsCount.rows[0]
   const ratingsRow = ratingsCount.rows[0]
@@ -305,15 +339,17 @@ export async function getFactStatistics(): Promise<FactStatistics> {
     average_rating: statsRow.average_rating as number,
     positive_ratings: statsRow.positive_ratings as number,
     negative_ratings: statsRow.negative_ratings as number,
-    most_rated_fact: mostRatedRow ? {
-      id: mostRatedRow.id as string,
-      text: mostRatedRow.text as string,
-      rating_count: mostRatedRow.rating_count as number
-    } : null,
+    most_rated_fact: mostRatedRow
+      ? {
+          id: mostRatedRow.id as string,
+          text: mostRatedRow.text as string,
+          rating_count: mostRatedRow.rating_count as number,
+        }
+      : null,
     recent_activity: {
       ratings_last_24h: activityRow.ratings_last_24h as number,
-      ratings_last_7d: activityRow.ratings_last_7d as number
-    }
+      ratings_last_7d: activityRow.ratings_last_7d as number,
+    },
   }
 }
 
@@ -325,7 +361,13 @@ export async function getBottomRatedFacts(
   const result = await db.execute(
     `
     SELECT 
-      f.*,
+      f.id,
+      f.text,
+      f.source,
+      f.source_url,
+      f.fact_type,
+      f.created_at,
+      f.updated_at,
       COALESCE(SUM(fr.rating), 0) as total_rating,
       COUNT(fr.id) as rating_count,
       (

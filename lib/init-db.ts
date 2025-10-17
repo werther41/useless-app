@@ -14,6 +14,19 @@ export async function initializeDatabase() {
       )
     `)
 
+    // Check if fact_type column exists, if not add it
+    try {
+      await db.execute(`
+        ALTER TABLE facts ADD COLUMN fact_type TEXT DEFAULT 'static'
+      `)
+      console.log("Added fact_type column to facts table")
+    } catch (error: any) {
+      // If column already exists, this will fail - that's expected
+      if (!error.message?.includes("duplicate column name")) {
+        console.log("fact_type column may already exist:", error.message)
+      }
+    }
+
     // Create fact_ratings table
     await db.execute(`
       CREATE TABLE IF NOT EXISTS fact_ratings (
@@ -34,6 +47,15 @@ export async function initializeDatabase() {
     await db.execute(`
       CREATE INDEX IF NOT EXISTS idx_fact_ratings_created_at ON fact_ratings(created_at)
     `)
+
+    // Add index for fact_type after column is created
+    try {
+      await db.execute(`
+        CREATE INDEX IF NOT EXISTS idx_facts_fact_type ON facts(fact_type)
+      `)
+    } catch (error: any) {
+      console.log("Index creation for fact_type:", error.message)
+    }
 
     // Create news_articles table with vector support
     await db.execute(`
