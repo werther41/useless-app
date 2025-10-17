@@ -32,10 +32,16 @@ export function FactRatingButtons({
       })
 
       if (response.ok) {
+        const data = await response.json()
         onRatingChange?.(rating)
+      } else {
+        const errorData = await response.json()
+        console.error("Rating failed:", errorData.error)
+        // You could show a toast notification here
       }
     } catch (error) {
       console.error("Error rating fact:", error)
+      // You could show a toast notification here
     } finally {
       setIsRating(false)
     }
@@ -55,7 +61,7 @@ export function FactRatingButtons({
         } disabled:bg-muted disabled:text-muted-foreground`}
       >
         <ThumbsUp className="h-5 w-5" />
-        Useful Uselessness
+        {isRating ? "Rating..." : "Useful Uselessness"}
       </Button>
       <Button
         onClick={() => rateFact(-1)}
@@ -69,7 +75,7 @@ export function FactRatingButtons({
         } disabled:bg-muted disabled:text-muted-foreground`}
       >
         <ThumbsDown className="h-5 w-5" />
-        Too Useless
+        {isRating ? "Rating..." : "Too Useless"}
       </Button>
     </div>
   )

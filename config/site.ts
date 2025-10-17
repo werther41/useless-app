@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Useless",
+  name: "Useless Facts",
   description:
     "Discover completely useless facts, explore pointless knowledge with interactive infographics, and dive deep into wonderfully irrelevant topics. Rate facts, view statistics, and enjoy the most entertaining collection of useless information on the web.",
   url: "https://useless-app-nu.vercel.app",
@@ -44,7 +44,6 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/werther41",
-    docs: "https://ui.shadcn.com",
+    github: "https://github.com/werther41/useless-app",
   },
 }

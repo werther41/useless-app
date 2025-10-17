@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { requireAdminAuth } from "@/lib/auth"
 import { FactImport, importFacts } from "@/lib/import-facts"
 import { initializeDatabase } from "@/lib/init-db"
 
 export async function POST(request: NextRequest) {
+  // Check admin authentication
+  const authError = requireAdminAuth(request)
+  if (authError) {
+    return NextResponse.json(authError, { status: authError.status })
+  }
+
   try {
     await initializeDatabase()
 
