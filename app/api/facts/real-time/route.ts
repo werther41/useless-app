@@ -6,7 +6,10 @@ import { generateEmbedding } from "@/lib/embeddings"
 import { initializeDatabase } from "@/lib/init-db"
 import { SYSTEM_PROMPT, createUserPrompt } from "@/lib/prompts"
 import { getRandomQueryText } from "@/lib/query-texts"
-import { findArticlesByTopics } from "@/lib/topic-search"
+import {
+  findArticlesByTopics,
+  findArticlesByTopicsFuzzy,
+} from "@/lib/topic-search"
 import { findSimilarArticle } from "@/lib/vector-search"
 
 // Force dynamic rendering
@@ -43,10 +46,11 @@ export async function POST(request: NextRequest) {
         `🎯 Searching for articles with topics: ${selectedTopics.join(", ")}`
       )
 
+      // Tier 1: Exact topic matching
       const topicArticles = await findArticlesByTopics(selectedTopics, {
         matchType: "any",
         limit: 5,
-        timeWindow: 48,
+        timeWindow: 96,
       })
 
       if (topicArticles.length > 0) {
@@ -60,9 +64,28 @@ export async function POST(request: NextRequest) {
           `✅ Found article matching topics: ${matchedTopics.join(", ")}`
         )
       } else {
-        console.log(
-          "❌ No articles found for selected topics, falling back to random query"
-        )
+        // Tier 2: Fuzzy matching fallback
+        console.log("❌ No exact matches found, trying fuzzy matching...")
+
+        const fuzzyArticles = await findArticlesByTopicsFuzzy(selectedTopics, {
+          matchType: "any",
+          limit: 5,
+          timeWindow: 96,
+        })
+
+        if (fuzzyArticles.length > 0) {
+          article = fuzzyArticles[0] // Use the most relevant fuzzy match
+          matchedTopics = selectedTopics.filter(
+            (topic) =>
+              article.title.toLowerCase().includes(topic.toLowerCase()) ||
+              article.content.toLowerCase().includes(topic.toLowerCase())
+          )
+          console.log(
+            `✅ Found article with fuzzy matching: ${matchedTopics.join(", ")}`
+          )
+        } else {
+          console.log("❌ No fuzzy matches found, falling back to random query")
+        }
       }
     }
 

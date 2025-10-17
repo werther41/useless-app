@@ -14,18 +14,19 @@ export async function findArticlesByTopics(
   topicTexts: string[],
   options: TopicSearchOptions = {}
 ): Promise<NewsArticle[]> {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
   }
 
   try {
-    // Normalize topic texts for matching
+    // Normalize topic texts for matching (must match database normalization)
     const normalizedTopics = topicTexts.map((text) =>
       text
         .toLowerCase()
         .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "") // Remove spaces to match database normalization
         .trim()
     )
 
@@ -86,24 +87,48 @@ export async function findArticlesByTopics(
 }
 
 /**
- * Find articles by topic with fuzzy matching
+ * Find articles by topic with intelligent fuzzy matching
  */
 export async function findArticlesByTopicsFuzzy(
   topicTexts: string[],
   options: TopicSearchOptions = {}
 ): Promise<NewsArticle[]> {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
   }
 
   try {
-    // Create LIKE patterns for fuzzy matching
-    const likePatterns = topicTexts.map((text) => `%${text.toLowerCase()}%`)
+    // Create intelligent fuzzy patterns for better matching
+    const fuzzyPatterns: string[] = []
+    const params: any[] = []
+
+    for (const text of topicTexts) {
+      const lowerText = text.toLowerCase()
+
+      // For gaming topics, create more specific patterns
+      if (
+        lowerText.includes("call of duty") ||
+        lowerText.includes("gaming") ||
+        lowerText.includes("game")
+      ) {
+        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
+        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
+        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
+        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
+        params.push(`%${lowerText}%`)
+        params.push("%game%")
+        params.push("%gaming%")
+        params.push("%video gaming%")
+      } else {
+        // For other topics, use standard fuzzy matching
+        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
+        params.push(`%${lowerText}%`)
+      }
+    }
 
     let query: string
-    let params: any[]
 
     if (matchType === "all") {
       // AND logic with fuzzy matching
@@ -112,15 +137,13 @@ export async function findArticlesByTopicsFuzzy(
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND (${likePatterns
-          .map(() => "LOWER(at.entity_text) LIKE ?")
-          .join(" AND ")})
+        AND (${fuzzyPatterns.join(" AND ")})
         GROUP BY na.id
         HAVING COUNT(DISTINCT at.entity_text) >= ?
         ORDER BY na.published_at DESC, at.tfidf_score DESC
         LIMIT ?
       `
-      params = [...likePatterns, Math.min(likePatterns.length, 2), limit]
+      params.push(Math.min(fuzzyPatterns.length, 2), limit)
     } else {
       // OR logic with fuzzy matching
       query = `
@@ -129,14 +152,12 @@ export async function findArticlesByTopicsFuzzy(
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND (${likePatterns
-          .map(() => "LOWER(at.entity_text) LIKE ?")
-          .join(" OR ")})
+        AND (${fuzzyPatterns.join(" OR ")})
         GROUP BY na.id
         ORDER BY max_tfidf_score DESC, na.published_at DESC
         LIMIT ?
       `
-      params = [...likePatterns, limit]
+      params.push(limit)
     }
 
     const result = await db.execute(query, params)
@@ -213,7 +234,7 @@ export async function getDiverseTopics(options?: {
   }>
 > {
   const {
-    timeWindow = 48,
+    timeWindow = 96,
     limit = 20,
     entityType,
     randomize = false,
@@ -353,7 +374,7 @@ export async function findArticlesByTopicsWithRelevance(
 ): Promise<
   Array<NewsArticle & { relevanceScore: number; matchedTopics: string[] }>
 > {
-  const { matchType = "any", limit = 5, timeWindow = 48 } = options
+  const { matchType = "any", limit = 5, timeWindow = 96 } = options
 
   if (topicTexts.length === 0) {
     return []
@@ -364,6 +385,7 @@ export async function findArticlesByTopicsWithRelevance(
       text
         .toLowerCase()
         .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "") // Remove spaces to match database normalization
         .trim()
     )
 
