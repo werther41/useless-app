@@ -67,9 +67,3 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Commit: ${{ github.sha }}"
           echo "Author: ${{ github.actor }}"
-
-          # Add your notification logic here (Slack, Discord, etc.)
-          # Example:
-          # curl -X POST -H 'Content-type: application/json' \
-          #   --data '{"text":"Production deployment started"}' \
-          #   ${{ secrets.SLACK_WEBHOOK_URL }}
