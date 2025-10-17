@@ -12,6 +12,10 @@ export async function GET(request: NextRequest) {
     // Initialize database if needed
     await initializeDatabase()
 
+    // Get query parameters
+    const { searchParams } = new URL(request.url)
+    const factType = searchParams.get("type") // 'static' or 'realtime'
+
     // Get user IP for rating tracking
     const userIp =
       request.ip ||
@@ -19,7 +23,7 @@ export async function GET(request: NextRequest) {
       request.headers.get("x-real-ip") ||
       "unknown"
 
-    const fact = await getRandomFact(userIp)
+    const fact = await getRandomFact(userIp, factType)
 
     if (!fact) {
       return NextResponse.json({ error: "No facts available" }, { status: 404 })

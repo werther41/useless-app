@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { streamText } from "ai"
+import { nanoid } from "nanoid"
 
 import { generateEmbedding } from "@/lib/embeddings"
+import { createFact } from "@/lib/facts"
 import { initializeDatabase } from "@/lib/init-db"
 import { SYSTEM_PROMPT, createUserPrompt } from "@/lib/prompts"
 import { getRandomQueryText } from "@/lib/query-texts"
@@ -115,6 +117,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ AI generation completed, creating streaming response...`)
     console.log(`📝 Expected JSON format: {"funFact": "..."}`)
+
     // Create response with metadata
     const response = result.toTextStreamResponse()
 

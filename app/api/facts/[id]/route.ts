@@ -1,33 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getFactById } from '@/lib/facts'
+import { NextRequest, NextResponse } from "next/server"
+
+import { getFactById } from "@/lib/facts"
+import { initializeDatabase } from "@/lib/init-db"
+
+// Force dynamic rendering
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const userIp = request.ip || 
-                   request.headers.get('x-forwarded-for') || 
-                   request.headers.get('x-real-ip') || 
-                   'unknown'
+    // Initialize database if needed
+    await initializeDatabase()
+
+    const userIp =
+      request.ip ||
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown"
 
     const fact = await getFactById(params.id, userIp)
-    
+
     if (!fact) {
       return NextResponse.json(
-        { error: 'Fact not found' },
+        {
+          success: false,
+          error: "Fact not found",
+        },
         { status: 404 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      data: fact
+      data: fact,
     })
   } catch (error) {
-    console.error('Error fetching fact:', error)
+    console.error("Error fetching fact:", error)
     return NextResponse.json(
-      { error: 'Failed to fetch fact' },
+      {
+        success: false,
+        error: "Failed to fetch fact",
+      },
       { status: 500 }
     )
   }

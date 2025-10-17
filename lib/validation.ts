@@ -6,6 +6,7 @@ export const factSchema = z.object({
   text: z.string().min(10, "Fact text must be at least 10 characters"),
   source: z.string().optional(),
   source_url: z.string().url().optional().or(z.literal("")),
+  fact_type: z.enum(["static", "realtime"]).optional().default("static"),
 })
 
 export const ratingSchema = z.object({

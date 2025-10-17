@@ -1,7 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Clock, ExternalLink, Wand2, X } from "lucide-react"
+import {
+  Clock,
+  ExternalLink,
+  Share2,
+  ThumbsDown,
+  ThumbsUp,
+  TrendingUp,
+  Wand2,
+  X,
+} from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -26,6 +35,9 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [error, setError] = useState<string>("")
   const [selectedTopics, setSelectedTopics] = useState<string[]>([])
   const [matchedTopics, setMatchedTopics] = useState<string[]>([])
+  const [savedFactId, setSavedFactId] = useState<string | null>(null)
+  const [hasVoted, setHasVoted] = useState(false)
+  const [isRating, setIsRating] = useState(false)
 
   const generateRealTimeFact = async () => {
     setIsLoading(true)
@@ -36,6 +48,8 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     setArticleUrl("")
     setArticleDate("")
     setMatchedTopics([])
+    setSavedFactId(null)
+    setHasVoted(false)
 
     try {
       const response = await fetch("/api/facts/real-time", {
@@ -68,6 +82,11 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         matchedTopicsHeader ? matchedTopicsHeader.split(", ") : []
       )
 
+      // Store these values for later use in saving
+      // Use article title as source since we only have source and source_url fields
+      const articleSourceForSave = title || source
+      const articleUrlForSave = url
+
       // Handle streaming response
       const reader = response.body?.getReader()
       if (!reader) {
@@ -91,9 +110,11 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
       }
 
       // Try to parse the final response as JSON
+      let finalFactText = ""
       try {
         const jsonResponse: FunFactResponse = JSON.parse(fullResponse)
         if (jsonResponse.funFact) {
+          finalFactText = jsonResponse.funFact
           setFact(jsonResponse.funFact)
         }
       } catch (error) {
@@ -104,10 +125,39 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
         )
         const funFactMatch = fullResponse.match(/"funFact":\s*"([^"]+)"/)
         if (funFactMatch && funFactMatch[1]) {
+          finalFactText = funFactMatch[1]
           setFact(funFactMatch[1])
         } else {
           // If all else fails, keep the raw response
+          finalFactText = fullResponse.trim()
           console.log("Could not extract funFact, using raw text")
+        }
+      }
+
+      // Save the fact to database
+      if (finalFactText) {
+        try {
+          const saveResponse = await fetch("/api/facts/save-realtime", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: finalFactText,
+              source: articleSourceForSave,
+              source_url: articleUrlForSave,
+            }),
+          })
+
+          if (saveResponse.ok) {
+            const saveData = await saveResponse.json()
+            if (saveData.success) {
+              setSavedFactId(saveData.data.id)
+              console.log("Fact saved with ID:", saveData.data.id)
+            }
+          }
+        } catch (saveError) {
+          console.error("Error saving fact:", saveError)
         }
       }
     } catch (error) {
@@ -117,6 +167,64 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
       )
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const rateFact = async (rating: number) => {
+    if (!savedFactId || hasVoted || isRating) return
+
+    setIsRating(true)
+    try {
+      const response = await fetch(`/api/facts/${savedFactId}/rate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating }),
+      })
+
+      if (response.ok) {
+        setHasVoted(true)
+      }
+    } catch (error) {
+      console.error("Error rating fact:", error)
+    } finally {
+      setIsRating(false)
+    }
+  }
+
+  const handleShare = async () => {
+    if (!savedFactId) return
+
+    const shareUrl = `${window.location.origin}/facts/${savedFactId}`
+    const shareData = {
+      title: "Useless Fact",
+      text: fact,
+      url: shareUrl,
+    }
+
+    try {
+      if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare(shareData)
+      ) {
+        await navigator.share(shareData)
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareUrl)
+        alert("Link copied to clipboard!")
+      }
+    } catch (error) {
+      console.error("Error sharing:", error)
+      // Final fallback
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        alert("Link copied to clipboard!")
+      } catch (clipboardError) {
+        console.error("Error copying to clipboard:", clipboardError)
+        alert("Unable to share. Please copy the URL manually.")
+      }
     }
   }
 
@@ -239,6 +347,54 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Rating and Share Buttons */}
+                    {savedFactId && (
+                      <div className="mt-6 space-y-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+                          <Button
+                            onClick={() => rateFact(1)}
+                            disabled={hasVoted || isRating}
+                            variant="outline"
+                            size="lg"
+                            className={`flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto ${
+                              hasVoted
+                                ? "bg-green-600 text-white"
+                                : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                            } disabled:bg-muted disabled:text-muted-foreground`}
+                          >
+                            <ThumbsUp className="h-5 w-5" />
+                            Useful Uselessness
+                          </Button>
+                          <Button
+                            onClick={() => rateFact(-1)}
+                            disabled={hasVoted || isRating}
+                            variant="outline"
+                            size="lg"
+                            className={`flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto ${
+                              hasVoted
+                                ? "bg-red-600 text-white"
+                                : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                            } disabled:bg-muted disabled:text-muted-foreground`}
+                          >
+                            <ThumbsDown className="h-5 w-5" />
+                            Too Useless
+                          </Button>
+                        </div>
+
+                        <div className="flex justify-center">
+                          <Button
+                            onClick={handleShare}
+                            variant="outline"
+                            size="lg"
+                            className="flex items-center gap-2"
+                          >
+                            <Share2 className="h-5 w-5" />
+                            Share This Fact
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

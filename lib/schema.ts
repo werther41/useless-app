@@ -4,6 +4,7 @@ export interface Fact {
   text: string
   source?: string | null
   source_url?: string | null
+  fact_type?: "static" | "realtime"
   created_at: string
   updated_at: string
 }
