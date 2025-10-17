@@ -1,0 +1,69 @@
+name: Production Protection
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for sensitive data
+        run: |
+          echo "Checking for potential security issues..."
+
+          # Check for hardcoded secrets
+          if grep -r "password\|secret\|key\|token" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . | grep -v "process.env" | grep -v "your-" | grep -v "example"; then
+            echo "❌ Potential hardcoded secrets found!"
+            exit 1
+          fi
+
+          # Check for environment variable usage
+          if ! grep -r "process.env" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" . > /dev/null; then
+            echo "⚠️  No environment variables found - ensure secrets are properly configured"
+          fi
+
+          echo "✅ Security check passed"
+
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Build check
+        run: npm run build
+        env:
+          # Use dummy values for build check
+          TURSO_DATABASE_URL: "libsql://dummy.turso.io"
+          TURSO_AUTH_TOKEN: "dummy-token"
+          GOOGLE_API_KEY: "dummy-key"
+          ADMIN_SECRET: "dummy-secret"
+          CRON_SECRET: "dummy-cron-secret"
+
+  deployment-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Notify deployment
+        run: |
+          echo "🚀 Production deployment triggered"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"

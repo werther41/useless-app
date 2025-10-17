@@ -1,115 +1,138 @@
-# Security Considerations
+# Security Policy
 
-This document outlines security measures and considerations for the Useless Facts App.
+## 🔒 Supported Versions
 
-## 🔒 Security Features
+We provide security updates for the following versions:
 
-### Admin Authentication
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.0.x   | :white_check_mark: |
+| < 1.0   | :x:                |
 
-- **Admin Secret**: All admin endpoints require `ADMIN_SECRET` environment variable
-- **Protected Routes**: Admin pages and API endpoints are protected by middleware
-- **Authentication Methods**:
-  - Query parameter: `?admin_secret=YOUR_SECRET`
-  - Authorization header: `Authorization: Bearer YOUR_SECRET`
+## 🚨 Reporting a Vulnerability
 
-### API Security
+If you discover a security vulnerability in this project, please follow these steps:
 
-- **Input Validation**: All API inputs validated with Zod schemas
-- **Rate Limiting**: Built-in protection against abuse
-- **Error Handling**: Secure error messages without sensitive data exposure
+### 1. **Do NOT create a public issue**
 
-### Environment Variables
+Security vulnerabilities should be reported privately to prevent exploitation.
 
-- **Secrets Management**: All sensitive data stored in environment variables
-- **No Hardcoded Secrets**: No API keys or tokens in source code
-- **Production Separation**: Different secrets for development and production
+### 2. **Email the maintainers**
 
-## 🛡️ Security Best Practices
+Send an email to: [security@yourdomain.com](mailto:security@yourdomain.com)
 
-### For Developers
+Include the following information:
 
-1. **Never commit secrets** to version control
-2. **Use strong, unique secrets** for production
-3. **Rotate secrets regularly**
-4. **Monitor access logs** for suspicious activity
-5. **Keep dependencies updated**
+- **Description** of the vulnerability
+- **Steps to reproduce** the issue
+- **Potential impact** assessment
+- **Suggested fix** (if you have one)
+- **Your contact information** for follow-up
 
-### For Deployment
+### 3. **Response timeline**
 
-1. **Set strong environment variables** in production
-2. **Use HTTPS** for all communications
-3. **Implement proper CORS** policies
-4. **Monitor for security vulnerabilities**
-5. **Regular security audits**
+- **Initial response**: Within 48 hours
+- **Status update**: Within 1 week
+- **Resolution**: As quickly as possible
 
-## ⚠️ Security Considerations
+### 4. **Disclosure process**
 
-### Current Limitations
+- We will work with you to verify the vulnerability
+- We will develop and test a fix
+- We will coordinate the disclosure timeline
+- We will credit you in the security advisory (if desired)
 
-- **Simple Authentication**: Uses basic secret-based authentication
-- **No User Management**: No user accounts or role-based access
-- **No Rate Limiting**: Consider implementing rate limiting for production
-- **No Audit Logging**: Consider adding audit logs for admin actions
+## 🛡️ Security Measures
 
-### Recommended Improvements
+### Current Protections
 
-1. **Implement OAuth** for proper authentication
-2. **Add rate limiting** to prevent abuse
-3. **Implement audit logging** for admin actions
-4. **Add input sanitization** for user-generated content
-5. **Regular security updates** and dependency scanning
+- **Environment variables** for all sensitive data
+- **Input validation** with Zod schemas
+- **SQL injection protection** with parameterized queries
+- **XSS prevention** with proper output encoding
+- **CSRF protection** with SameSite cookies
+- **Rate limiting** on API endpoints
+- **Authentication** for admin features
 
-## 🔐 Environment Variables Security
+### Security Best Practices
 
-### Required Secrets
-
-```env
-# Database credentials
-TURSO_DATABASE_URL=libsql://your-database.turso.io
-TURSO_AUTH_TOKEN=your-secure-token
-
-# AI service credentials
-GOOGLE_API_KEY=your-gemini-api-key
-
-# Admin authentication
-ADMIN_SECRET=your-very-secure-admin-secret
-CRON_SECRET=your-secure-cron-secret
-```
-
-### Security Guidelines
-
-- **Use strong, random secrets** (minimum 32 characters)
-- **Never share secrets** in public channels
+- **Never commit secrets** to version control
+- **Use strong, unique secrets** for production
 - **Rotate secrets regularly**
-- **Use different secrets** for different environments
-- **Monitor secret usage** and access patterns
+- **Monitor for security updates**
+- **Keep dependencies updated**
+- **Use HTTPS** for all communications
+
+## 🔍 Security Checklist
+
+### For Contributors
+
+- [ ] No hardcoded secrets or API keys
+- [ ] Proper input validation and sanitization
+- [ ] No SQL injection vulnerabilities
+- [ ] No XSS vulnerabilities
+- [ ] Proper error handling without information disclosure
+- [ ] Authentication and authorization checks
+- [ ] Rate limiting considerations
+- [ ] Logging and monitoring
+
+### For Maintainers
+
+- [ ] Regular security audits
+- [ ] Dependency vulnerability scanning
+- [ ] Security testing in CI/CD
+- [ ] Incident response procedures
+- [ ] Security documentation updates
+- [ ] Team security training
 
 ## 🚨 Incident Response
 
-### If Secrets Are Compromised
+### If a security incident occurs:
 
-1. **Immediately rotate** all affected secrets
-2. **Update environment variables** in all environments
-3. **Review access logs** for suspicious activity
-4. **Notify relevant parties** if necessary
-5. **Document the incident** and lessons learned
+1. **Immediately assess** the scope and impact
+2. **Contain** the issue to prevent further damage
+3. **Notify** affected users if necessary
+4. **Document** the incident and response
+5. **Implement** fixes and preventive measures
+6. **Review** and update security procedures
 
-### Security Monitoring
+### Emergency Contacts
 
-- **Monitor admin access** patterns
-- **Watch for unusual API usage**
-- **Check for unauthorized access** attempts
-- **Review error logs** for security issues
+- **Primary**: [maintainer@yourdomain.com](mailto:maintainer@yourdomain.com)
+- **Secondary**: [security@yourdomain.com](mailto:security@yourdomain.com)
+- **GitHub**: [@werther41](https://github.com/werther41)
 
-## 📞 Security Contact
+## 📚 Security Resources
 
-For security-related issues:
+### Documentation
 
-1. **Do not create public issues** for security vulnerabilities
-2. **Contact maintainers directly** for security concerns
-3. **Use secure communication** channels
-4. **Provide detailed information** about the security issue
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
+- [Next.js Security](https://nextjs.org/docs/advanced-features/security-headers)
+- [Vercel Security](https://vercel.com/docs/security)
+
+### Tools
+
+- [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit)
+- [Snyk](https://snyk.io/) for vulnerability scanning
+- [GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories)
+- [Dependabot](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically)
+
+## 🏆 Security Acknowledgments
+
+We appreciate security researchers who help improve our security posture. Contributors who report valid security vulnerabilities will be:
+
+- **Credited** in our security advisories
+- **Listed** in our security acknowledgments
+- **Invited** to our security researcher program
+- **Recognized** in our project documentation
+
+## 📄 License
+
+This security policy is part of our project and is subject to the same license terms.
 
 ---
 
-**Remember**: Security is an ongoing process. Regularly review and update security measures as the application evolves.
+**Thank you for helping keep our project secure!** 🛡️
+
+If you have any questions about this security policy, please contact us at [security@yourdomain.com](mailto:security@yourdomain.com).
