@@ -47,32 +47,32 @@ interface TopicSelectorProps {
 const getEntityIcon = (type: string) => {
   switch (type) {
     case "PERSON":
-      return <User className="size-3" />
+      return <User className="h-4 w-4" />
     case "ORG":
-      return <Building className="size-3" />
+      return <Building className="h-4 w-4" />
     case "LOCATION":
-      return <MapPin className="size-3" />
+      return <MapPin className="h-4 w-4" />
     case "PRODUCT":
-      return <Hash className="size-3" />
+      return <Hash className="h-4 w-4" />
     case "PROGRAMMING_LANGUAGE":
-      return <Code className="size-3" />
+      return <Code className="h-4 w-4" />
     case "SCIENTIFIC_TERM":
-      return <Microscope className="size-3" />
+      return <Microscope className="h-4 w-4" />
     case "FIELD_OF_STUDY":
-      return <Lightbulb className="size-3" />
+      return <Lightbulb className="h-4 w-4" />
     case "EVENT":
-      return <Calendar className="size-3" />
+      return <Calendar className="h-4 w-4" />
     case "WORK_OF_ART":
-      return <Palette className="size-3" />
+      return <Palette className="h-4 w-4" />
     case "LAW_OR_POLICY":
-      return <Scale className="size-3" />
+      return <Scale className="h-4 w-4" />
     // Legacy types for backward compatibility
     case "TECH":
-      return <Hash className="size-3" />
+      return <Hash className="h-4 w-4" />
     case "CONCEPT":
-      return <Lightbulb className="size-3" />
+      return <Lightbulb className="h-4 w-4" />
     default:
-      return <TrendingUp className="size-3" />
+      return <TrendingUp className="h-4 w-4" />
   }
 }
 
@@ -316,7 +316,7 @@ export function TopicSelector({
       <Card className={`border-primary/20 ${className}`}>
         <CardContent className="p-4">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             <span>Loading trending topics...</span>
           </div>
         </CardContent>
@@ -364,7 +364,7 @@ export function TopicSelector({
         <div className="mb-3">
           <div className="mb-2">
             <h3 className="mb-2 flex items-center gap-2 text-base font-semibold sm:mb-0">
-              <TrendingUp className="size-4" />
+              <TrendingUp className="h-4 w-4" />
               {showSearchResults ? "Search Results" : "Trending Topics"}
             </h3>
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
@@ -377,9 +377,9 @@ export function TopicSelector({
                   className="text-muted-foreground hover:text-foreground"
                 >
                   {isRandomizing ? (
-                    <Loader2 className="mr-1 size-4 animate-spin" />
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                   ) : (
-                    <Dices className="mr-1 size-4" />
+                    <Dices className="mr-1 h-4 w-4" />
                   )}
                   <span className="hidden sm:inline">Randomize</span>
                   <span className="sm:hidden">Random</span>
@@ -392,7 +392,7 @@ export function TopicSelector({
                   onClick={clearSearch}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <X className="mr-1 size-4" />
+                  <X className="mr-1 h-4 w-4" />
                   <span className="hidden sm:inline">Clear Search</span>
                   <span className="sm:hidden">Clear</span>
                 </Button>
@@ -404,7 +404,7 @@ export function TopicSelector({
                   onClick={clearSelection}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <X className="mr-1 size-4" />
+                  <X className="mr-1 h-4 w-4" />
                   <span className="hidden sm:inline">
                     Clear ({selectedTopics.length})
                   </span>
@@ -463,7 +463,7 @@ export function TopicSelector({
                   className="bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center rounded-full p-2 text-destructive transition-all duration-200 hover:scale-105"
                   title="Clear all filters"
                 >
-                  <X className="size-4" />
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -480,7 +480,7 @@ export function TopicSelector({
         {enableSearch && (
           <div className="mb-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search topics..."
@@ -489,7 +489,7 @@ export function TopicSelector({
                 className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               )}
             </div>
             {searchQuery && !isSearching && (
@@ -551,7 +551,7 @@ export function TopicSelector({
                       onClick={() => handleTopicToggle(topic)}
                       className="hover:bg-primary/20 ml-1 rounded-full p-0.5"
                     >
-                      <X className="size-3" />
+                      <X className="h-4 w-4" />
                     </button>
                   </Badge>
                 ))}

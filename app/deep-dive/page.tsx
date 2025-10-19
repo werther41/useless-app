@@ -61,7 +61,7 @@ export default function DeepDivePage() {
                   </h3>
                   <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Calendar className="size-4" />
+                      <Calendar className="h-4 w-4" />
                       <time dateTime={article.date}>
                         {new Date(article.date).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -85,7 +85,7 @@ export default function DeepDivePage() {
                     ) : null}
                     {" · "}
                     <span className="inline-flex items-center gap-1">
-                      <User className="size-4" />
+                      <User className="h-4 w-4" />
                       {article.author}
                     </span>
                   </p>

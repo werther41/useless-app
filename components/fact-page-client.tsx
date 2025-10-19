@@ -59,7 +59,7 @@ export function FactPageClient({ fact }: FactPageClientProps) {
                 ({currentFact.rating_count} votes)
               </span>
               {currentFact.total_rating > 0 && (
-                <TrendingUp className="size-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-green-500" />
               )}
             </div>
           </div>

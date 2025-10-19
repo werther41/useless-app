@@ -223,7 +223,7 @@ export default function DiscoverPage() {
                       : "text-foreground opacity-50"
                   }`}
                 >
-                  <TrendingUp className="size-4 text-primary sm:size-6" />
+                  <TrendingUp className="h-4 w-4 text-primary sm:size-6" />
                   <span className="whitespace-nowrap">By Topics</span>
                 </Button>
                 <Button
@@ -236,7 +236,7 @@ export default function DiscoverPage() {
                       : "text-foreground opacity-50"
                   }`}
                 >
-                  <Search className="size-4 text-primary sm:size-6" />
+                  <Search className="h-4 w-4 text-primary sm:size-6" />
                   <span className="whitespace-nowrap">Free Text</span>
                 </Button>
               </div>
@@ -263,7 +263,7 @@ export default function DiscoverPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Enter your search query..."
@@ -272,7 +272,7 @@ export default function DiscoverPage() {
                       className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                     {searchState.isLoading && (
-                      <Loader2 className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                      <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
                     )}
                   </div>
                   {searchState.textQuery.length > 0 &&
@@ -331,9 +331,9 @@ export default function DiscoverPage() {
                 className="w-full"
               >
                 {searchState.isLoading ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <Search className="mr-2 size-4" />
+                  <Search className="mr-2 h-4 w-4" />
                 )}
                 Search Articles
               </Button>

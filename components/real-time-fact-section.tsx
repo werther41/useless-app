@@ -278,7 +278,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                   className="w-full whitespace-nowrap px-6 py-3 text-base sm:w-auto sm:px-8 sm:text-lg"
                   disabled={isLoading}
                 >
-                  <Wand2 className="mr-2 size-5" />
+                  <Wand2 className="mr-2 h-5 w-5" />
                   {isLoading ? "Generating from News..." : "Get Real-Time Fact"}
                 </Button>
               </div>
@@ -287,7 +287,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                 {isLoading ? (
                   <div className="mx-auto w-full max-w-2xl space-y-4">
                     <div className="flex items-center justify-center gap-2">
-                      <Clock className="size-5 animate-spin text-primary" />
+                      <Clock className="h-5 w-5 animate-spin text-primary" />
                       <span className="text-base text-muted-foreground sm:text-lg">
                         Analyzing news articles...
                       </span>
@@ -377,7 +377,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                                 : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                             } disabled:bg-muted disabled:text-muted-foreground`}
                           >
-                            <ThumbsUp className="size-5" />
+                            <ThumbsUp className="h-5 w-5" />
                             Useful Uselessness
                           </Button>
                           <Button
@@ -391,7 +391,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                                 : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
                             } disabled:bg-muted disabled:text-muted-foreground`}
                           >
-                            <ThumbsDown className="size-5" />
+                            <ThumbsDown className="h-5 w-5" />
                             Too Useless
                           </Button>
                         </div>
@@ -403,7 +403,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                             size="lg"
                             className="flex items-center gap-2"
                           >
-                            <Share2 className="size-5" />
+                            <Share2 className="h-5 w-5" />
                             Share This Fact
                           </Button>
                         </div>
