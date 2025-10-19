@@ -31,8 +31,8 @@ export const siteConfig = {
       href: "/",
     },
     {
-      title: "Fun Fact Stats",
-      href: "/statistics",
+      title: "Discover",
+      href: "/discover",
     },
     {
       title: "Deep Dive",
