@@ -10,7 +10,7 @@ export default function NotFound() {
       <div className="container mx-auto max-w-2xl text-center">
         <Card className="border-primary/20 from-primary/5 to-secondary/5 bg-gradient-to-br">
           <CardHeader className="text-center">
-            <div className="from-primary/20 to-secondary/20 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br">
+            <div className="from-primary/20 to-secondary/20 mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br">
               <div className="text-4xl">🤔</div>
             </div>
             <CardTitle className="text-4xl font-bold text-foreground">

@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
     const timeWindow = parseInt(searchParams.get("timeWindow") || "48")
     const limit = parseInt(searchParams.get("limit") || "10")
     const entityType = searchParams.get("entityType") || undefined
+    const topicTypes =
+      searchParams.get("topicTypes")?.split(",").filter(Boolean) || undefined
     const diverse = searchParams.get("diverse") === "true"
     const randomize = searchParams.get("_t") !== null // If timestamp parameter exists, randomize
 
@@ -35,8 +37,14 @@ export async function GET(request: NextRequest) {
 
     // Get topics (diverse or regular)
     const topics = diverse
-      ? await getDiverseTopics({ timeWindow, limit, entityType, randomize })
-      : await getTrendingTopics({ timeWindow, limit, entityType })
+      ? await getDiverseTopics({
+          timeWindow,
+          limit,
+          entityType,
+          randomize,
+          topicTypes,
+        })
+      : await getTrendingTopics({ timeWindow, limit, entityType, topicTypes })
 
     // Transform to API response format
     const response = {
@@ -63,6 +71,7 @@ export async function GET(request: NextRequest) {
         timeWindow,
         limit,
         entityType,
+        topicTypes,
         diverse,
         randomize,
         totalTopics: topics.length,

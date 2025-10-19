@@ -22,14 +22,14 @@ export function FactTabs() {
     <section>
       {/* Tab Navigation */}
       <div className="mb-8 flex justify-center p-2">
-        <div className="bg-muted/30 border-primary/20 border-1 inline-flex gap-1 rounded-full p-0.5 sm:gap-2 sm:p-1">
+        <div className="border-primary/20 border-1 inline-flex gap-1 rounded-full bg-card p-1 sm:gap-2 sm:p-1">
           <Button
             variant={activeTab === "realtime" ? "outline" : "ghost"}
             onClick={() => setActiveTab("realtime")}
             size="lg"
             className={getTabClassName("realtime")}
           >
-            <Wand2 className="h-4 w-4 text-primary sm:h-6 sm:w-6" />
+            <Wand2 className="size-4 text-primary sm:size-6" />
             <span className="whitespace-nowrap">Real-Time Facts</span>
           </Button>
           <Button
@@ -38,7 +38,7 @@ export function FactTabs() {
             size="lg"
             className={getTabClassName("static")}
           >
-            <Clock className="h-4 w-4 text-primary sm:h-6 sm:w-6" />
+            <Clock className="size-4 text-primary sm:size-6" />
             <span className="whitespace-nowrap">Classic Facts</span>
           </Button>
         </div>

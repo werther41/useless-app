@@ -1,5 +1,5 @@
-# @baseUrl = http://localhost:3000
-@baseUrl = https://useless-app-nu.vercel.app
+@baseUrl = http://localhost:3000
+# @baseUrl = https://useless-app-nu.vercel.app
 
 ### Get random fact
 GET {{baseUrl}}/api/facts/random
@@ -72,6 +72,9 @@ Content-Type: application/json
 ### Topics API (GET)
 GET {{baseUrl}}/api/topics?limit=10&timeWindow=72
 
+### Topics API (GET) with topicTypes filter
+GET {{baseUrl}}/api/topics?limit=10&timeWindow=72&topicTypes=PERSON,ORG,LOCATION
+
 ### Topics API (POST)
 POST {{baseUrl}}/api/topics
 Content-Type: application/json
@@ -80,3 +83,15 @@ Content-Type: application/json
   "query": "DNA",
   "limit": 10
 }
+
+### Article Discovery - Topic-based Search
+GET {{baseUrl}}/api/articles?topics=AI,machine%20learning&timeFilter=7d&sortBy=score
+
+### Article Discovery - Topic-based Search with Topic Types
+GET {{baseUrl}}/api/articles?topics=technology&timeFilter=7d&topicTypes=TECH&sortBy=time
+
+### Article Discovery - Free-text Search
+GET {{baseUrl}}/api/articles/search?q=artificial%20intelligence&timeFilter=7d
+
+### Article Discovery - Free-text Search (All Time)
+GET {{baseUrl}}/api/articles/search?q=climate%20change&timeFilter=all

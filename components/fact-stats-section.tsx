@@ -155,7 +155,7 @@ export default function FactStatsSection() {
               className="gap-2"
             >
               <RefreshCw
-                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                className={`size-4 ${isLoading ? "animate-spin" : ""}`}
               />
               {isLoading ? "Refreshing..." : "Refresh Stats"}
             </Button>
@@ -167,7 +167,7 @@ export default function FactStatsSection() {
           <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <BarChart3 className="size-5 text-primary" />
                 Total Facts
               </CardTitle>
             </CardHeader>
@@ -185,7 +185,7 @@ export default function FactStatsSection() {
           <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="h-5 w-5 text-primary" />
+                <Users className="size-5 text-primary" />
                 Total Ratings
               </CardTitle>
             </CardHeader>
@@ -203,7 +203,7 @@ export default function FactStatsSection() {
           <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Star className="h-5 w-5 text-primary" />
+                <Star className="size-5 text-primary" />
                 Average Rating
               </CardTitle>
             </CardHeader>
@@ -221,7 +221,7 @@ export default function FactStatsSection() {
           <Card className="border-green-200 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-green-600" />
+                <TrendingUp className="size-5 text-green-600" />
                 Useful Uselessness
               </CardTitle>
             </CardHeader>
@@ -239,7 +239,7 @@ export default function FactStatsSection() {
           <Card className="border-red-200 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingDown className="h-5 w-5 text-red-600" />
+                <TrendingDown className="size-5 text-red-600" />
                 Too Useless
               </CardTitle>
             </CardHeader>
@@ -257,7 +257,7 @@ export default function FactStatsSection() {
           <Card className="border-primary/20 transition-shadow hover:shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="h-5 w-5 text-primary" />
+                <Clock className="size-5 text-primary" />
                 Recent Activity
               </CardTitle>
             </CardHeader>
@@ -289,7 +289,7 @@ export default function FactStatsSection() {
           <Card className="border-primary/20 mt-8 transition-shadow hover:shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
+                <Calendar className="size-5 text-primary" />
                 Most Rated Fact
               </CardTitle>
             </CardHeader>

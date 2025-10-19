@@ -17,12 +17,12 @@ export default function AdminLayout({
             <div className="flex items-center gap-4">
               <Link href="/">
                 <Button variant="ghost" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-2 size-4" />
                   Back to App
                 </Button>
               </Link>
               <div className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+                <Settings className="size-5" />
                 <h1 className="text-xl font-semibold">Admin Panel</h1>
               </div>
             </div>

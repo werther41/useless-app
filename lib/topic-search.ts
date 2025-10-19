@@ -221,6 +221,7 @@ export async function getDiverseTopics(options?: {
   timeWindow?: number
   limit?: number
   entityType?: string
+  topicTypes?: string[]
   randomize?: boolean
 }): Promise<
   Array<{
@@ -237,6 +238,7 @@ export async function getDiverseTopics(options?: {
     timeWindow = 96,
     limit = 20,
     entityType,
+    topicTypes,
     randomize = false,
   } = options || {}
 
@@ -251,6 +253,12 @@ export async function getDiverseTopics(options?: {
     if (entityType) {
       query += " AND entity_type = ?"
       params.push(entityType)
+    }
+
+    if (topicTypes && topicTypes.length > 0) {
+      const placeholders = topicTypes.map(() => "?").join(",")
+      query += ` AND entity_type IN (${placeholders})`
+      params.push(...topicTypes)
     }
 
     if (randomize) {

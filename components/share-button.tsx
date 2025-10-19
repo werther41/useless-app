@@ -53,7 +53,7 @@ export function ShareButton({ factId, factText }: ShareButtonProps) {
       size="sm"
       className="flex items-center gap-2"
     >
-      <Share2 className="h-4 w-4" />
+      <Share2 className="size-4" />
       Share
     </Button>
   )

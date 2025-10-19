@@ -294,8 +294,9 @@ export async function getTrendingTopics(options?: {
   timeWindow?: number // hours
   limit?: number
   entityType?: string
+  topicTypes?: string[]
 }): Promise<TrendingTopic[]> {
-  const { timeWindow = 48, limit = 10, entityType } = options || {}
+  const { timeWindow = 48, limit = 10, entityType, topicTypes } = options || {}
 
   try {
     let query = `
@@ -308,6 +309,12 @@ export async function getTrendingTopics(options?: {
     if (entityType) {
       query += " AND entity_type = ?"
       params.push(entityType)
+    }
+
+    if (topicTypes && topicTypes.length > 0) {
+      const placeholders = topicTypes.map(() => "?").join(",")
+      query += ` AND entity_type IN (${placeholders})`
+      params.push(...topicTypes)
     }
 
     query += `

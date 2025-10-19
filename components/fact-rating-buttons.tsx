@@ -60,7 +60,7 @@ export function FactRatingButtons({
             : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
         } disabled:bg-muted disabled:text-muted-foreground`}
       >
-        <ThumbsUp className="h-5 w-5" />
+        <ThumbsUp className="size-5" />
         {isRating ? "Rating..." : "Useful Uselessness"}
       </Button>
       <Button
@@ -74,7 +74,7 @@ export function FactRatingButtons({
             : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
         } disabled:bg-muted disabled:text-muted-foreground`}
       >
-        <ThumbsDown className="h-5 w-5" />
+        <ThumbsDown className="size-5" />
         {isRating ? "Rating..." : "Too Useless"}
       </Button>
     </div>
