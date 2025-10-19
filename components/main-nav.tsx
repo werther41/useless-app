@@ -22,7 +22,7 @@ export function MainNav({ items }: MainNavProps) {
   return (
     <div className="flex items-center gap-2 sm:gap-6 md:gap-10">
       <Link href="/" className="flex items-center space-x-2">
-        <div className="flex size-8 items-center justify-center rounded-full bg-primary sm:size-10">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary sm:size-10">
           <span className="text-sm font-bold text-primary-foreground sm:text-lg">
             U
           </span>
