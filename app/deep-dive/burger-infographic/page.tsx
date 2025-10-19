@@ -419,31 +419,31 @@ export default function BurgerInfographic() {
             your best burger yet.
           </p>
           <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
               <span>1. Preheat Pan</span>
             </div>
             <div className="mx-4 rotate-90 text-4xl text-[#00796B] md:rotate-0">
               &rarr;
             </div>
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
               <span>2. Add Patty</span>
             </div>
             <div className="mx-4 rotate-90 text-4xl text-[#00796B] md:rotate-0">
               &rarr;
             </div>
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#FF5E5B] text-center font-bold text-[#FFFFEA]">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[#FF5E5B] text-center font-bold text-[#FFFFEA]">
               <span>3. Flip every 30s</span>
             </div>
             <div className="mx-4 rotate-90 text-4xl text-[#00796B] md:rotate-0">
               &rarr;
             </div>
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
               <span>4. Add Cheese</span>
             </div>
             <div className="mx-4 rotate-90 text-4xl text-[#00796B] md:rotate-0">
               &rarr;
             </div>
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-full bg-[#00CECB] text-center font-bold text-[#FFFFEA]">
               <span>5. Rest & Serve</span>
             </div>
           </div>
@@ -466,7 +466,7 @@ export default function BurgerInfographic() {
           >
             <span>Read Full Research Article</span>
             <svg
-              className="h-4 w-4"
+              className="size-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

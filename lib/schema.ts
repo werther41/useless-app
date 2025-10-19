@@ -82,3 +82,20 @@ export interface ExtractedEntity {
 export interface TopicWithMetadata extends TrendingTopic {
   related_articles: Array<{ id: string; title: string }>
 }
+
+export interface ArticleWithRelevance extends NewsArticle {
+  snippet: string
+  relevanceScore: number
+  matchedTopics: string[]
+}
+
+export interface ArticleSearchResult {
+  articles: ArticleWithRelevance[]
+  metadata: {
+    totalResults: number
+    timeFilter: string
+    searchType: "topic" | "text"
+    query?: string
+    topics?: string[]
+  }
+}

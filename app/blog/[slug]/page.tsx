@@ -60,7 +60,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="mb-8">
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/blog" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to Blog
           </Link>
         </Button>
@@ -72,7 +72,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
+              <Calendar className="size-4" />
               <time dateTime={post.date}>
                 {new Date(post.date).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
             {post.updatedDate && post.updatedDate !== post.date && (
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
+                <Clock className="size-4" />
                 <span>
                   Updated{" "}
                   {new Date(post.updatedDate).toLocaleDateString("en-US", {
@@ -97,7 +97,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             )}
 
             <div className="flex items-center gap-1">
-              <User className="h-4 w-4" />
+              <User className="size-4" />
               <span>{post.author}</span>
             </div>
           </div>
@@ -122,7 +122,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="mt-12 border-t pt-8">
         <Button variant="outline" asChild>
           <Link href="/blog" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to All Posts
           </Link>
         </Button>

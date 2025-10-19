@@ -38,7 +38,7 @@ export default async function AllFactsPage({
       <section className="px-4 py-16">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
-            <BookOpen className="h-8 w-8 text-primary" />
+            <BookOpen className="size-8 text-primary" />
             <Badge variant="outline" className="px-3 py-1 text-sm">
               Browse All Facts
             </Badge>

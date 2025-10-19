@@ -138,7 +138,7 @@ export function StaticFactSection() {
     <section id="quick-facts" className="p-4">
       <div className="container mx-auto max-w-4xl">
         <div className="mb-6 text-center">
-          <h2 className="text-balance mb-4 text-2xl font-semibold text-foreground">
+          <h2 className="mb-4 text-balance text-2xl font-semibold text-foreground">
             Classic Facts
           </h2>
           <p className="text-pretty text-lg text-muted-foreground">
@@ -163,7 +163,7 @@ export function StaticFactSection() {
                   className="whitespace-nowrap px-4 py-3 text-base sm:px-8 sm:text-lg"
                   disabled={isLoading}
                 >
-                  <Wand2 className="mr-2 h-5 w-5" />
+                  <Wand2 className="mr-2 size-5" />
                   {isLoading ? "Generating..." : "Generate New Fact"}
                 </Button>
               </div>
@@ -198,7 +198,7 @@ export function StaticFactSection() {
                       ({currentFact.rating_count} votes)
                     </span>
                     {currentFact.total_rating > 0 && (
-                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <TrendingUp className="size-4 text-green-500" />
                     )}
                   </div>
 
@@ -218,7 +218,7 @@ export function StaticFactSection() {
                           : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                       } disabled:bg-muted disabled:text-muted-foreground`}
                     >
-                      <ThumbsUp className="h-5 w-5" />
+                      <ThumbsUp className="size-5" />
                       Useful Uselessness
                     </Button>
                     <Button
@@ -236,7 +236,7 @@ export function StaticFactSection() {
                           : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
                       } disabled:bg-muted disabled:text-muted-foreground`}
                     >
-                      <ThumbsDown className="h-5 w-5" />
+                      <ThumbsDown className="size-5" />
                       Too Useless
                     </Button>
                   </div>

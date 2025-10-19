@@ -40,38 +40,39 @@ interface TopicSelectorProps {
   className?: string
   enableSearch?: boolean
   enableDiversity?: boolean
+  enableTopicTypeFilter?: boolean
 }
 
 // Icon mapping for entity types (updated for new types)
 const getEntityIcon = (type: string) => {
   switch (type) {
     case "PERSON":
-      return <User className="h-3 w-3" />
+      return <User className="size-3" />
     case "ORG":
-      return <Building className="h-3 w-3" />
+      return <Building className="size-3" />
     case "LOCATION":
-      return <MapPin className="h-3 w-3" />
+      return <MapPin className="size-3" />
     case "PRODUCT":
-      return <Hash className="h-3 w-3" />
+      return <Hash className="size-3" />
     case "PROGRAMMING_LANGUAGE":
-      return <Code className="h-3 w-3" />
+      return <Code className="size-3" />
     case "SCIENTIFIC_TERM":
-      return <Microscope className="h-3 w-3" />
+      return <Microscope className="size-3" />
     case "FIELD_OF_STUDY":
-      return <Lightbulb className="h-3 w-3" />
+      return <Lightbulb className="size-3" />
     case "EVENT":
-      return <Calendar className="h-3 w-3" />
+      return <Calendar className="size-3" />
     case "WORK_OF_ART":
-      return <Palette className="h-3 w-3" />
+      return <Palette className="size-3" />
     case "LAW_OR_POLICY":
-      return <Scale className="h-3 w-3" />
+      return <Scale className="size-3" />
     // Legacy types for backward compatibility
     case "TECH":
-      return <Hash className="h-3 w-3" />
+      return <Hash className="size-3" />
     case "CONCEPT":
-      return <Lightbulb className="h-3 w-3" />
+      return <Lightbulb className="size-3" />
     default:
-      return <TrendingUp className="h-3 w-3" />
+      return <TrendingUp className="size-3" />
   }
 }
 
@@ -114,6 +115,7 @@ export function TopicSelector({
   className = "",
   enableSearch = true,
   enableDiversity = true,
+  enableTopicTypeFilter = true,
 }: TopicSelectorProps) {
   const [topics, setTopics] = useState<Topic[]>([])
   const [selectedTopics, setSelectedTopics] = useState<string[]>([])
@@ -124,6 +126,21 @@ export function TopicSelector({
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [isRandomizing, setIsRandomizing] = useState(false)
+  const [selectedTopicTypes, setSelectedTopicTypes] = useState<string[]>([])
+
+  // Available topic types for filtering
+  const availableTopicTypes = [
+    "PERSON",
+    "ORG",
+    "LOCATION",
+    "PRODUCT",
+    "PROGRAMMING_LANGUAGE",
+    "SCIENTIFIC_TERM",
+    "FIELD_OF_STUDY",
+    "EVENT",
+    "WORK_OF_ART",
+    "LAW_OR_POLICY",
+  ]
 
   // Fetch trending topics
   useEffect(() => {
@@ -132,9 +149,14 @@ export function TopicSelector({
         setIsLoading(true)
         setError("")
 
+        const topicTypesParam =
+          selectedTopicTypes.length > 0
+            ? `&topicTypes=${selectedTopicTypes.join(",")}`
+            : ""
+
         const url = enableDiversity
-          ? "/api/topics?limit=20&timeWindow=48&diverse=true"
-          : "/api/topics?limit=20&timeWindow=48"
+          ? `/api/topics?limit=20&timeWindow=48&diverse=true${topicTypesParam}`
+          : `/api/topics?limit=20&timeWindow=48${topicTypesParam}`
 
         const response = await fetch(url)
 
@@ -153,7 +175,7 @@ export function TopicSelector({
     }
 
     fetchTopics()
-  }, [enableDiversity])
+  }, [enableDiversity, selectedTopicTypes])
 
   // Search topics with debouncing
   const searchTopics = useCallback(async (query: string) => {
@@ -259,9 +281,14 @@ export function TopicSelector({
         clearSearch()
       }
 
+      const topicTypesParam =
+        selectedTopicTypes.length > 0
+          ? `&topicTypes=${selectedTopicTypes.join(",")}`
+          : ""
+
       const url = enableDiversity
-        ? `/api/topics?limit=20&timeWindow=48&diverse=true&_t=${Date.now()}`
-        : `/api/topics?limit=20&timeWindow=48&_t=${Date.now()}`
+        ? `/api/topics?limit=20&timeWindow=48&diverse=true&_t=${Date.now()}${topicTypesParam}`
+        : `/api/topics?limit=20&timeWindow=48&_t=${Date.now()}${topicTypesParam}`
 
       const response = await fetch(url)
 
@@ -289,7 +316,7 @@ export function TopicSelector({
       <Card className={`border-primary/20 ${className}`}>
         <CardContent className="p-4">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
             <span>Loading trending topics...</span>
           </div>
         </CardContent>
@@ -322,7 +349,7 @@ export function TopicSelector({
       <Card className={`border-muted ${className}`}>
         <CardContent className="p-4">
           <div className="text-center text-muted-foreground">
-            <TrendingUp className="mx-auto mb-2 h-8 w-8 opacity-50" />
+            <TrendingUp className="mx-auto mb-2 size-8 opacity-50" />
             <p>No trending topics available</p>
             <p className="text-sm">Try again later or generate a random fact</p>
           </div>
@@ -333,11 +360,11 @@ export function TopicSelector({
 
   return (
     <Card className={`border-primary/20 ${className}`}>
-      <CardContent className="p-4">
-        <div className="mb-4">
+      <CardContent className="p-3">
+        <div className="mb-3">
           <div className="mb-2">
-            <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold sm:mb-0">
-              <TrendingUp className="h-5 w-5" />
+            <h3 className="mb-2 flex items-center gap-2 text-base font-semibold sm:mb-0">
+              <TrendingUp className="size-4" />
               {showSearchResults ? "Search Results" : "Trending Topics"}
             </h3>
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
@@ -350,9 +377,9 @@ export function TopicSelector({
                   className="text-muted-foreground hover:text-foreground"
                 >
                   {isRandomizing ? (
-                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1 size-4 animate-spin" />
                   ) : (
-                    <Dices className="mr-1 h-4 w-4" />
+                    <Dices className="mr-1 size-4" />
                   )}
                   <span className="hidden sm:inline">Randomize</span>
                   <span className="sm:hidden">Random</span>
@@ -365,7 +392,7 @@ export function TopicSelector({
                   onClick={clearSearch}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <X className="mr-1 h-4 w-4" />
+                  <X className="mr-1 size-4" />
                   <span className="hidden sm:inline">Clear Search</span>
                   <span className="sm:hidden">Clear</span>
                 </Button>
@@ -377,7 +404,7 @@ export function TopicSelector({
                   onClick={clearSelection}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <X className="mr-1 h-4 w-4" />
+                  <X className="mr-1 size-4" />
                   <span className="hidden sm:inline">
                     Clear ({selectedTopics.length})
                   </span>
@@ -394,11 +421,66 @@ export function TopicSelector({
           </p>
         </div>
 
+        {/* Topic Type Filter */}
+        {enableTopicTypeFilter && (
+          <div className="mb-3">
+            <div className="mb-1">
+              <span className="text-xs font-medium text-muted-foreground">
+                Filter by type:
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {availableTopicTypes.map((type) => {
+                const isSelected = selectedTopicTypes.includes(type)
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setSelectedTopicTypes((prev) =>
+                        isSelected
+                          ? prev.filter((t) => t !== type)
+                          : [...prev, type]
+                      )
+                    }}
+                    className={`
+                      flex items-center justify-center rounded-full p-2 transition-all duration-200 hover:scale-105
+                      ${
+                        isSelected
+                          ? "ring-2 ring-primary ring-offset-1"
+                          : "hover:ring-muted-foreground/50 hover:ring-1"
+                      }
+                      ${getEntityColor(type)}
+                    `}
+                    title={type}
+                  >
+                    {getEntityIcon(type)}
+                  </button>
+                )
+              })}
+              {selectedTopicTypes.length > 0 && (
+                <button
+                  onClick={() => setSelectedTopicTypes([])}
+                  className="bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center rounded-full p-2 text-destructive transition-all duration-200 hover:scale-105"
+                  title="Clear all filters"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+            {selectedTopicTypes.length > 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Showing {selectedTopicTypes.length} type
+                {selectedTopicTypes.length !== 1 ? "s" : ""} selected
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Search Input */}
         {enableSearch && (
-          <div className="mb-4">
+          <div className="mb-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search topics..."
@@ -407,7 +489,7 @@ export function TopicSelector({
                 className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               )}
             </div>
             {searchQuery && !isSearching && (
@@ -469,7 +551,7 @@ export function TopicSelector({
                       onClick={() => handleTopicToggle(topic)}
                       className="hover:bg-primary/20 ml-1 rounded-full p-0.5"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="size-3" />
                     </button>
                   </Badge>
                 ))}

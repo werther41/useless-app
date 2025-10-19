@@ -2,25 +2,27 @@ import { db } from "./db"
 import { NewsArticle } from "./schema"
 
 /**
- * Find a similar article to a given query embedding from recent news (last 7 days)
+ * Find a similar article to a given query embedding from recent news
  * Uses hybrid approach: similarity + recency weighting with randomness for variety
  * @param queryEmbedding - The embedding vector to search for
+ * @param timeWindow - Time window in days (default: 7)
  * @returns Promise<NewsArticle | null> - A similar recent article or null if none found
  */
 export async function findSimilarArticle(
-  queryEmbedding: number[]
+  queryEmbedding: number[],
+  timeWindow: number = 7
 ): Promise<NewsArticle | null> {
   try {
     // Convert embedding array to JSON string for SQL query
     const embeddingJson = JSON.stringify(queryEmbedding)
 
-    // Get top 10 most similar articles from last 7 days and randomly pick one for variety
+    // Get top 10 most similar articles from specified time window and randomly pick one for variety
     const result = await db.execute({
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
         WHERE embedding IS NOT NULL 
-          AND published_at >= datetime('now', '-7 days')
+          AND published_at >= datetime('now', '-${timeWindow} days')
         ORDER BY 
           vector_distance_cos(embedding, ?) ASC,
           published_at DESC
@@ -54,14 +56,16 @@ export async function findSimilarArticle(
 }
 
 /**
- * Find multiple similar articles to a given query embedding from recent news (last 7 days)
+ * Find multiple similar articles to a given query embedding from recent news
  * @param queryEmbedding - The embedding vector to search for
  * @param limit - Maximum number of articles to return (default: 5)
+ * @param timeWindow - Time window in days (default: 7)
  * @returns Promise<NewsArticle[]> - Array of similar recent articles
  */
 export async function findSimilarArticles(
   queryEmbedding: number[],
-  limit: number = 5
+  limit: number = 5,
+  timeWindow: number = 7
 ): Promise<NewsArticle[]> {
   try {
     const embeddingJson = JSON.stringify(queryEmbedding)
@@ -71,7 +75,7 @@ export async function findSimilarArticles(
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
         WHERE embedding IS NOT NULL 
-          AND published_at >= datetime('now', '-7 days')
+          AND published_at >= datetime('now', '-${timeWindow} days')
         ORDER BY 
           vector_distance_cos(embedding, ?) ASC,
           published_at DESC
@@ -97,17 +101,20 @@ export async function findSimilarArticles(
 }
 
 /**
- * Get a random article from recent news (last 7 days)
+ * Get a random article from recent news
+ * @param timeWindow - Time window in days (default: 7)
  * @returns Promise<NewsArticle | null> - A random recent article or null if none found
  */
-export async function getRandomArticle(): Promise<NewsArticle | null> {
+export async function getRandomArticle(
+  timeWindow: number = 7
+): Promise<NewsArticle | null> {
   try {
     const result = await db.execute({
       sql: `
         SELECT id, title, content, url, source, published_at, created_at, embedding
         FROM news_articles 
         WHERE embedding IS NOT NULL 
-          AND published_at >= datetime('now', '-7 days')
+          AND published_at >= datetime('now', '-${timeWindow} days')
         ORDER BY RANDOM()
         LIMIT 1
       `,

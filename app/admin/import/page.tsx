@@ -118,7 +118,7 @@ export default function ImportPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
+              <Upload className="size-5" />
               Import Facts
             </CardTitle>
           </CardHeader>
@@ -192,12 +192,12 @@ export default function ImportPage() {
             <CardTitle className="flex items-center gap-2">
               {results ? (
                 results.success ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="size-5 text-green-500" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-red-500" />
+                  <XCircle className="size-5 text-red-500" />
                 )
               ) : (
-                <AlertCircle className="h-5 w-5 text-gray-500" />
+                <AlertCircle className="size-5 text-gray-500" />
               )}
               Import Results
             </CardTitle>
@@ -259,7 +259,7 @@ export default function ImportPage() {
               </div>
             ) : (
               <div className="py-8 text-center text-muted-foreground">
-                <AlertCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                <AlertCircle className="mx-auto mb-4 size-12 opacity-50" />
                 <p>Import results will appear here after running an import.</p>
               </div>
             )}

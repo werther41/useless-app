@@ -148,7 +148,7 @@ export default function TopRatedFactsSection() {
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {index < 3 ? (
                       <Trophy
-                        className={`h-5 w-5 ${
+                        className={`size-5 ${
                           index === 0
                             ? "text-yellow-500"
                             : index === 1
@@ -157,7 +157,7 @@ export default function TopRatedFactsSection() {
                         }`}
                       />
                     ) : (
-                      <Star className="h-5 w-5 text-primary" />
+                      <Star className="size-5 text-primary" />
                     )}
                     #{index + 1} Most Loved
                   </CardTitle>
@@ -177,13 +177,13 @@ export default function TopRatedFactsSection() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
-                      <ThumbsUp className="h-4 w-4 text-green-600" />
+                      <ThumbsUp className="size-4 text-green-600" />
                       <span className="text-sm text-muted-foreground">
                         {fact.rating_count} votes
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <TrendingUp className="size-4 text-green-500" />
                       <span className="text-sm font-medium text-green-600">
                         {fact.total_rating > 0 ? "+" : ""}
                         {fact.total_rating}

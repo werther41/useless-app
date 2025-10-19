@@ -186,7 +186,7 @@ export default function FactsList({
           variant="outline"
           disabled={!canGoPrev}
         >
-          <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+          <ChevronLeft className="mr-2 size-4" /> Previous
         </Button>
         <div className="text-sm text-muted-foreground">Page {page}</div>
         <Button
@@ -194,7 +194,7 @@ export default function FactsList({
           variant="outline"
           disabled={!canGoNext || isLoading}
         >
-          Next <ChevronRight className="ml-2 h-4 w-4" />
+          Next <ChevronRight className="ml-2 size-4" />
         </Button>
       </div>
 

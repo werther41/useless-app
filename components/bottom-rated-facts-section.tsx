@@ -153,7 +153,7 @@ export default function BottomRatedFactsSection() {
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {index < 3 ? (
                       <Skull
-                        className={`h-5 w-5 ${
+                        className={`size-5 ${
                           index === 0
                             ? "text-red-600"
                             : index === 1
@@ -162,7 +162,7 @@ export default function BottomRatedFactsSection() {
                         }`}
                       />
                     ) : (
-                      <AlertTriangle className="h-5 w-5 text-red-500" />
+                      <AlertTriangle className="size-5 text-red-500" />
                     )}
                     #{index + 1} Most Hated
                   </CardTitle>
@@ -179,13 +179,13 @@ export default function BottomRatedFactsSection() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
-                      <ThumbsDown className="h-4 w-4 text-red-600" />
+                      <ThumbsDown className="size-4 text-red-600" />
                       <span className="text-sm text-muted-foreground">
                         {fact.rating_count} votes
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingDown className="h-4 w-4 text-red-500" />
+                      <TrendingDown className="size-4 text-red-500" />
                       <span className="text-sm font-medium text-red-600">
                         {fact.total_rating}
                       </span>

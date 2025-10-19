@@ -12,10 +12,10 @@ export default function UselessFactsHome() {
       {/* Hero Section */}
       <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-balance mb-6 text-3xl font-semibold text-foreground">
+          <h2 className="mb-6 text-balance text-3xl font-semibold text-foreground">
             Discover Facts You&apos;ll Never Need
           </h2>
-          <p className="text-pretty mb-6 text-xl text-muted-foreground">
+          <p className="mb-6 text-pretty text-xl text-muted-foreground">
             Expand your mind with wonderfully pointless information that&apos;s
             guaranteed to impress absolutely no one.
           </p>
@@ -38,7 +38,7 @@ export default function UselessFactsHome() {
             </Link>{" "}
             to discover the most loved and hated facts in our collection.
           </p>
-          <p className="text-pretty mt-6 text-lg text-muted-foreground">
+          <p className="mt-6 text-pretty text-lg text-muted-foreground">
             Prefer to browse everything yourself? Explore our full catalog on
             the{" "}
             <Link
@@ -47,7 +47,14 @@ export default function UselessFactsHome() {
             >
               All Facts
             </Link>{" "}
-            page.
+            page, or discover trending news articles with our{" "}
+            <Link
+              href="/discover"
+              className="hover:text-primary/80 text-primary underline underline-offset-4 transition-colors"
+            >
+              Article Discovery
+            </Link>{" "}
+            feature.
           </p>
         </div>
       </section>

@@ -14,7 +14,7 @@ export default function DeepDivePage() {
       <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="mb-6 text-4xl font-bold text-foreground">Deep Dive</h1>
-          <p className="text-pretty mb-12 text-xl text-muted-foreground">
+          <p className="mb-12 text-pretty text-xl text-muted-foreground">
             Immerse yourself in comprehensive explorations of the most
             wonderfully pointless topics. From detailed infographics to in-depth
             articles, discover the hidden depths of useless knowledge.
@@ -61,7 +61,7 @@ export default function DeepDivePage() {
                   </h3>
                   <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                      <Calendar className="size-4" />
                       <time dateTime={article.date}>
                         {new Date(article.date).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -85,7 +85,7 @@ export default function DeepDivePage() {
                     ) : null}
                     {" · "}
                     <span className="inline-flex items-center gap-1">
-                      <User className="h-4 w-4" />
+                      <User className="size-4" />
                       {article.author}
                     </span>
                   </p>

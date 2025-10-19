@@ -65,7 +65,7 @@ export default async function DeepDiveArticlePage({
       <div className="mb-8">
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/deep-dive" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to Deep Dive
           </Link>
         </Button>
@@ -77,7 +77,7 @@ export default async function DeepDiveArticlePage({
 
           <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
+              <Calendar className="size-4" />
               <time dateTime={article.date}>
                 {new Date(article.date).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -89,7 +89,7 @@ export default async function DeepDiveArticlePage({
 
             {article.updatedDate && article.updatedDate !== article.date && (
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
+                <Clock className="size-4" />
                 <span>
                   Updated{" "}
                   {new Date(article.updatedDate).toLocaleDateString("en-US", {
@@ -102,7 +102,7 @@ export default async function DeepDiveArticlePage({
             )}
 
             <div className="flex items-center gap-1">
-              <User className="h-4 w-4" />
+              <User className="size-4" />
               <span>{article.author}</span>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default async function DeepDiveArticlePage({
       <div className="mt-12 border-t pt-8">
         <Button variant="outline" asChild>
           <Link href="/deep-dive" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to Deep Dive
           </Link>
         </Button>

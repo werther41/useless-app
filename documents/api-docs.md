@@ -399,6 +399,31 @@ interface FactStatistics {
 }
 ```
 
+### Article with Relevance
+
+```typescript
+interface ArticleWithRelevance extends NewsArticle {
+  snippet: string
+  relevanceScore: number
+  matchedTopics: string[]
+}
+```
+
+### Article Search Result
+
+```typescript
+interface ArticleSearchResult {
+  articles: ArticleWithRelevance[]
+  metadata: {
+    totalResults: number
+    timeFilter: string
+    searchType: "topic" | "text"
+    query?: string
+    topics?: string[]
+  }
+}
+```
+
 ## Error Handling
 
 All endpoints return errors in this format:
@@ -478,6 +503,18 @@ const { data: bottomFacts } = await bottomFactsResponse.json()
 
 // Get all facts with pagination
 const allFacts = await fetch("/api/facts?page=1&limit=10")
+
+// Search articles by topics
+const topicSearch = await fetch(
+  "/api/articles?topics=AI,machine%20learning&timeFilter=7d&sortBy=score"
+)
+const { articles: topicArticles } = await topicSearch.json()
+
+// Search articles by free text
+const textSearch = await fetch(
+  "/api/articles/search?q=artificial%20intelligence&timeFilter=7d"
+)
+const { articles: textArticles } = await textSearch.json()
 ```
 
 ### cURL
@@ -502,6 +539,12 @@ curl "http://localhost:3000/api/facts/bottom-rated?limit=10"
 
 # Get all facts with pagination
 curl "http://localhost:3000/api/facts?page=1&limit=10"
+
+# Search articles by topics
+curl "http://localhost:3000/api/articles?topics=AI,machine%20learning&timeFilter=7d&sortBy=score"
+
+# Search articles by free text
+curl "http://localhost:3000/api/articles/search?q=artificial%20intelligence&timeFilter=7d"
 ```
 
 ### 8. Generate Real-Time Fact
@@ -601,6 +644,116 @@ Fetches and stores news articles from RSS feeds. Requires authorization header.
 }
 ```
 
+## Article Discovery API
+
+### 11. Search Articles by Topics
+
+**GET** `/api/articles`
+
+Search news articles by selected topics with intelligent matching and filtering.
+
+**Query Parameters:**
+
+- `topics` (string, required): Comma-separated list of topics to search for
+- `timeFilter` (string, optional): Time window filter - "24h", "7d", "30d", or "all" (default: "7d")
+- `topicTypes` (string, optional): Comma-separated list of topic types to filter by (e.g., "TECH", "ORG", "PERSON")
+- `sortBy` (string, optional): Sort order - "time" or "score" (default: "score")
+
+**Example Request:**
+
+```
+GET /api/articles?topics=AI,machine%20learning&timeFilter=7d&sortBy=score
+```
+
+**Response:**
+
+```json
+{
+  "articles": [
+    {
+      "id": "news_1234567890_abc123",
+      "title": "AI Breakthrough in Machine Learning",
+      "snippet": "Researchers have developed a new AI model that can process natural language with unprecedented accuracy. The breakthrough, published in Nature Machine Intelligence, demonstrates significant improvements in understanding context and generating human-like responses. The model was trained on a dataset of over 10 billion parameters and shows promise for applications in healthcare, education, and customer service...",
+      "url": "https://example.com/ai-breakthrough",
+      "source": "TechCrunch",
+      "published_at": "2024-01-15T10:30:00Z",
+      "created_at": "2024-01-15T10:35:00Z",
+      "relevanceScore": 0.85,
+      "matchedTopics": ["AI", "machine learning", "research"]
+    }
+  ],
+  "metadata": {
+    "totalResults": 1,
+    "timeFilter": "7d",
+    "searchType": "topic",
+    "topics": ["AI", "machine learning"],
+    "topicTypes": [],
+    "sortBy": "score",
+    "generatedAt": "2024-01-15T10:40:00Z"
+  }
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "error": "topics parameter is required"
+}
+```
+
+### 12. Search Articles by Free Text
+
+**GET** `/api/articles/search`
+
+Search news articles using natural language queries with vector similarity.
+
+**Query Parameters:**
+
+- `q` (string, required): Search query (minimum 3 characters)
+- `timeFilter` (string, optional): Time window filter - "24h", "7d", "30d", or "all" (default: "7d")
+
+**Example Request:**
+
+```
+GET /api/articles/search?q=artificial%20intelligence&timeFilter=7d
+```
+
+**Response:**
+
+```json
+{
+  "articles": [
+    {
+      "id": "news_1234567890_def456",
+      "title": "New AI Model Shows Promise",
+      "snippet": "A breakthrough in artificial intelligence has been achieved by researchers at leading tech companies. The new system demonstrates remarkable capabilities in natural language processing, showing significant improvements over previous models. The technology could revolutionize how we interact with computers and automate complex tasks across various industries. The research team spent over two years developing this advanced AI system...",
+      "url": "https://example.com/ai-model",
+      "source": "BBC News",
+      "published_at": "2024-01-15T09:15:00Z",
+      "created_at": "2024-01-15T09:20:00Z",
+      "relevanceScore": 0.92,
+      "matchedTopics": ["artificial intelligence", "AI", "technology"]
+    }
+  ],
+  "metadata": {
+    "totalResults": 1,
+    "timeFilter": "7d",
+    "searchType": "text",
+    "query": "artificial intelligence",
+    "generatedAt": "2024-01-15T10:40:00Z"
+  }
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "error": "Query must be at least 3 characters long"
+}
+```
+
 ## Real-Time News Features
 
 ### RSS Feed Sources
@@ -633,6 +786,85 @@ To test the API locally:
 1. Start the development server: `npm run dev`
 2. Visit `http://localhost:3000/api/facts/random` to test
 3. Use the admin interface at `/admin/import` to manage facts
+
+## Topics API
+
+### Get Trending Topics
+
+**GET** `/api/topics`
+
+Retrieves trending topics with optional filtering by topic types.
+
+**Query Parameters:**
+
+- `timeWindow` (optional): Time window in hours (1-168, default: 48)
+- `limit` (optional): Number of topics to return (1-50, default: 10)
+- `entityType` (optional): Filter by specific entity type
+- `topicTypes` (optional): Comma-separated list of topic types to filter by (e.g., "PERSON,ORG,LOCATION")
+- `diverse` (optional): Enable diverse topic selection (true/false)
+
+**Example Request:**
+
+```bash
+GET /api/topics?limit=20&timeWindow=48&topicTypes=PERSON,ORG&diverse=true
+```
+
+**Example Response:**
+
+```json
+{
+  "topics": [
+    {
+      "id": "topic_123",
+      "text": "Artificial Intelligence",
+      "type": "SCIENTIFIC_TERM",
+      "occurrenceCount": 45,
+      "avgTfidfScore": 0.85,
+      "lastSeenAt": "2024-01-15T10:30:00Z",
+      "combinedScore": 38.25
+    }
+  ],
+  "metadata": {
+    "timeWindow": 48,
+    "limit": 20,
+    "topicTypes": ["PERSON", "ORG"],
+    "diverse": true,
+    "totalTopics": 1,
+    "generatedAt": "2024-01-15T10:35:00Z"
+  }
+}
+```
+
+### Search Topic Suggestions
+
+**POST** `/api/topics`
+
+Search for topic suggestions based on a query string.
+
+**Request Body:**
+
+```json
+{
+  "query": "machine learning",
+  "limit": 10
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "suggestions": [
+    {
+      "text": "machine learning",
+      "type": "SCIENTIFIC_TERM",
+      "count": 25
+    }
+  ],
+  "query": "machine learning",
+  "total": 1
+}
+```
 
 ## Production Considerations
 
