@@ -10,7 +10,7 @@ export default function BackButton() {
   return (
     <Button type="button" variant="outline" onClick={() => router.back()}>
       <div className="flex items-center gap-2">
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="h-4 w-4" />
         Go Back
       </div>
     </Button>

@@ -180,7 +180,7 @@ export function ArticleList({
               onClick={() => onSortChange("score")}
               className="flex-1 sm:flex-none"
             >
-              <TrendingUp className="mr-1 size-3 sm:size-4" />
+              <TrendingUp className="mr-1 h-4 w-4 sm:h-4" />
               <span className="xs:inline hidden">Most Relevant</span>
               <span className="xs:hidden">Relevant</span>
             </Button>
@@ -190,7 +190,7 @@ export function ArticleList({
               onClick={() => onSortChange("time")}
               className="flex-1 sm:flex-none"
             >
-              <Calendar className="mr-1 size-3 sm:size-4" />
+              <Calendar className="mr-1 size-3 w-4 sm:h-4" />
               <span className="xs:inline hidden">Most Recent</span>
               <span className="xs:hidden">Recent</span>
             </Button>
@@ -235,7 +235,7 @@ export function ArticleList({
                     rel="noopener noreferrer"
                     className="hover:text-primary/80 inline-flex items-center gap-1 text-sm text-primary transition-colors"
                   >
-                    <ExternalLink className="size-4" />
+                    <ExternalLink className="h-4 w-4" />
                     Read original article
                   </a>
                 </div>
@@ -243,11 +243,11 @@ export function ArticleList({
                 {/* Metadata Row */}
                 <div className="mb-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Calendar className="size-4" />
+                    <Calendar className="h-4 w-4" />
                     {formatDate(article.published_at)}
                   </div>
                   <div className="flex items-center gap-1">
-                    <TrendingUp className="size-4" />
+                    <TrendingUp className="h-4 w-4" />
                     {formatScore(article.relevanceScore)}
                   </div>
                 </div>

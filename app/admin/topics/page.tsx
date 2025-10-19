@@ -17,19 +17,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 const getEntityIcon = (type: string) => {
   switch (type) {
     case "TECH":
-      return <Hash className="size-4" />
+      return <Hash className="h-4 w-4" />
     case "ORG":
-      return <Building className="size-4" />
+      return <Building className="h-4 w-4" />
     case "PERSON":
-      return <User className="size-4" />
+      return <User className="h-4 w-4" />
     case "LOCATION":
-      return <MapPin className="size-4" />
+      return <MapPin className="h-4 w-4" />
     case "CONCEPT":
-      return <Lightbulb className="size-4" />
+      return <Lightbulb className="h-4 w-4" />
     case "EVENT":
-      return <Calendar className="size-4" />
+      return <Calendar className="h-4 w-4" />
     default:
-      return <TrendingUp className="size-4" />
+      return <TrendingUp className="h-4 w-4" />
   }
 }
 
@@ -41,7 +41,7 @@ async function TopicStats() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Articles</CardTitle>
-          <TrendingUp className="size-4 text-muted-foreground" />
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.totalArticles}</div>
@@ -53,7 +53,7 @@ async function TopicStats() {
           <CardTitle className="text-sm font-medium">
             Articles with Topics
           </CardTitle>
-          <Hash className="size-4 text-muted-foreground" />
+          <Hash className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.articlesWithTopics}</div>
@@ -66,7 +66,7 @@ async function TopicStats() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Topics</CardTitle>
-          <Lightbulb className="size-4 text-muted-foreground" />
+          <Lightbulb className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.totalTopics}</div>
@@ -76,7 +76,7 @@ async function TopicStats() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Trending Topics</CardTitle>
-          <TrendingUp className="size-4 text-muted-foreground" />
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.trendingTopics}</div>
@@ -171,8 +171,8 @@ export default function TopicsAdminPage() {
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="size-4 animate-pulse rounded bg-muted"></div>
-                      <div className="size-4 animate-pulse rounded bg-muted"></div>
+                      <div className="h-4 w-4 animate-pulse rounded bg-muted"></div>
+                      <div className="h-4 w-4 animate-pulse rounded bg-muted"></div>
                       <div>
                         <div className="mb-2 h-4 w-32 animate-pulse rounded bg-muted"></div>
                         <div className="h-3 w-24 animate-pulse rounded bg-muted"></div>

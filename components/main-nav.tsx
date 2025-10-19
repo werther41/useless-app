@@ -66,9 +66,9 @@ export function MainNav({ items }: MainNavProps) {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
-              <X className="size-5" />
+              <X className="h-5 w-5" />
             ) : (
-              <Menu className="size-5" />
+              <Menu className="h-5 w-5" />
             )}
           </Button>
 

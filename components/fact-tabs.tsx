@@ -29,7 +29,7 @@ export function FactTabs() {
             size="lg"
             className={getTabClassName("realtime")}
           >
-            <Wand2 className="size-4 text-primary sm:size-6" />
+            <Wand2 className="h-4 w-4 text-primary sm:size-6" />
             <span className="whitespace-nowrap">Real-Time Facts</span>
           </Button>
           <Button
@@ -38,7 +38,7 @@ export function FactTabs() {
             size="lg"
             className={getTabClassName("static")}
           >
-            <Clock className="size-4 text-primary sm:size-6" />
+            <Clock className="h-4 w-4 text-primary sm:size-6" />
             <span className="whitespace-nowrap">Classic Facts</span>
           </Button>
         </div>
