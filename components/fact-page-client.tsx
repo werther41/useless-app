@@ -88,7 +88,7 @@ export function FactPageClient({ fact }: FactPageClientProps) {
                     rel="noopener noreferrer"
                     className="hover:text-primary/80 inline-flex items-center gap-1 text-primary transition-colors"
                   >
-                    <ExternalLink className="size-3" />
+                    <ExternalLink className="w-3 h-3" />
                     Read original article
                   </a>
                 )}

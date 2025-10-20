@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { FALLBACK_TOPICS, shouldUseFallback } from "@/lib/fallback-data"
 import { getTrendingTopics } from "@/lib/topic-extraction"
 import { getDiverseTopics } from "@/lib/topic-search"
 
-// Cache for 15 minutes
-export const revalidate = 900
+// Cache for 5 minutes
+export const revalidate = 300
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,16 +36,41 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get topics (diverse or regular)
-    const topics = diverse
-      ? await getDiverseTopics({
-          timeWindow,
-          limit,
-          entityType,
-          randomize,
-          topicTypes,
-        })
-      : await getTrendingTopics({ timeWindow, limit, entityType, topicTypes })
+    // Get topics (diverse or regular) with fallback
+    let topics
+    try {
+      topics = diverse
+        ? await getDiverseTopics({
+            timeWindow,
+            limit,
+            entityType,
+            randomize,
+            topicTypes,
+          })
+        : await getTrendingTopics({ timeWindow, limit, entityType, topicTypes })
+
+      // If we got no topics and database might be having issues, use fallback
+      if (topics.length === 0) {
+        console.log("No topics found, checking database connectivity...")
+        const { getConnectionStatus } = await import("@/lib/db-utils")
+        const dbStatus = await getConnectionStatus()
+
+        if (!dbStatus.connected) {
+          console.log("Database is not connected, using fallback topics")
+          topics = FALLBACK_TOPICS.slice(0, limit)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching topics from database:", error)
+
+      // Use fallback data if it's a network/database error
+      if (shouldUseFallback(error)) {
+        console.log("Using fallback topics due to database connectivity issues")
+        topics = FALLBACK_TOPICS.slice(0, limit)
+      } else {
+        throw error
+      }
+    }
 
     // Transform to API response format
     const response = {
@@ -81,9 +107,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, {
       headers: {
-        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=1800",
-        "CDN-Cache-Control": "public, s-maxage=900",
-        "Vercel-CDN-Cache-Control": "public, s-maxage=900",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, s-maxage=300",
+        "Vercel-CDN-Cache-Control": "public, s-maxage=300",
       },
     })
   } catch (error) {

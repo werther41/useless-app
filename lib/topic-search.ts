@@ -1,4 +1,5 @@
 import { db } from "./db"
+import { executeWithRetry } from "./db-utils"
 import { NewsArticle } from "./schema"
 
 export interface TopicSearchOptions {
@@ -68,7 +69,7 @@ export async function findArticlesByTopics(
       params = [...normalizedTopics, limit]
     }
 
-    const result = await db.execute(query, params)
+    const result = await executeWithRetry(query, params)
 
     return result.rows.map((row) => ({
       id: row.id as string,
@@ -160,7 +161,7 @@ export async function findArticlesByTopicsFuzzy(
       params.push(limit)
     }
 
-    const result = await db.execute(query, params)
+    const result = await executeWithRetry(query, params)
 
     return result.rows.map((row) => ({
       id: row.id as string,
@@ -275,7 +276,7 @@ export async function getDiverseTopics(options?: {
       params.push(limit * 2) // Get more to filter for diversity
     }
 
-    const result = await db.execute(query, params)
+    const result = await executeWithRetry(query, params)
     const allTopics = result.rows.map((row) => {
       const occurrenceCount = (row.occurrence_count as number) || 0
       const avgTfidfScore = (row.avg_tfidf_score as number) || 0
@@ -420,7 +421,7 @@ export async function findArticlesByTopicsWithRelevance(
         ? [...normalizedTopics, normalizedTopics.length, limit]
         : [...normalizedTopics, limit]
 
-    const result = await db.execute(query, params)
+    const result = await executeWithRetry(query, params)
 
     return result.rows.map((row) => {
       const article: NewsArticle = {

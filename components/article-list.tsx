@@ -190,7 +190,7 @@ export function ArticleList({
               onClick={() => onSortChange("time")}
               className="flex-1 sm:flex-none"
             >
-              <Calendar className="mr-1 size-3 w-4 sm:h-4" />
+              <Calendar className="mr-1 h-4 w-4 sm:h-4" />
               <span className="xs:inline hidden">Most Recent</span>
               <span className="xs:hidden">Recent</span>
             </Button>
@@ -213,11 +213,14 @@ export function ArticleList({
               className="border-primary/20 hover:border-primary/40 transition-colors"
             >
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <CardTitle className="text-lg leading-tight">
                     {article.title}
                   </CardTitle>
-                  <Badge variant="secondary" className="shrink-0">
+                  <Badge
+                    variant="secondary"
+                    className="shrink-0 self-start sm:self-auto"
+                  >
                     {article.source}
                   </Badge>
                 </div>
@@ -262,7 +265,7 @@ export function ArticleList({
                           variant="outline"
                           className="border-blue-200 bg-blue-100 text-xs text-blue-800 hover:bg-blue-200 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
                         >
-                          <Hash className="mr-1 size-3" />
+                          <Hash className="mr-1 w-3 h-3" />
                           {topic}
                         </Badge>
                       ))}

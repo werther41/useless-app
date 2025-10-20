@@ -377,7 +377,7 @@ export default function DiscoverPage() {
                   )}
 
                   <Badge variant="outline">
-                    <Clock className="mr-1 size-3" />
+                    <Clock className="mr-1 w-3 h-3" />
                     {
                       TIME_FILTER_OPTIONS.find(
                         (opt) => opt.value === searchState.timeFilter
@@ -386,7 +386,7 @@ export default function DiscoverPage() {
                   </Badge>
 
                   <Badge variant="outline">
-                    <Filter className="mr-1 size-3" />
+                    <Filter className="mr-1 w-3 h-3" />
                     {searchState.sortBy === "score"
                       ? "Most Relevant"
                       : "Most Recent"}

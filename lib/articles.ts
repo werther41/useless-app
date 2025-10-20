@@ -1,4 +1,5 @@
 import { db } from "./db"
+import { executeWithRetry } from "./db-utils"
 import { generateEmbedding } from "./embeddings"
 import { NewsArticle } from "./schema"
 
@@ -49,7 +50,7 @@ export async function getArticlesByTopics(
 
     // Build time filter clause
     const timeFilter = timeWindow
-      ? `AND na.created_at > datetime('now', '-${timeWindow} hours')`
+      ? `AND na.published_at > datetime('now', '-${timeWindow} hours')`
       : ""
 
     // Build topic type filter clause
@@ -85,7 +86,7 @@ export async function getArticlesByTopics(
       limit,
     ]
 
-    let result = await db.execute(query, params)
+    let result = await executeWithRetry(query, params)
 
     // If we got < 3 results, fall back to ANY match
     if (result.rows.length < 3) {
@@ -108,7 +109,7 @@ export async function getArticlesByTopics(
         `
 
       params = [...normalizedTopics, ...topicTypes, limit]
-      result = await db.execute(query, params)
+      result = await executeWithRetry(query, params)
     }
 
     return result.rows.map((row) => {
@@ -171,7 +172,7 @@ export async function searchArticlesByText(
 
     // Build time filter clause
     const timeFilter = timeWindow
-      ? `AND na.created_at > datetime('now', '-${timeWindow} hours')`
+      ? `AND na.published_at > datetime('now', '-${timeWindow} hours')`
       : ""
 
     // Search using vector similarity
@@ -191,7 +192,7 @@ export async function searchArticlesByText(
       LIMIT ?
     `
 
-    const result = await db.execute(query_sql, [embeddingJson, limit])
+    const result = await executeWithRetry(query_sql, [embeddingJson, limit])
 
     return result.rows.map((row) => {
       const article: NewsArticle = {

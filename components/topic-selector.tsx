@@ -142,9 +142,9 @@ export function TopicSelector({
     "LAW_OR_POLICY",
   ]
 
-  // Fetch trending topics
+  // Fetch trending topics with retry logic
   useEffect(() => {
-    const fetchTopics = async () => {
+    const fetchTopics = async (retryCount = 0) => {
       try {
         setIsLoading(true)
         setError("")
@@ -154,11 +154,19 @@ export function TopicSelector({
             ? `&topicTypes=${selectedTopicTypes.join(",")}`
             : ""
 
+        // Add cache-busting parameter to prevent stale cache issues
+        const timestamp = Date.now()
         const url = enableDiversity
-          ? `/api/topics?limit=20&timeWindow=48&diverse=true${topicTypesParam}`
-          : `/api/topics?limit=20&timeWindow=48${topicTypesParam}`
+          ? `/api/topics?limit=20&timeWindow=48&diverse=true&cache_bust=${timestamp}${topicTypesParam}`
+          : `/api/topics?limit=20&timeWindow=48&cache_bust=${timestamp}${topicTypesParam}`
 
-        const response = await fetch(url)
+        const response = await fetch(url, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        })
 
         if (!response.ok) {
           throw new Error(`Failed to fetch topics: ${response.status}`)
@@ -166,11 +174,24 @@ export function TopicSelector({
 
         const data = await response.json()
         setTopics(data.topics || [])
+        setError("") // Clear any previous errors
+        setIsLoading(false) // Always clear loading on successful response
       } catch (err) {
         console.error("Error fetching topics:", err)
-        setError(err instanceof Error ? err.message : "Failed to load topics")
-      } finally {
-        setIsLoading(false)
+
+        // Retry logic: retry up to 3 times with exponential backoff
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 1000 // 1s, 2s, 4s
+          console.log(
+            `Retrying fetch topics in ${delay}ms (attempt ${retryCount + 1}/3)`
+          )
+          setTimeout(() => {
+            fetchTopics(retryCount + 1)
+          }, delay)
+        } else {
+          setError(err instanceof Error ? err.message : "Failed to load topics")
+          setIsLoading(false) // Clear loading on final failure
+        }
       }
     }
 
@@ -334,7 +355,49 @@ export function TopicSelector({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                setError("")
+                setIsLoading(true)
+                // Trigger a new fetch by updating a dependency
+                const timestamp = Date.now()
+                const topicTypesParam =
+                  selectedTopicTypes.length > 0
+                    ? `&topicTypes=${selectedTopicTypes.join(",")}`
+                    : ""
+                const url = enableDiversity
+                  ? `/api/topics?limit=20&timeWindow=48&diverse=true&cache_bust=${timestamp}${topicTypesParam}`
+                  : `/api/topics?limit=20&timeWindow=48&cache_bust=${timestamp}${topicTypesParam}`
+
+                fetch(url, {
+                  cache: "no-store",
+                  headers: {
+                    "Cache-Control": "no-cache",
+                    Pragma: "no-cache",
+                  },
+                })
+                  .then((response) => {
+                    if (!response.ok)
+                      throw new Error(
+                        `Failed to fetch topics: ${response.status}`
+                      )
+                    return response.json()
+                  })
+                  .then((data) => {
+                    setTopics(data.topics || [])
+                    setError("")
+                  })
+                  .catch((err) => {
+                    console.error("Error fetching topics:", err)
+                    setError(
+                      err instanceof Error
+                        ? err.message
+                        : "Failed to load topics"
+                    )
+                  })
+                  .finally(() => {
+                    setIsLoading(false)
+                  })
+              }}
             >
               Try Again
             </Button>
@@ -362,12 +425,12 @@ export function TopicSelector({
     <Card className={`border-primary/20 ${className}`}>
       <CardContent className="p-3">
         <div className="mb-3">
-          <div className="mb-2">
-            <h3 className="mb-2 flex items-center gap-2 text-base font-semibold sm:mb-0">
+          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="flex items-center gap-2 text-base font-semibold">
               <TrendingUp className="h-4 w-4" />
               {showSearchResults ? "Search Results" : "Trending Topics"}
             </h3>
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <div className="flex flex-wrap items-center gap-2">
               {!showSearchResults && (
                 <Button
                   variant="ghost"
@@ -424,11 +487,6 @@ export function TopicSelector({
         {/* Topic Type Filter */}
         {enableTopicTypeFilter && (
           <div className="mb-3">
-            <div className="mb-1">
-              <span className="text-xs font-medium text-muted-foreground">
-                Filter by type:
-              </span>
-            </div>
             <div className="flex flex-wrap gap-1">
               {availableTopicTypes.map((type) => {
                 const isSelected = selectedTopicTypes.includes(type)
