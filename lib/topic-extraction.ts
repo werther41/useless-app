@@ -3,6 +3,7 @@ import { generateObject } from "ai"
 import { z } from "zod"
 
 import { db } from "./db"
+import { executeWithRetry } from "./db-utils"
 import { SUPPORTED_ENTITY_TYPES, buildEntityExtractionPrompt } from "./prompts"
 import { ArticleTopic, ExtractedEntity, TrendingTopic } from "./schema"
 
@@ -323,7 +324,7 @@ export async function getTrendingTopics(options?: {
     `
     params.push(limit)
 
-    const result = await db.execute(query, params)
+    const result = await executeWithRetry(query, params)
 
     return result.rows.map((row) => ({
       id: row.id as string,
