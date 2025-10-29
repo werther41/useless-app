@@ -319,7 +319,7 @@ export async function getTrendingTopics(options?: {
     }
 
     query += `
-      ORDER BY (occurrence_count * avg_tfidf_score) DESC
+      ORDER BY (LOG(occurrence_count + 1) * avg_tfidf_score) DESC
       LIMIT ?
     `
     params.push(limit)

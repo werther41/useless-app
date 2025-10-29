@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         combinedScore:
           "combinedScore" in topic
             ? topic.combinedScore
-            : topic.occurrence_count * topic.avg_tfidf_score,
+            : Math.log(topic.occurrence_count + 1) * topic.avg_tfidf_score,
       })),
       metadata: {
         timeWindow,
