@@ -270,7 +270,7 @@ export async function getDiverseTopics(options?: {
       params.push(limit * 3) // Get more for randomization
     } else {
       query += `
-        ORDER BY (occurrence_count * avg_tfidf_score) DESC
+        ORDER BY (LOG(occurrence_count + 1) * avg_tfidf_score) DESC
         LIMIT ?
       `
       params.push(limit * 2) // Get more to filter for diversity
@@ -287,7 +287,7 @@ export async function getDiverseTopics(options?: {
         occurrenceCount,
         avgTfidfScore,
         lastSeenAt: row.last_seen_at as string,
-        combinedScore: occurrenceCount * avgTfidfScore,
+        combinedScore: Math.log(occurrenceCount + 1) * avgTfidfScore,
       }
     })
 
