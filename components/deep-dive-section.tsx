@@ -66,22 +66,24 @@ export function DeepDiveSection({
             </Card>
           </Link>
 
-          <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
-            <CardContent className="p-6">
-              <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
-                <span className="text-6xl">🥣</span>
-              </div>
-              <h4 className="mb-2 text-xl font-semibold">
-                Optimal Cereal-to-Milk Ratios
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                A data-driven approach to achieving breakfast perfection.
-              </p>
-              <Badge variant="outline" className="mt-3">
-                Coming Soon
-              </Badge>
-            </CardContent>
-          </Card>
+          <Link href="/deep-dive/cereal-to-milk-ratio">
+            <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg">
+              <CardContent className="p-6">
+                <div className="from-primary/20 to-accent/20 mb-4 flex aspect-video items-center justify-center rounded-lg bg-gradient-to-br">
+                  <span className="text-6xl">🥣</span>
+                </div>
+                <h4 className="mb-2 text-xl font-semibold">
+                  Optimal Cereal-to-Milk Ratios
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  A data-driven approach to achieving breakfast perfection.
+                </p>
+                <Badge variant="default" className="mt-3">
+                  Available Now
+                </Badge>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
     </section>
