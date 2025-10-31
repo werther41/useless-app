@@ -201,7 +201,7 @@ export default function DiscoverPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Article Discovery</h1>
         <p className="mt-2 text-muted-foreground">
-          Search news articles by topics or free-text queries with advanced
+          Search news articles by topics or vector search with advanced
           filtering
         </p>
       </div>
@@ -237,7 +237,7 @@ export default function DiscoverPage() {
                   }`}
                 >
                   <Search className="h-4 w-4 text-primary sm:size-6" />
-                  <span className="whitespace-nowrap">Free Text</span>
+                  <span className="whitespace-nowrap">Vector Search</span>
                 </Button>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function DiscoverPage() {
             {searchState.mode === "text" && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Search Query</CardTitle>
+                  <CardTitle className="text-lg">Vector Search</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
