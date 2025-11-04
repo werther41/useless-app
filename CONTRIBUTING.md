@@ -16,7 +16,7 @@ Thank you for your interest in contributing to the Useless Facts App! This docum
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/useless-app.git
+   git clone https://github.com/werther41/useless-app.git
    cd useless-app
    ```
 3. **Install dependencies**:

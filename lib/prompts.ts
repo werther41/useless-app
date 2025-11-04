@@ -24,7 +24,33 @@
 
 // --- CHAIN-OF-THOUGHT & JSON PROMPTS ---
 
-export const SYSTEM_PROMPT = `
+/**
+ * Tone presets for fact generation
+ */
+export const TONE_PRESETS = {
+  deadpan:
+    "Write in a completely flat, emotionless manner. State facts matter-of-factly without any enthusiasm or humor.",
+  sarcastic:
+    "Use dry wit and ironic humor. Make subtle, witty observations that are amusing but not mean-spirited.",
+  nerdy:
+    "Use technical details and enthusiastic academic language. Show genuine excitement about the subject matter.",
+  enthusiast:
+    "Be excited and passionate about the subject. Use energetic, positive language that conveys genuine interest.",
+  conspiratorial:
+    "Hint at hidden meanings and connections. Suggest there might be more to the story, but keep it playful.",
+  snarky:
+    "Use sharp, witty, slightly mocking commentary. Be clever and sardonic, but keep it light-hearted.",
+  philosophical:
+    "Frame facts in broader existential or abstract terms. Connect the fact to deeper questions about life or meaning.",
+} as const
+
+export type TonePreset = keyof typeof TONE_PRESETS
+
+/**
+ * Build system prompt with optional tone instructions
+ */
+export function buildSystemPrompt(tone?: TonePreset | null): string {
+  const basePrompt = `
 You are an assistant that extracts a single, short, and quirky 'useless' fun fact from a news article.
 
 First, think step-by-step to identify the best fact:
@@ -32,19 +58,54 @@ First, think step-by-step to identify the best fact:
 2.  **Tangential Topics:** Brainstorm 2-3 related but obscure topics. For example, if the article is about a new car, tangential topics could be the history of rubber tires or the origin of the term 'dashboard'.
 3.  **Select Best Fact:** Choose the most surprising and interesting tangential topic and formulate it as a fun fact.
 
+The fact should be approximately 25 words long. Make it surprising and tangentially related to the main point of the article. Do not state the obvious.
+
 Finally, format your response as a single JSON object. Do not output any other text.
 
 Example JSON output format:
 {
-  "funFact": "The silicon used in computer chips must be 99.9999999% pure, a standard known as 'nine-nines' purity."
+  "funFact": "The silicon used in computer chips must be 99.9999999% pure, a standard known as 'nine-nines' purity.",
+  "whyInteresting": "This extreme precision requirement highlights the delicate balance between industrial manufacturing and atomic-level perfection.",
+  "sourceSnippet": "The new chip manufacturing process requires unprecedented levels of material purity, with silicon reaching 99.9999999% purity standards."
 }
 `
 
+  if (tone && TONE_PRESETS[tone]) {
+    return `${basePrompt.trim()}\n\n**Writing Tone:** ${
+      TONE_PRESETS[tone]
+    } Apply this tone to both the funFact and whyInteresting fields.`
+  }
+
+  return basePrompt.trim()
+}
+
+/**
+ * Default system prompt (no tone)
+ */
+export const SYSTEM_PROMPT = buildSystemPrompt()
+
+/**
+ * Create user prompt with article content and optional topics
+ */
 export function createUserPrompt(
   articleTitle: string,
-  articleContent: string
+  articleContent: string,
+  matchedTopics?: string[],
+  isRegenerate: boolean = false
 ): string {
-  return `Analyze the following article and generate a fun fact based on the rules. Article: "${articleTitle}\n\n${articleContent}"`
+  let prompt = `Analyze the following article and generate a fun fact based on the rules.`
+
+  if (matchedTopics && matchedTopics.length > 0) {
+    prompt += ` Focus on these topics: ${matchedTopics.join(", ")}.`
+  }
+
+  if (isRegenerate) {
+    prompt += ` Generate a different fact from a different angle about this article.`
+  }
+
+  prompt += `\n\nArticle: "${articleTitle}\n\n${articleContent}"`
+
+  return prompt
 }
 
 // --- TOPIC EXTRACTION PROMPTS ---

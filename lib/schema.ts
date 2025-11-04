@@ -5,6 +5,10 @@ export interface Fact {
   source?: string | null
   source_url?: string | null
   fact_type?: "static" | "realtime"
+  why_interesting?: string | null
+  source_snippet?: string | null
+  tone?: string | null
+  article_id?: string | null
   created_at: string
   updated_at: string
 }
