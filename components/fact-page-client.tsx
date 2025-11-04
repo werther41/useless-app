@@ -48,6 +48,29 @@ export function FactPageClient({ fact }: FactPageClientProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Why It's Interesting */}
+          {currentFact.why_interesting && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <p className="mb-1 text-sm font-semibold text-primary">
+                Why it&apos;s interesting:
+              </p>
+              <p className="text-sm text-foreground">
+                {currentFact.why_interesting}
+              </p>
+            </div>
+          )}
+
+          {/* Source Snippet */}
+          {currentFact.source_snippet && (
+            <div className="rounded-lg border border-muted bg-muted/30 p-4">
+              <p className="mb-1 text-sm font-semibold text-muted-foreground">
+                Source snippet:
+              </p>
+              <p className="text-sm italic text-muted-foreground">
+                &quot;{currentFact.source_snippet}&quot;
+              </p>
+            </div>
+          )}
           {/* Rating Display */}
           <div className="flex items-center justify-center gap-4">
             <div className="flex items-center gap-2">

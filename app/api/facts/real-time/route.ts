@@ -3,10 +3,15 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { streamText } from "ai"
 import { nanoid } from "nanoid"
 
+import { db } from "@/lib/db"
 import { generateEmbedding } from "@/lib/embeddings"
 import { createFact } from "@/lib/facts"
 import { initializeDatabase } from "@/lib/init-db"
-import { SYSTEM_PROMPT, createUserPrompt } from "@/lib/prompts"
+import {
+  buildSystemPrompt,
+  createUserPrompt,
+  TonePreset,
+} from "@/lib/prompts"
 import { getRandomQueryText } from "@/lib/query-texts"
 import {
   findArticlesByTopics,
@@ -28,22 +33,42 @@ export async function POST(request: NextRequest) {
     // Initialize database if needed
     await initializeDatabase()
 
-    // Parse request body for selected topics
+    // Parse request body for selected topics and tone
     let selectedTopics: string[] = []
     let matchedTopics: string[] = []
+    let tone: TonePreset | null = null
+    let articleId: string | null = null
 
     try {
       const body = await request.json()
       selectedTopics = body.selectedTopics || []
+      tone = body.tone || null
+      articleId = body.articleId || null
     } catch (error) {
       // If no body or invalid JSON, continue with empty topics (fallback to random)
-      console.log("No selected topics provided, using random query")
+      console.log("No request body provided, using random query")
     }
 
     let article: any = null
 
-    // Try topic-based search first if topics are provided
-    if (selectedTopics.length > 0) {
+    // If articleId is provided (for regenerate), fetch that specific article
+    if (articleId) {
+      try {
+        const result = await db.execute(
+          `SELECT * FROM news_articles WHERE id = ?`,
+          [articleId]
+        )
+        if (result.rows.length > 0) {
+          article = result.rows[0]
+          console.log(`📰 Using provided article ID: ${articleId}`)
+        }
+      } catch (error) {
+        console.log(`❌ Error fetching article by ID: ${articleId}`, error)
+      }
+    }
+
+    // Try topic-based search first if topics are provided and no articleId
+    if (!article && selectedTopics.length > 0) {
       console.log(
         `🎯 Searching for articles with topics: ${selectedTopics.join(", ")}`
       )
@@ -124,11 +149,19 @@ export async function POST(request: NextRequest) {
     })
 
     // Create the prompt for generating a fun fact
-    const systemPrompt = SYSTEM_PROMPT
-    const userPrompt = createUserPrompt(article.title, article.content)
+    const systemPrompt = buildSystemPrompt(tone)
+    const userPrompt = createUserPrompt(
+      article.title,
+      article.content,
+      matchedTopics.length > 0 ? matchedTopics : undefined,
+      !!articleId // isRegenerate if articleId was provided
+    )
 
-    console.log(`🤖 System Prompt: "${systemPrompt}"`)
-    console.log(`💬 User Prompt: "${userPrompt}"`)
+    console.log(`🤖 System Prompt: "${systemPrompt.substring(0, 100)}..."`)
+    console.log(`💬 User Prompt: "${userPrompt.substring(0, 100)}..."`)
+    if (tone) {
+      console.log(`🎭 Tone: ${tone}`)
+    }
 
     // Generate the streaming response using Gemini
     console.log(`🚀 Starting AI generation with Gemini...`)
@@ -139,7 +172,9 @@ export async function POST(request: NextRequest) {
     })
 
     console.log(`✅ AI generation completed, creating streaming response...`)
-    console.log(`📝 Expected JSON format: {"funFact": "..."}`)
+    console.log(
+      `📝 Expected JSON format: {"funFact": "...", "whyInteresting": "...", "sourceSnippet": "..."}`
+    )
 
     // Create response with metadata
     const response = result.toTextStreamResponse()
@@ -163,6 +198,9 @@ export async function POST(request: NextRequest) {
     if (matchedTopics.length > 0) {
       response.headers.set("X-Matched-Topics", matchedTopics.join(", "))
     }
+
+    // Add article ID header for regenerate functionality
+    response.headers.set("X-Article-ID", article.id)
 
     // Add cache control headers to prevent caching issues
     response.headers.set(

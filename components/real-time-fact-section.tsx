@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import {
   Clock,
   ExternalLink,
+  RefreshCw,
   Share2,
   ThumbsDown,
   ThumbsUp,
@@ -19,7 +20,19 @@ import { TopicSelector } from "@/components/topic-selector"
 
 interface FunFactResponse {
   funFact: string
+  whyInteresting?: string
+  sourceSnippet?: string
 }
+
+type TonePreset =
+  | "deadpan"
+  | "sarcastic"
+  | "nerdy"
+  | "enthusiast"
+  | "conspiratorial"
+  | "snarky"
+  | "philosophical"
+  | null
 
 interface RealTimeFactProps {
   className?: string
@@ -28,10 +41,13 @@ interface RealTimeFactProps {
 export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [fact, setFact] = useState<string>("")
+  const [whyInteresting, setWhyInteresting] = useState<string>("")
+  const [sourceSnippet, setSourceSnippet] = useState<string>("")
   const [articleSource, setArticleSource] = useState<string>("")
   const [articleTitle, setArticleTitle] = useState<string>("")
   const [articleUrl, setArticleUrl] = useState<string>("")
   const [articleDate, setArticleDate] = useState<string>("")
+  const [articleId, setArticleId] = useState<string | null>(null)
   const [error, setError] = useState<string>("")
   const [selectedTopics, setSelectedTopics] = useState<string[]>([])
   const [matchedTopics, setMatchedTopics] = useState<string[]>([])
@@ -39,29 +55,51 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
   const [hasVoted, setHasVoted] = useState(false)
   const [isRating, setIsRating] = useState(false)
   const [isCardFocused, setIsCardFocused] = useState(false)
+  const [tone, setTone] = useState<TonePreset>(null)
   const factCardRef = useRef<HTMLDivElement>(null)
 
-  const generateRealTimeFact = async () => {
+  const TONE_OPTIONS: Array<{ value: TonePreset; label: string }> = [
+    { value: null, label: "Default" },
+    { value: "deadpan", label: "Deadpan" },
+    { value: "sarcastic", label: "Sarcastic" },
+    { value: "nerdy", label: "Nerdy" },
+    { value: "enthusiast", label: "Enthusiast" },
+    { value: "conspiratorial", label: "Conspiratorial" },
+    { value: "snarky", label: "Snarky" },
+    { value: "philosophical", label: "Philosophical" },
+  ]
+
+  const generateRealTimeFact = async (isRegenerate: boolean = false) => {
     setIsLoading(true)
     setError("")
     setFact("")
-    setArticleSource("")
-    setArticleTitle("")
-    setArticleUrl("")
-    setArticleDate("")
-    setMatchedTopics([])
+    setWhyInteresting("")
+    setSourceSnippet("")
+    if (!isRegenerate) {
+      setArticleSource("")
+      setArticleTitle("")
+      setArticleUrl("")
+      setArticleDate("")
+      setArticleId(null)
+      setMatchedTopics([])
+    }
     setSavedFactId(null)
     setHasVoted(false)
     setIsCardFocused(true)
 
     try {
-      const response = await fetch("/api/facts/real-time", {
+      const endpoint = isRegenerate
+        ? "/api/facts/regenerate"
+        : "/api/facts/real-time"
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           selectedTopics: selectedTopics,
+          tone: tone,
+          articleId: isRegenerate ? articleId : null,
         }),
       })
 
@@ -76,11 +114,15 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
       const title = response.headers.get("X-Article-Title") || ""
       const date = response.headers.get("X-Article-Date") || ""
       const matchedTopicsHeader = response.headers.get("X-Matched-Topics") || ""
+      const articleIdHeader = response.headers.get("X-Article-ID") || ""
 
       setArticleSource(source)
       setArticleTitle(title)
       setArticleUrl(url)
       setArticleDate(date)
+      if (articleIdHeader) {
+        setArticleId(articleIdHeader)
+      }
       setMatchedTopics(
         matchedTopicsHeader ? matchedTopicsHeader.split(", ") : []
       )
@@ -114,23 +156,48 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
 
       // Try to parse the final response as JSON
       let finalFactText = ""
+      let finalWhyInteresting = ""
+      let finalSourceSnippet = ""
       try {
         const jsonResponse: FunFactResponse = JSON.parse(fullResponse)
         if (jsonResponse.funFact) {
           finalFactText = jsonResponse.funFact
           setFact(jsonResponse.funFact)
         }
+        if (jsonResponse.whyInteresting) {
+          finalWhyInteresting = jsonResponse.whyInteresting
+          setWhyInteresting(jsonResponse.whyInteresting)
+        }
+        if (jsonResponse.sourceSnippet) {
+          finalSourceSnippet = jsonResponse.sourceSnippet
+          setSourceSnippet(jsonResponse.sourceSnippet)
+        }
       } catch (error) {
-        // If JSON parsing fails, try to extract the funFact from the text
+        // If JSON parsing fails, try to extract fields from the text
         console.log(
-          "Could not parse JSON response, trying to extract funFact:",
+          "Could not parse JSON response, trying to extract fields:",
           error
         )
         const funFactMatch = fullResponse.match(/"funFact":\s*"([^"]+)"/)
         if (funFactMatch && funFactMatch[1]) {
           finalFactText = funFactMatch[1]
           setFact(funFactMatch[1])
-        } else {
+        }
+        const whyInterestingMatch = fullResponse.match(
+          /"whyInteresting":\s*"([^"]+)"/
+        )
+        if (whyInterestingMatch && whyInterestingMatch[1]) {
+          finalWhyInteresting = whyInterestingMatch[1]
+          setWhyInteresting(whyInterestingMatch[1])
+        }
+        const sourceSnippetMatch = fullResponse.match(
+          /"sourceSnippet":\s*"([^"]+)"/
+        )
+        if (sourceSnippetMatch && sourceSnippetMatch[1]) {
+          finalSourceSnippet = sourceSnippetMatch[1]
+          setSourceSnippet(sourceSnippetMatch[1])
+        }
+        if (!finalFactText) {
           // If all else fails, keep the raw response
           finalFactText = fullResponse.trim()
           console.log("Could not extract funFact, using raw text")
@@ -149,6 +216,10 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
               text: finalFactText,
               source: articleSourceForSave,
               source_url: articleUrlForSave,
+              why_interesting: finalWhyInteresting || null,
+              source_snippet: finalSourceSnippet || null,
+              tone: tone || null,
+              article_id: articleId || null,
             }),
           })
 
@@ -271,9 +342,38 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                 />
               </div>
 
+              {/* Tone Selector */}
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Tone
+                </label>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {TONE_OPTIONS.map((option) => {
+                    const isSelected = tone === option.value
+                    return (
+                      <Badge
+                        key={option.value || "default"}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`
+                          flex cursor-pointer items-center gap-1 px-3 py-1.5 text-xs transition-all duration-200 sm:text-sm
+                          ${
+                            isSelected
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                              : "hover:bg-muted/50"
+                          }
+                        `}
+                        onClick={() => setTone(option.value)}
+                      >
+                        <span className="font-medium">{option.label}</span>
+                      </Badge>
+                    )
+                  })}
+                </div>
+              </div>
+
               <div className="mb-8">
                 <Button
-                  onClick={generateRealTimeFact}
+                  onClick={() => generateRealTimeFact(false)}
                   size="lg"
                   className="w-full whitespace-nowrap px-6 py-3 text-base sm:w-auto sm:px-8 sm:text-lg"
                   disabled={isLoading}
@@ -303,7 +403,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                     </h3>
                     <p className="text-muted-foreground">{error}</p>
                     <Button
-                      onClick={generateRealTimeFact}
+                      onClick={() => generateRealTimeFact(false)}
                       variant="outline"
                       size="sm"
                     >
@@ -315,6 +415,30 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                     <h3 className="text-balance text-lg font-semibold leading-relaxed text-foreground sm:text-2xl lg:text-3xl">
                       {fact}
                     </h3>
+
+                    {/* Why It's Interesting */}
+                    {whyInteresting && (
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                        <p className="mb-1 text-sm font-semibold text-primary">
+                          Why it&apos;s interesting:
+                        </p>
+                        <p className="text-sm text-foreground">
+                          {whyInteresting}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Source Snippet */}
+                    {sourceSnippet && (
+                      <div className="rounded-lg border border-muted bg-muted/30 p-4">
+                        <p className="mb-1 text-sm font-semibold text-muted-foreground">
+                          Source snippet:
+                        </p>
+                        <p className="text-sm italic text-muted-foreground">
+                          &quot;{sourceSnippet}&quot;
+                        </p>
+                      </div>
+                    )}
                     {articleSource && (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <p>
@@ -359,6 +483,22 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Regenerate Button */}
+                    {articleId && (
+                      <div className="flex justify-center">
+                        <Button
+                          onClick={() => generateRealTimeFact(true)}
+                          variant="outline"
+                          size="lg"
+                          className="flex items-center gap-2"
+                          disabled={isLoading}
+                        >
+                          <RefreshCw className="h-5 w-5" />
+                          Regenerate with Twist
+                        </Button>
                       </div>
                     )}
 

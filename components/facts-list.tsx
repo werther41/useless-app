@@ -161,17 +161,41 @@ export default function FactsList({
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <span>
-                  Rating:{" "}
-                  <span className="font-semibold">{fact.total_rating}</span>
-                </span>
-                <span>
-                  Votes:{" "}
-                  <span className="font-semibold">{fact.rating_count}</span>
-                </span>
-                {fact.source && (
-                  <span className="truncate">Source: {fact.source}</span>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <span>
+                    Rating:{" "}
+                    <span className="font-semibold">{fact.total_rating}</span>
+                  </span>
+                  <span>
+                    Votes:{" "}
+                    <span className="font-semibold">{fact.rating_count}</span>
+                  </span>
+                  {fact.source && (
+                    <span className="truncate">Source: {fact.source}</span>
+                  )}
+                </div>
+                {/* Why It's Interesting */}
+                {(fact as any).why_interesting && (
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                    <p className="mb-1 text-xs font-semibold text-primary">
+                      Why it&apos;s interesting:
+                    </p>
+                    <p className="text-xs text-foreground">
+                      {(fact as any).why_interesting}
+                    </p>
+                  </div>
+                )}
+                {/* Source Snippet */}
+                {(fact as any).source_snippet && (
+                  <div className="rounded-lg border border-muted bg-muted/30 p-3">
+                    <p className="mb-1 text-xs font-semibold text-muted-foreground">
+                      Source snippet:
+                    </p>
+                    <p className="text-xs italic text-muted-foreground">
+                      &quot;{(fact as any).source_snippet}&quot;
+                    </p>
+                  </div>
                 )}
               </div>
             </CardContent>

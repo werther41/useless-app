@@ -212,7 +212,7 @@ This project demonstrates the power of AI vibe coding throughout the entire deve
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/useless-facts-app.git
+   git clone https://github.com/werther41/useless-app.git
    cd useless-facts-app
    ```
 
@@ -403,7 +403,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you have questions or need help:
 
 1. Check the [documentation](documents/)
-2. Open an [issue](https://github.com/yourusername/useless-facts-app/issues)
+2. Open an [issue](https://github.com/werther41/useless-app/issues)
 3. Review the [API documentation](documents/api-docs.md)
 
 ---

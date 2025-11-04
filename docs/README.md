@@ -12,8 +12,8 @@ This directory contains public documentation for the Useless Facts App.
 ## 🚀 Quick Links
 
 - **Live Demo**: [useless-app-nu.vercel.app](https://useless-app-nu.vercel.app/)
-- **GitHub Repository**: [View Source Code](https://github.com/yourusername/useless-facts-app)
-- **Issues**: [Report Issues](https://github.com/yourusername/useless-facts-app/issues)
+- **GitHub Repository**: [View Source Code](https://github.com/werther41/useless-app)
+- **Issues**: [Report Issues](https://github.com/werther41/useless-app/issues)
 
 ## 📖 Getting Started
 

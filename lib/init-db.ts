@@ -27,6 +27,28 @@ export async function initializeDatabase() {
       }
     }
 
+    // Add new columns for enhanced fact generation
+    const newColumns = [
+      { name: "why_interesting", type: "TEXT" },
+      { name: "source_snippet", type: "TEXT" },
+      { name: "tone", type: "TEXT" },
+      { name: "article_id", type: "TEXT" },
+    ]
+
+    for (const column of newColumns) {
+      try {
+        await db.execute(`
+          ALTER TABLE facts ADD COLUMN ${column.name} ${column.type}
+        `)
+        console.log(`Added ${column.name} column to facts table`)
+      } catch (error: any) {
+        // If column already exists, this will fail - that's expected
+        if (!error.message?.includes("duplicate column name")) {
+          console.log(`${column.name} column may already exist:`, error.message)
+        }
+      }
+    }
+
     // Create fact_ratings table
     await db.execute(`
       CREATE TABLE IF NOT EXISTS fact_ratings (
