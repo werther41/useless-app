@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react"
 import {
+  BarChart3,
   Building,
   Calendar,
   Code,
   Dices,
-  FileText,
   Hash,
   Lightbulb,
   Loader2,
@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { TopicChartDialog } from "@/components/topic-chart-dialog"
 
 interface Topic {
   id: string
@@ -127,6 +128,7 @@ export function TopicSelector({
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [isRandomizing, setIsRandomizing] = useState(false)
   const [selectedTopicTypes, setSelectedTopicTypes] = useState<string[]>([])
+  const [isChartDialogOpen, setIsChartDialogOpen] = useState(false)
 
   // Available topic types for filtering
   const availableTopicTypes = [
@@ -412,7 +414,7 @@ export function TopicSelector({
       <Card className={`border-muted ${className}`}>
         <CardContent className="p-4">
           <div className="text-center text-muted-foreground">
-            <TrendingUp className="mx-auto mb-2 size-8 opacity-50" />
+            <TrendingUp className="size-8 mx-auto mb-2 opacity-50" />
             <p>No trending topics available</p>
             <p className="text-sm">Try again later or generate a random fact</p>
           </div>
@@ -432,21 +434,33 @@ export function TopicSelector({
             </h3>
             <div className="flex flex-wrap items-center gap-2">
               {!showSearchResults && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={randomizeTopics}
-                  disabled={isRandomizing}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {isRandomizing ? (
-                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Dices className="mr-1 h-4 w-4" />
-                  )}
-                  <span className="hidden sm:inline">Randomize</span>
-                  <span className="sm:hidden">Random</span>
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsChartDialogOpen(true)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <BarChart3 className="mr-1 h-4 w-4" />
+                    <span className="hidden sm:inline">Chart</span>
+                    <span className="sm:hidden">Chart</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={randomizeTopics}
+                    disabled={isRandomizing}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    {isRandomizing ? (
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Dices className="mr-1 h-4 w-4" />
+                    )}
+                    <span className="hidden sm:inline">Randomize</span>
+                    <span className="sm:hidden">Random</span>
+                  </Button>
+                </>
               )}
               {showSearchResults && (
                 <Button
@@ -617,6 +631,18 @@ export function TopicSelector({
             </div>
           )}
         </div>
+
+        {/* Chart Dialog */}
+        <TopicChartDialog
+          open={isChartDialogOpen}
+          onOpenChange={setIsChartDialogOpen}
+          onConfirm={(topics) => {
+            setSelectedTopics(topics)
+            onTopicsChange(topics)
+          }}
+          maxSelection={maxSelection}
+          initialSelectedTopics={selectedTopics}
+        />
       </CardContent>
     </Card>
   )

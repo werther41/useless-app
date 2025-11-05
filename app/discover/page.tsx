@@ -10,6 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArticleList } from "@/components/article-list"
 import { TopicSelector } from "@/components/topic-selector"
 
+interface TopicStats {
+  totalArticles: number
+  articlesWithTopics: number
+  totalTopics: number
+  trendingTopics: number
+  coveragePercentage: number
+}
+
 type SearchMode = "topic" | "text"
 type TimeFilter = "24h" | "7d" | "30d" | "all"
 type SortBy = "time" | "score"
@@ -44,11 +52,33 @@ export default function DiscoverPage() {
     error: null,
   })
 
+  // Topic stats state
+  const [topicStats, setTopicStats] = useState<TopicStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+
   // Debounced text search
   const [debouncedQuery, setDebouncedQuery] = useState("")
 
   // Ref to track if we should trigger search on sort change
   const shouldTriggerSearch = useRef(false)
+
+  // Fetch topic stats on mount
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch("/api/topics/stats")
+        if (response.ok) {
+          const stats = await response.json()
+          setTopicStats(stats)
+        }
+      } catch (error) {
+        console.error("Error fetching topic stats:", error)
+      } finally {
+        setStatsLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const performTextSearch = useCallback(
     async (query: string) => {
@@ -204,6 +234,28 @@ export default function DiscoverPage() {
           Search news articles by topics or vector search with advanced
           filtering
         </p>
+        {!statsLoading && topicStats && (
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <span>
+              <span className="font-medium text-foreground">
+                {topicStats.totalArticles.toLocaleString()}
+              </span>{" "}
+              articles
+            </span>
+            <span>
+              <span className="font-medium text-foreground">
+                {topicStats.totalTopics.toLocaleString()}
+              </span>{" "}
+              topics
+            </span>
+            <span>
+              <span className="font-medium text-foreground">
+                {topicStats.trendingTopics.toLocaleString()}
+              </span>{" "}
+              trending topics
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
