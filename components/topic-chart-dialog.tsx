@@ -57,9 +57,9 @@ export function TopicChartDialog({
     setError(null)
 
     try {
-      // Fetch topics for visualization (API limit is 50)
+      // Fetch topics for visualization
       const response = await fetch(
-        `/api/topics?limit=50&timeWindow=168&diverse=true&cache_bust=${Date.now()}`,
+        `/api/topics?limit=180&timeWindow=168&diverse=true&cache_bust=${Date.now()}`,
         {
           cache: "no-store",
           headers: {
@@ -129,10 +129,9 @@ export function TopicChartDialog({
         <DialogHeader>
           <DialogTitle>Explore Trending Topics</DialogTitle>
           <DialogDescription>
-            Click on bubbles to select topics. X-axis shows freshness (most
-            recent on the right), Y-axis shows uniqueness (higher = more
-            unique), bubble size shows popularity, and color indicates topic
-            type. Select up to {maxSelection} topics.
+            Click on bubbles to select topics. X-axis shows freshness, Y-axis
+            shows uniqueness, bubble size shows popularity, and color indicates
+            topic type. Select up to {maxSelection} topics.
           </DialogDescription>
         </DialogHeader>
 

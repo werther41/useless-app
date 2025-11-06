@@ -14,7 +14,7 @@ export default function DeepDivePage() {
       <section className="px-4 py-8">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="mb-6 text-4xl font-bold text-foreground">Deep Dive</h1>
-          <p className="mb-12 text-pretty text-xl text-muted-foreground">
+          <p className="text-pretty mb-12 text-xl text-muted-foreground">
             Immerse yourself in comprehensive explorations of the most
             wonderfully pointless topics. From detailed infographics to in-depth
             articles, discover the hidden depths of useless knowledge.

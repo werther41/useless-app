@@ -259,7 +259,7 @@ export default function ImportPage() {
               </div>
             ) : (
               <div className="py-8 text-center text-muted-foreground">
-                <AlertCircle className="mx-auto mb-4 size-12 opacity-50" />
+                <AlertCircle className="size-12 mx-auto mb-4 opacity-50" />
                 <p>Import results will appear here after running an import.</p>
               </div>
             )}

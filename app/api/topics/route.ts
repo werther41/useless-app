@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (limit < 1 || limit > 50) {
+    if (limit < 1 || limit > 200) {
       return NextResponse.json(
-        { error: "limit must be between 1 and 50" },
+        { error: "limit must be between 1 and 200" },
         { status: 400 }
       )
     }

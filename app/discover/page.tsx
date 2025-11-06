@@ -44,8 +44,8 @@ export default function DiscoverPage() {
   const [searchState, setSearchState] = useState<SearchState>({
     mode: "topic",
     topics: [],
-    timeFilter: "7d",
-    sortBy: "score",
+    timeFilter: "24h",
+    sortBy: "time",
     textQuery: "",
     articles: [],
     isLoading: false,
@@ -79,6 +79,78 @@ export default function DiscoverPage() {
     }
     fetchStats()
   }, [])
+
+  // Function to fetch recent articles
+  const fetchRecentArticles = useCallback(async () => {
+    setSearchState((prev) => {
+      // Only fetch if no topics selected and no text query
+      if (prev.topics.length === 0 && !prev.textQuery) {
+        // Start loading
+        const loadingState = { ...prev, isLoading: true, error: null }
+
+        // Fetch articles asynchronously
+        const params = new URLSearchParams({
+          timeFilter: prev.timeFilter,
+          sortBy: "time",
+        })
+
+        fetch(`/api/articles?${params}`)
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((errorData) => {
+                throw new Error(errorData.error || "Failed to fetch articles")
+              })
+            }
+            return response.json()
+          })
+          .then((data) => {
+            setSearchState((current) => ({
+              ...current,
+              articles: data.articles,
+              isLoading: false,
+              error: null,
+            }))
+          })
+          .catch((error) => {
+            console.error("Error fetching recent articles:", error)
+            setSearchState((current) => ({
+              ...current,
+              isLoading: false,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Failed to fetch recent articles",
+            }))
+          })
+
+        return loadingState
+      }
+      return prev
+    })
+  }, [])
+
+  // Fetch recent articles on mount when no search is active
+  useEffect(() => {
+    fetchRecentArticles()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run on mount
+
+  // Refetch recent articles when time filter changes (if no active search)
+  useEffect(() => {
+    if (
+      shouldTriggerSearch.current &&
+      searchState.topics.length === 0 &&
+      !searchState.textQuery
+    ) {
+      shouldTriggerSearch.current = false
+      fetchRecentArticles()
+    }
+  }, [
+    searchState.timeFilter,
+    searchState.topics.length,
+    searchState.textQuery,
+    fetchRecentArticles,
+  ])
 
   const performTextSearch = useCallback(
     async (query: string) => {
@@ -184,6 +256,10 @@ export default function DiscoverPage() {
       articles: [],
       error: null,
     }))
+    // If switching away from search with no active search, fetch recent articles
+    if (searchState.topics.length === 0 && !searchState.textQuery) {
+      shouldTriggerSearch.current = true
+    }
   }
 
   const handleTopicsChange = (topics: string[]) => {
@@ -192,6 +268,10 @@ export default function DiscoverPage() {
 
   const handleTimeFilterChange = (timeFilter: TimeFilter) => {
     setSearchState((prev) => ({ ...prev, timeFilter }))
+    // If no active search, refetch recent articles with new time filter
+    if (searchState.topics.length === 0 && !searchState.textQuery) {
+      shouldTriggerSearch.current = true
+    }
   }
 
   const handleSortChange = (sortBy: SortBy) => {
@@ -210,6 +290,9 @@ export default function DiscoverPage() {
         searchState.textQuery.length >= 3
       ) {
         performTextSearch(searchState.textQuery)
+      } else if (searchState.topics.length === 0 && !searchState.textQuery) {
+        // Refetch recent articles if no active search
+        fetchRecentArticles()
       }
     }
   }, [
@@ -219,6 +302,7 @@ export default function DiscoverPage() {
     searchState.textQuery,
     performTopicSearch,
     performTextSearch,
+    fetchRecentArticles,
   ])
 
   const handleTextQueryChange = (textQuery: string) => {
@@ -275,7 +359,7 @@ export default function DiscoverPage() {
                       : "text-foreground opacity-50"
                   }`}
                 >
-                  <TrendingUp className="h-4 w-4 text-primary sm:size-6" />
+                  <TrendingUp className="sm:size-6 h-4 w-4 text-primary" />
                   <span className="whitespace-nowrap">By Topics</span>
                 </Button>
                 <Button
@@ -288,7 +372,7 @@ export default function DiscoverPage() {
                       : "text-foreground opacity-50"
                   }`}
                 >
-                  <Search className="h-4 w-4 text-primary sm:size-6" />
+                  <Search className="sm:size-6 h-4 w-4 text-primary" />
                   <span className="whitespace-nowrap">Vector Search</span>
                 </Button>
               </div>
@@ -406,6 +490,28 @@ export default function DiscoverPage() {
             </Card>
           )}
 
+          {/* Default View Message */}
+          {searchState.topics.length === 0 &&
+            !searchState.textQuery &&
+            !searchState.isLoading &&
+            searchState.articles.length > 0 && (
+              <Card className="mb-6 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+                <CardContent className="p-4">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <span className="font-medium">
+                      Displaying most recent news from{" "}
+                      {TIME_FILTER_OPTIONS.find(
+                        (opt) => opt.value === searchState.timeFilter
+                      )?.label.toLowerCase()}
+                      .
+                    </span>{" "}
+                    Select topics and search articles, or adjust the time filter
+                    to explore more content.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
           {/* Active Filters Display */}
           {(searchState.topics.length > 0 || searchState.textQuery) && (
             <Card className="mb-6">
@@ -429,7 +535,7 @@ export default function DiscoverPage() {
                   )}
 
                   <Badge variant="outline">
-                    <Clock className="mr-1 w-3 h-3" />
+                    <Clock className="mr-1 h-3 w-3" />
                     {
                       TIME_FILTER_OPTIONS.find(
                         (opt) => opt.value === searchState.timeFilter
@@ -438,7 +544,7 @@ export default function DiscoverPage() {
                   </Badge>
 
                   <Badge variant="outline">
-                    <Filter className="mr-1 w-3 h-3" />
+                    <Filter className="mr-1 h-3 w-3" />
                     {searchState.sortBy === "score"
                       ? "Most Relevant"
                       : "Most Recent"}
