@@ -152,7 +152,7 @@ export function ArticleList({
       <Card className="border-muted">
         <CardContent className="p-8">
           <div className="text-center">
-            <div className="bg-muted/50 mx-auto mb-4 flex size-12 items-center justify-center rounded-full">
+            <div className="bg-muted/50 size-12 mx-auto mb-4 flex items-center justify-center rounded-full">
               <TrendingUp className="size-6 text-muted-foreground" />
             </div>
             <h3 className="mb-2 text-lg font-semibold">No articles found</h3>
@@ -265,7 +265,7 @@ export function ArticleList({
                           variant="outline"
                           className="border-blue-200 bg-blue-100 text-xs text-blue-800 hover:bg-blue-200 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
                         >
-                          <Hash className="mr-1 w-3 h-3" />
+                          <Hash className="mr-1 h-3 w-3" />
                           {topic}
                         </Badge>
                       ))}

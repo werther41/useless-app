@@ -177,7 +177,7 @@ export default function FactsList({
                 </div>
                 {/* Why It's Interesting */}
                 {(fact as any).why_interesting && (
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                  <div className="border-primary/20 bg-primary/5 rounded-lg border p-3">
                     <p className="mb-1 text-xs font-semibold text-primary">
                       Why it&apos;s interesting:
                     </p>
@@ -188,7 +188,7 @@ export default function FactsList({
                 )}
                 {/* Source Snippet */}
                 {(fact as any).source_snippet && (
-                  <div className="rounded-lg border border-muted bg-muted/30 p-3">
+                  <div className="bg-muted/30 rounded-lg border border-muted p-3">
                     <p className="mb-1 text-xs font-semibold text-muted-foreground">
                       Source snippet:
                     </p>

@@ -461,7 +461,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                             rel="noopener noreferrer"
                             className="hover:text-primary/80 inline-flex items-center gap-1 text-primary transition-colors"
                           >
-                            <ExternalLink className="w-3 h-3" />
+                            <ExternalLink className="h-3 w-3" />
                             Read original article
                           </a>
                         )}

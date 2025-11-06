@@ -50,7 +50,7 @@ export function FactPageClient({ fact }: FactPageClientProps) {
         <CardContent className="space-y-6">
           {/* Why It's Interesting */}
           {currentFact.why_interesting && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <div className="border-primary/20 bg-primary/5 rounded-lg border p-4">
               <p className="mb-1 text-sm font-semibold text-primary">
                 Why it&apos;s interesting:
               </p>
@@ -62,7 +62,7 @@ export function FactPageClient({ fact }: FactPageClientProps) {
 
           {/* Source Snippet */}
           {currentFact.source_snippet && (
-            <div className="rounded-lg border border-muted bg-muted/30 p-4">
+            <div className="bg-muted/30 rounded-lg border border-muted p-4">
               <p className="mb-1 text-sm font-semibold text-muted-foreground">
                 Source snippet:
               </p>
@@ -111,7 +111,7 @@ export function FactPageClient({ fact }: FactPageClientProps) {
                     rel="noopener noreferrer"
                     className="hover:text-primary/80 inline-flex items-center gap-1 text-primary transition-colors"
                   >
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="h-3 w-3" />
                     Read original article
                   </a>
                 )}
