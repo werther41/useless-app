@@ -138,7 +138,7 @@ export function StaticFactSection() {
     <section id="quick-facts" className="p-4">
       <div className="container mx-auto max-w-4xl">
         <div className="mb-6 text-center">
-          <h2 className="mb-4 text-balance text-2xl font-semibold text-foreground">
+          <h2 className="text-balance mb-4 text-2xl font-semibold text-foreground">
             Classic Facts
           </h2>
           <p className="text-pretty text-lg text-muted-foreground">

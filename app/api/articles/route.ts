@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { getArticlesByTopics } from "@/lib/articles"
+import { getArticlesByTopics, getRecentArticles } from "@/lib/articles"
 
 // Cache for 5 minutes
 export const revalidate = 300
@@ -16,11 +16,65 @@ export async function GET(request: NextRequest) {
     const topicTypesParam = searchParams.get("topicTypes")
     const sortBy = searchParams.get("sortBy") || "score"
 
-    // Validate required parameters
+    // If no topics provided, return recent articles
     if (!topicsParam) {
+      // Validate timeFilter
+      const validTimeFilters = ["24h", "7d", "30d", "all"]
+      if (!validTimeFilters.includes(timeFilter)) {
+        return NextResponse.json(
+          { error: "timeFilter must be one of: 24h, 7d, 30d, all" },
+          { status: 400 }
+        )
+      }
+
+      // Convert timeFilter to hours
+      let timeWindow: number | null = null
+      switch (timeFilter) {
+        case "24h":
+          timeWindow = 24
+          break
+        case "7d":
+          timeWindow = 168
+          break
+        case "30d":
+          timeWindow = 720
+          break
+        case "all":
+          timeWindow = null
+          break
+      }
+
+      // Get recent articles
+      const articles = await getRecentArticles({
+        timeWindow,
+        limit: 50,
+      })
+
+      // Always sort by time for recent articles
+      const sortedArticles = [...articles].sort(
+        (a, b) =>
+          new Date(b.published_at).getTime() -
+          new Date(a.published_at).getTime()
+      )
+
       return NextResponse.json(
-        { error: "topics parameter is required" },
-        { status: 400 }
+        {
+          articles: sortedArticles,
+          metadata: {
+            totalResults: sortedArticles.length,
+            timeFilter,
+            searchType: "recent" as const,
+            sortBy: "time",
+            generatedAt: new Date().toISOString(),
+          },
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+            "CDN-Cache-Control": "public, s-maxage=300",
+            "Vercel-CDN-Cache-Control": "public, s-maxage=300",
+          },
+        }
       )
     }
 

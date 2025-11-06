@@ -151,6 +151,66 @@ export async function getArticlesByTopics(
 }
 
 /**
+ * Get recent articles sorted by publication date
+ */
+export async function getRecentArticles(
+  options: {
+    timeWindow?: number | null // hours, null = all time
+    limit?: number
+  } = {}
+): Promise<ArticleWithRelevance[]> {
+  const { timeWindow = null, limit = 50 } = options
+
+  try {
+    // Build time filter clause
+    const timeFilter = timeWindow
+      ? `WHERE na.published_at > datetime('now', '-${timeWindow} hours')`
+      : ""
+
+    const query = `
+      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
+             GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics
+      FROM news_articles na
+      LEFT JOIN article_topics at ON na.id = at.article_id
+      ${timeFilter}
+      GROUP BY na.id
+      ORDER BY na.published_at DESC
+      LIMIT ?
+    `
+
+    const result = await executeWithRetry(query, [limit])
+
+    return result.rows.map((row) => {
+      const article: NewsArticle = {
+        id: row.id as string,
+        title: row.title as string,
+        content: row.content as string,
+        url: row.url as string,
+        source: row.source as string,
+        published_at: row.published_at as string,
+        created_at: row.created_at as string,
+        embedding: [], // Not needed in API responses
+      }
+
+      const matchedTopics =
+        (row.matched_topics as string)?.split(",").filter(Boolean) || []
+
+      return {
+        ...article,
+        snippet:
+          article.content.substring(0, 600) +
+          (article.content.length > 600 ? "..." : ""),
+        relevanceScore: 1.0, // All recent articles get the same score
+        matchedTopics,
+      }
+    })
+  } catch (error) {
+    console.error("Error getting recent articles:", error)
+    return []
+  }
+}
+
+/**
  * Search articles by free-text query using vector embeddings
  */
 export async function searchArticlesByText(

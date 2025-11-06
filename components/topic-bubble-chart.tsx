@@ -119,7 +119,7 @@ export function TopicBubbleChart({
           // Bubble size: Popularity (occurrenceCount), scaled to max 20px radius
           // Using sqrt for better visual distribution
           const minRadius = 4
-          const maxRadius = 20
+          const maxRadius = 18
           const normalizedOccurrence = Math.sqrt(topic.occurrenceCount / maxOcc)
           const radius =
             minRadius + normalizedOccurrence * (maxRadius - minRadius)
@@ -160,7 +160,7 @@ export function TopicBubbleChart({
         x: {
           title: {
             display: true,
-            text: "Freshness (Most Recent →)",
+            text: "Freshness (More Recent →)",
             font: {
               size: 12,
             },
@@ -185,7 +185,7 @@ export function TopicBubbleChart({
         y: {
           title: {
             display: true,
-            text: "Uniqueness (avg_tfidf_score)",
+            text: "Uniqueness (More Unique →)",
             font: {
               size: 12,
             },

@@ -314,7 +314,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
     <section className={`p-2 ${className || ""}`}>
       <div className="container mx-auto max-w-5xl">
         <div className="mb-6 text-center">
-          <h2 className="mb-4 text-balance text-2xl font-semibold text-foreground">
+          <h2 className="text-balance mb-4 text-2xl font-semibold text-foreground">
             Facts from Today&apos;s News
           </h2>
           <p className="text-pretty text-lg text-muted-foreground">
@@ -358,7 +358,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
                           flex cursor-pointer items-center gap-1 px-3 py-1.5 text-xs transition-all duration-200 sm:text-sm
                           ${
                             isSelected
-                              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                              ? "hover:bg-primary/90 bg-primary text-primary-foreground"
                               : "hover:bg-muted/50"
                           }
                         `}
@@ -418,7 +418,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
 
                     {/* Why It's Interesting */}
                     {whyInteresting && (
-                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                      <div className="border-primary/20 bg-primary/5 rounded-lg border p-4">
                         <p className="mb-1 text-sm font-semibold text-primary">
                           Why it&apos;s interesting:
                         </p>
@@ -430,7 +430,7 @@ export function RealTimeFactSection({ className }: RealTimeFactProps) {
 
                     {/* Source Snippet */}
                     {sourceSnippet && (
-                      <div className="rounded-lg border border-muted bg-muted/30 p-4">
+                      <div className="bg-muted/30 rounded-lg border border-muted p-4">
                         <p className="mb-1 text-sm font-semibold text-muted-foreground">
                           Source snippet:
                         </p>
