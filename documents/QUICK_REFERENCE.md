@@ -15,8 +15,8 @@
 # Run tests
 ./scripts/test-all.sh
 
-# Trigger news ingestion
-curl http://localhost:3000/api/cron/retrieve-news
+# Trigger news ingestion (RSS fetch + text embedding generation)
+curl -X POST -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/retrieve-news
 
 # Check topics
 curl http://localhost:3000/api/topics

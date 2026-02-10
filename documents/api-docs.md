@@ -606,13 +606,20 @@ Returns information about the most relevant news article without generating a fa
 
 ### 10. News Ingestion Cron Job
 
-**POST** `/api/cron/retrieve-news`
+**POST** `/api/cron/retrieve-news`  
+**GET** `/api/cron/retrieve-news` (same behavior; for manual/testing use)
 
-Fetches and stores news articles from RSS feeds. Requires authorization header.
+Fetches articles from configured RSS feeds (last 48 hours), generates text embeddings (Gemini `gemini-embedding-001`), and stores them in the database. Use this to manually trigger the same pipeline that runs on schedule.
 
 **Headers:**
 
-- `Authorization: Bearer {CRON_SECRET}`
+- `Authorization: Bearer {CRON_SECRET}` (required for both POST and GET unless `x-vercel-cron` is present)
+
+**Example (manual retrieval):**
+
+```bash
+curl -X POST -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/retrieve-news
+```
 
 **Response:**
 
@@ -775,7 +782,7 @@ Uses Turso's native vector search with cosine similarity to find the most releva
 
 ### AI Integration
 
-- **Embedding Model**: Google Gemini `text-embedding-004` (768 dimensions)
+- **Embedding Model**: Google Gemini `gemini-embedding-001` (768 dimensions)
 - **LLM**: Google Gemini `gemini-2.0-flash-lite`
 - **Streaming**: Real-time fact generation with word-by-word display
 
