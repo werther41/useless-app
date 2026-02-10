@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
 
 /**
- * Generate embedding for text using Gemini text-embedding-004 model
+ * Generate embedding for text using Gemini gemini-embedding-001 model
  * @param text - The text to generate embedding for
  * @returns Promise<number[]> - Array of float32 values representing the embedding
  */
@@ -14,8 +14,11 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       throw new Error("GOOGLE_API_KEY environment variable not set")
     }
 
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" })
-    const result = await model.embedContent(text)
+    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" })
+    const result = await model.embedContent({
+      content: { parts: [{ text }] },
+      output_dimensionality: 768,
+    } as unknown as Parameters<typeof model.embedContent>[0])
 
     return result.embedding.values
   } catch (error) {
