@@ -59,6 +59,7 @@ export interface ArticleTopic {
   id: string
   article_id: string
   entity_text: string
+  entity_text_normalized: string
   entity_type: string
   tfidf_score: number
   ner_confidence: number

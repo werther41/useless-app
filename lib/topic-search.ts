@@ -1,5 +1,6 @@
 import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
+import { normalizeEntityText } from "./entity-normalize"
 import { NewsArticle } from "./schema"
 
 export interface TopicSearchOptions {
@@ -22,14 +23,7 @@ export async function findArticlesByTopics(
   }
 
   try {
-    // Normalize topic texts for matching (must match database normalization)
-    const normalizedTopics = topicTexts.map((text) =>
-      text
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "") // Remove spaces to match database normalization
-        .trim()
-    )
+    const normalizedTopics = topicTexts.map((text) => normalizeEntityText(text))
 
     // Build query based on match type
     let query: string
@@ -42,11 +36,11 @@ export async function findArticlesByTopics(
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND LOWER(REPLACE(REPLACE(at.entity_text, ' ', ''), '-', '')) IN (${normalizedTopics
+        AND at.entity_text_normalized IN (${normalizedTopics
           .map(() => "?")
           .join(", ")})
         GROUP BY na.id
-        HAVING COUNT(DISTINCT at.entity_text) = ?
+        HAVING COUNT(DISTINCT at.entity_text_normalized) = ?
         ORDER BY na.published_at DESC, at.tfidf_score DESC
         LIMIT ?
       `
@@ -59,7 +53,7 @@ export async function findArticlesByTopics(
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND LOWER(REPLACE(REPLACE(at.entity_text, ' ', ''), '-', '')) IN (${normalizedTopics
+        AND at.entity_text_normalized IN (${normalizedTopics
           .map(() => "?")
           .join(", ")})
         GROUP BY na.id
@@ -390,24 +384,18 @@ export async function findArticlesByTopicsWithRelevance(
   }
 
   try {
-    const normalizedTopics = topicTexts.map((text) =>
-      text
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "") // Remove spaces to match database normalization
-        .trim()
-    )
+    const normalizedTopics = topicTexts.map((text) => normalizeEntityText(text))
 
     // Get articles with topic matches and calculate relevance
     const query = `
       SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding,
              GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-             COUNT(DISTINCT at.entity_text) as topic_matches,
+             COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
              AVG(at.tfidf_score) as avg_tfidf_score
       FROM news_articles na
       INNER JOIN article_topics at ON na.id = at.article_id
       WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-      AND LOWER(REPLACE(REPLACE(at.entity_text, ' ', ''), '-', '')) IN (${normalizedTopics
+      AND at.entity_text_normalized IN (${normalizedTopics
         .map(() => "?")
         .join(", ")})
       GROUP BY na.id
