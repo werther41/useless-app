@@ -52,3 +52,4 @@ documents/feature-planning/
 documents/IMPLEMENTATION_SUMMARY*.md
 documents/QUICK_REFERENCE.md
 documents/TOPIC_SELECTION_IMPROVEMENTS.md
+.local/dev.db

@@ -4,8 +4,11 @@ import { z } from "zod"
 
 import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
+import { normalizeEntityText } from "./entity-normalize"
 import { SUPPORTED_ENTITY_TYPES, buildEntityExtractionPrompt } from "./prompts"
 import { ArticleTopic, ExtractedEntity, TrendingTopic } from "./schema"
+
+export { normalizeEntityText } from "./entity-normalize"
 
 // Initialize Gemini
 const google = createGoogleGenerativeAI({
@@ -63,17 +66,6 @@ export async function extractEntitiesFromArticle(
 }
 
 /**
- * Normalize entity text for deduplication
- */
-export function normalizeEntityText(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove punctuation
-    .trim()
-    .replace(/\s+/g, " ") // Normalize whitespace
-}
-
-/**
  * Store topics for an article
  */
 export async function storeArticleTopics(
@@ -88,6 +80,7 @@ export async function storeArticleTopics(
       id: `topic_${articleId}_${index}_${Date.now()}`,
       article_id: articleId,
       entity_text: entity.text,
+      entity_text_normalized: normalizeEntityText(entity.text),
       entity_type: entity.type,
       tfidf_score: entity.tfidfScore || 0.0,
       ner_confidence: entity.confidence,
@@ -95,8 +88,8 @@ export async function storeArticleTopics(
 
     // Insert topics in batch
     const insertSql = `
-      INSERT INTO article_topics (id, article_id, entity_text, entity_type, tfidf_score, ner_confidence)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO article_topics (id, article_id, entity_text, entity_text_normalized, entity_type, tfidf_score, ner_confidence)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `
 
     for (const record of topicRecords) {
@@ -104,6 +97,7 @@ export async function storeArticleTopics(
         record.id,
         record.article_id,
         record.entity_text,
+        record.entity_text_normalized,
         record.entity_type,
         record.tfidf_score,
         record.ner_confidence,
@@ -196,35 +190,25 @@ export async function updateTrendingTopics(
 }
 
 /**
- * Calculate simple TF-IDF scores for entities in an article
- * TF = frequency of entity in this article
- * IDF = log(total articles / articles containing this entity)
+ * Term-frequency scores for entities in an article (no corpus-wide IDF — avoids heavy reads).
+ * TF = (occurrences in article) / (word count).
  */
-async function calculateTfIdfScores(
+function calculateTfIdfScores(
   entities: ExtractedEntity[],
   articleText: string
-): Promise<Map<string, number>> {
+): Map<string, number> {
   const scores = new Map<string, number>()
 
   try {
-    // Get total article count
-    const totalResult = await db.execute(
-      "SELECT COUNT(*) as count FROM news_articles"
-    )
-    const totalArticles = (totalResult.rows[0]?.count as number) || 1
-
-    // Normalize article text for term frequency
     const normalizedText = articleText.toLowerCase()
     const words = normalizedText.split(/\s+/)
 
     for (const entity of entities) {
       const normalizedEntity = normalizeEntityText(entity.text)
 
-      // Calculate TF: How many times does this entity appear in THIS article?
       const entityWords = normalizedEntity.split(/\s+/)
       let termFrequency = 0
 
-      // Count occurrences (simple word matching)
       for (let i = 0; i <= words.length - entityWords.length; i++) {
         const slice = words.slice(i, i + entityWords.length).join(" ")
         if (slice.includes(normalizedEntity)) {
@@ -232,27 +216,11 @@ async function calculateTfIdfScores(
         }
       }
 
-      // Normalize TF by article length
-      const tf = termFrequency / words.length
-
-      // Calculate IDF: How rare is this entity across ALL articles?
-      const docFreqResult = await db.execute(
-        "SELECT COUNT(DISTINCT article_id) as count FROM article_topics WHERE LOWER(entity_text) LIKE ?",
-        [`%${normalizedEntity}%`]
-      )
-      const documentsWithEntity = Math.max(
-        (docFreqResult.rows[0]?.count as number) || 1,
-        1
-      )
-      const idf = Math.log(totalArticles / documentsWithEntity)
-
-      // TF-IDF = TF * IDF
-      const tfidfScore = tf * idf
-      scores.set(normalizedEntity, tfidfScore)
+      const tf = termFrequency / Math.max(words.length, 1)
+      scores.set(normalizedEntity, tf)
     }
   } catch (error) {
-    console.error("Error calculating TF-IDF scores:", error)
-    // Return empty map on error - will use 0 scores
+    console.error("Error calculating TF scores:", error)
   }
 
   return scores
@@ -269,11 +237,10 @@ export async function extractAndStoreTopics(
   try {
     const entities = await extractEntitiesFromArticle(title, content)
     if (entities.length > 0) {
-      // Calculate TF-IDF scores for entities
       const articleText = `${title} ${content}`
-      const tfidfScores = await calculateTfIdfScores(entities, articleText)
+      const tfidfScores = calculateTfIdfScores(entities, articleText)
 
-      // Add TF-IDF scores to entities
+      // Add TF scores (stored in tfidf_score column for compatibility)
       const entitiesWithScores = entities.map((entity) => ({
         ...entity,
         tfidfScore: tfidfScores.get(normalizeEntityText(entity.text)) || 0,

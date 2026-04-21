@@ -1,5 +1,6 @@
 import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
+import { normalizeEntityText } from "./entity-normalize"
 import { generateEmbedding } from "./embeddings"
 import { NewsArticle } from "./schema"
 
@@ -39,14 +40,7 @@ export async function getArticlesByTopics(
   }
 
   try {
-    // Normalize topic texts for matching
-    const normalizedTopics = topics.map((text) =>
-      text
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "")
-        .trim()
-    )
+    const normalizedTopics = topics.map((text) => normalizeEntityText(text))
 
     // Build time filter clause
     const timeFilter = timeWindow
@@ -63,12 +57,12 @@ export async function getArticlesByTopics(
     let query = `
       SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
              GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-             COUNT(DISTINCT at.entity_text) as topic_matches,
+             COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
              AVG(at.tfidf_score) as avg_tfidf_score,
              MAX(at.tfidf_score) as max_tfidf_score
       FROM news_articles na
       INNER JOIN article_topics at ON na.id = at.article_id
-      WHERE LOWER(REPLACE(REPLACE(at.entity_text, ' ', ''), '-', '')) IN (${normalizedTopics
+      WHERE at.entity_text_normalized IN (${normalizedTopics
         .map(() => "?")
         .join(", ")})
       ${timeFilter}
@@ -93,12 +87,12 @@ export async function getArticlesByTopics(
       query = `
           SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
                  GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-                 COUNT(DISTINCT at.entity_text) as topic_matches,
+                 COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
                  AVG(at.tfidf_score) as avg_tfidf_score,
                  MAX(at.tfidf_score) as max_tfidf_score
           FROM news_articles na
           INNER JOIN article_topics at ON na.id = at.article_id
-          WHERE LOWER(REPLACE(REPLACE(at.entity_text, ' ', ''), '-', '')) IN (${normalizedTopics
+          WHERE at.entity_text_normalized IN (${normalizedTopics
             .map(() => "?")
             .join(", ")})
           ${timeFilter}

@@ -1,3 +1,4 @@
+import { normalizeEntityText } from "./entity-normalize"
 import { db } from "./db"
 
 export async function initializeDatabase() {
@@ -112,6 +113,7 @@ export async function initializeDatabase() {
         id TEXT PRIMARY KEY,
         article_id TEXT NOT NULL,
         entity_text TEXT NOT NULL,
+        entity_text_normalized TEXT NOT NULL DEFAULT '',
         entity_type TEXT,
         tfidf_score REAL,
         ner_confidence REAL,
@@ -119,6 +121,20 @@ export async function initializeDatabase() {
         FOREIGN KEY (article_id) REFERENCES news_articles (id) ON DELETE CASCADE
       )
     `)
+
+    try {
+      await db.execute(`
+        ALTER TABLE article_topics ADD COLUMN entity_text_normalized TEXT NOT NULL DEFAULT ''
+      `)
+      console.log("Added entity_text_normalized column to article_topics table")
+    } catch (error: any) {
+      if (!error.message?.includes("duplicate column name")) {
+        console.log(
+          "entity_text_normalized column may already exist:",
+          error.message
+        )
+      }
+    }
 
     // Create trending_topics table
     await db.execute(`
@@ -145,6 +161,43 @@ export async function initializeDatabase() {
 
     await db.execute(`
       CREATE INDEX IF NOT EXISTS idx_article_topics_entity_type ON article_topics(entity_type)
+    `)
+
+    // Backfill entity_text_normalized for legacy rows (batched); index created after backfill
+    try {
+      const batchSize = 500
+      let pending = true
+      while (pending) {
+        const rows = await db.execute({
+          sql: `SELECT id, entity_text FROM article_topics WHERE entity_text_normalized = '' LIMIT ?`,
+          args: [batchSize],
+        })
+        if (rows.rows.length === 0) {
+          pending = false
+          break
+        }
+        for (const row of rows.rows) {
+          const id = row.id as string
+          const entityText = row.entity_text as string
+          const normalized =
+            normalizeEntityText(entityText) ||
+            entityText.toLowerCase().trim() ||
+            "_"
+          await db.execute(
+            `UPDATE article_topics SET entity_text_normalized = ? WHERE id = ?`,
+            [normalized, id]
+          )
+        }
+        if (rows.rows.length < batchSize) {
+          pending = false
+        }
+      }
+    } catch (error) {
+      console.error("Backfill entity_text_normalized:", error)
+    }
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_article_topics_entity_text_normalized ON article_topics(entity_text_normalized)
     `)
 
     // Create indexes for trending_topics table
