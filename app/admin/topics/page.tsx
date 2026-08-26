@@ -13,6 +13,8 @@ import { getTopicStats, getTrendingTopics } from "@/lib/topic-extraction"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+export const dynamic = "force-dynamic"
+
 // Icon mapping for entity types
 const getEntityIcon = (type: string) => {
   switch (type) {
@@ -115,8 +117,7 @@ async function TrendingTopicsList() {
               </div>
               <div className="text-right">
                 <Badge variant="secondary">
-                  Score:{" "}
-                  {(topic.occurrence_count * topic.avg_tfidf_score).toFixed(2)}
+                  Score: {topic.ranking_score.toFixed(2)}
                 </Badge>
               </div>
             </div>

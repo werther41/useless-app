@@ -1,6 +1,6 @@
 import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
-import { normalizeEntityText } from "./entity-normalize"
+import { normalizeEntityText, normalizeTopicInputs } from "./entity-normalize"
 import { NewsArticle } from "./schema"
 
 export interface TopicSearchOptions {
@@ -23,7 +23,8 @@ export async function findArticlesByTopics(
   }
 
   try {
-    const normalizedTopics = topicTexts.map((text) => normalizeEntityText(text))
+    const normalizedTopics = normalizeTopicInputs(topicTexts)
+    if (normalizedTopics.length === 0) return []
 
     // Build query based on match type
     let query: string
@@ -32,7 +33,9 @@ export async function findArticlesByTopics(
     if (matchType === "all") {
       // AND logic: article must match ALL topics
       query = `
-        SELECT DISTINCT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding
+        SELECT na.id, na.title, na.content, na.url, na.source,
+               na.published_at, na.created_at,
+               MAX(at.tfidf_score) AS max_tfidf_score
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
@@ -41,14 +44,14 @@ export async function findArticlesByTopics(
           .join(", ")})
         GROUP BY na.id
         HAVING COUNT(DISTINCT at.entity_text_normalized) = ?
-        ORDER BY na.published_at DESC, at.tfidf_score DESC
+        ORDER BY max_tfidf_score DESC, na.published_at DESC
         LIMIT ?
       `
       params = [...normalizedTopics, normalizedTopics.length, limit]
     } else {
       // OR logic: article matches ANY topic (default)
       query = `
-        SELECT DISTINCT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding,
+        SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
                MAX(at.tfidf_score) as max_tfidf_score
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
@@ -73,7 +76,7 @@ export async function findArticlesByTopics(
       source: row.source as string,
       published_at: row.published_at as string,
       created_at: row.created_at as string,
-      embedding: JSON.parse(row.embedding as string), // Parse JSON string back to array
+      embedding: [],
     }))
   } catch (error) {
     console.error("Error finding articles by topics:", error)
@@ -95,59 +98,39 @@ export async function findArticlesByTopicsFuzzy(
   }
 
   try {
-    // Create intelligent fuzzy patterns for better matching
-    const fuzzyPatterns: string[] = []
-    const params: any[] = []
+    const normalizedTopics = normalizeTopicInputs(topicTexts)
+    if (normalizedTopics.length === 0) return []
 
-    for (const text of topicTexts) {
-      const lowerText = text.toLowerCase()
-
-      // For gaming topics, create more specific patterns
-      if (
-        lowerText.includes("call of duty") ||
-        lowerText.includes("gaming") ||
-        lowerText.includes("game")
-      ) {
-        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
-        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
-        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
-        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
-        params.push(`%${lowerText}%`)
-        params.push("%game%")
-        params.push("%gaming%")
-        params.push("%video gaming%")
-      } else {
-        // For other topics, use standard fuzzy matching
-        fuzzyPatterns.push("LOWER(at.entity_text) LIKE ?")
-        params.push(`%${lowerText}%`)
-      }
-    }
+    const prefixPatterns = normalizedTopics.map(
+      () => "at.entity_text_normalized GLOB ?"
+    )
+    const params: any[] = normalizedTopics.map((topic) => `${topic}*`)
 
     let query: string
 
     if (matchType === "all") {
-      // AND logic with fuzzy matching
       query = `
-        SELECT DISTINCT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding
+        SELECT na.id, na.title, na.content, na.url, na.source,
+               na.published_at, na.created_at,
+               MAX(at.tfidf_score) AS max_tfidf_score
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND (${fuzzyPatterns.join(" AND ")})
+        AND (${prefixPatterns.join(" OR ")})
         GROUP BY na.id
-        HAVING COUNT(DISTINCT at.entity_text) >= ?
-        ORDER BY na.published_at DESC, at.tfidf_score DESC
+        HAVING COUNT(DISTINCT at.entity_text_normalized) >= ?
+        ORDER BY max_tfidf_score DESC, na.published_at DESC
         LIMIT ?
       `
-      params.push(Math.min(fuzzyPatterns.length, 2), limit)
+      params.push(normalizedTopics.length, limit)
     } else {
-      // OR logic with fuzzy matching
       query = `
-        SELECT DISTINCT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding,
+        SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
                MAX(at.tfidf_score) as max_tfidf_score
         FROM news_articles na
         INNER JOIN article_topics at ON na.id = at.article_id
         WHERE na.created_at > datetime('now', '-${timeWindow} hours')
-        AND (${fuzzyPatterns.join(" OR ")})
+        AND (${prefixPatterns.join(" OR ")})
         GROUP BY na.id
         ORDER BY max_tfidf_score DESC, na.published_at DESC
         LIMIT ?
@@ -165,7 +148,7 @@ export async function findArticlesByTopicsFuzzy(
       source: row.source as string,
       published_at: row.published_at as string,
       created_at: row.created_at as string,
-      embedding: JSON.parse(row.embedding as string),
+      embedding: [],
     }))
   } catch (error) {
     console.error("Error finding articles by topics (fuzzy):", error)
@@ -185,16 +168,20 @@ export async function getTopicSuggestions(
   }
 
   try {
+    const normalizedPrefix = normalizeEntityText(partialText)
+    if (!normalizedPrefix) return []
+
     const query = `
       SELECT topic_text, entity_type, occurrence_count
       FROM trending_topics
-      WHERE LOWER(topic_text) LIKE ?
-      ORDER BY (occurrence_count * avg_tfidf_score) DESC
+      WHERE topic_text >= ? AND topic_text < ?
+      ORDER BY ranking_score DESC
       LIMIT ?
     `
 
     const result = await db.execute(query, [
-      `%${partialText.toLowerCase()}%`,
+      normalizedPrefix,
+      `${normalizedPrefix}\uffff`,
       limit,
     ])
 
@@ -217,7 +204,6 @@ export async function getDiverseTopics(options?: {
   limit?: number
   entityType?: string
   topicTypes?: string[]
-  randomize?: boolean
 }): Promise<
   Array<{
     id: string
@@ -229,17 +215,12 @@ export async function getDiverseTopics(options?: {
     combinedScore: number
   }>
 > {
-  const {
-    timeWindow = 96,
-    limit = 20,
-    entityType,
-    topicTypes,
-    randomize = false,
-  } = options || {}
+  const { timeWindow = 96, limit = 20, entityType, topicTypes } = options || {}
 
   try {
     let query = `
-      SELECT id, topic_text, entity_type, occurrence_count, avg_tfidf_score, last_seen_at, created_at
+      SELECT id, topic_text, entity_type, occurrence_count, avg_tfidf_score,
+             ranking_score, last_seen_at, created_at
       FROM trending_topics
       WHERE last_seen_at > datetime('now', '-${timeWindow} hours')
     `
@@ -256,19 +237,11 @@ export async function getDiverseTopics(options?: {
       params.push(...topicTypes)
     }
 
-    if (randomize) {
-      query += `
-        ORDER BY RANDOM()
-        LIMIT ?
-      `
-      params.push(limit * 3) // Get more for randomization
-    } else {
-      query += `
-        ORDER BY (LOG(occurrence_count + 1) * avg_tfidf_score) DESC
-        LIMIT ?
-      `
-      params.push(limit * 2) // Get more to filter for diversity
-    }
+    query += `
+      ORDER BY ranking_score DESC
+      LIMIT ?
+    `
+    params.push(limit * 2) // Get more to filter for diversity
 
     const result = await executeWithRetry(query, params)
     const allTopics = result.rows.map((row) => {
@@ -281,7 +254,7 @@ export async function getDiverseTopics(options?: {
         occurrenceCount,
         avgTfidfScore,
         lastSeenAt: row.last_seen_at as string,
-        combinedScore: Math.log(occurrenceCount + 1) * avgTfidfScore,
+        combinedScore: (row.ranking_score as number) || 0,
       }
     })
 
@@ -384,11 +357,12 @@ export async function findArticlesByTopicsWithRelevance(
   }
 
   try {
-    const normalizedTopics = topicTexts.map((text) => normalizeEntityText(text))
+    const normalizedTopics = normalizeTopicInputs(topicTexts)
+    if (normalizedTopics.length === 0) return []
 
     // Get articles with topic matches and calculate relevance
     const query = `
-      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at, na.embedding,
+      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
              GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
              COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
              AVG(at.tfidf_score) as avg_tfidf_score
@@ -420,7 +394,7 @@ export async function findArticlesByTopicsWithRelevance(
         source: row.source as string,
         published_at: row.published_at as string,
         created_at: row.created_at as string,
-        embedding: JSON.parse(row.embedding as string),
+        embedding: [],
       }
 
       const matchedTopics = ((row.matched_topics as string) || "")

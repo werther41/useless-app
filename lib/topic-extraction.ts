@@ -6,7 +6,11 @@ import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
 import { normalizeEntityText } from "./entity-normalize"
 import { SUPPORTED_ENTITY_TYPES, buildEntityExtractionPrompt } from "./prompts"
-import { ArticleTopic, ExtractedEntity, TrendingTopic } from "./schema"
+import { ExtractedEntity, TrendingTopic } from "./schema"
+import {
+  calculateTermFrequencyScores,
+  deduplicateEntities,
+} from "./topic-scoring"
 
 export { normalizeEntityText } from "./entity-normalize"
 
@@ -92,17 +96,21 @@ export async function storeArticleTopics(
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `
 
-    for (const record of topicRecords) {
-      await db.execute(insertSql, [
-        record.id,
-        record.article_id,
-        record.entity_text,
-        record.entity_text_normalized,
-        record.entity_type,
-        record.tfidf_score,
-        record.ner_confidence,
-      ])
-    }
+    await db.batch(
+      topicRecords.map((record) => ({
+        sql: insertSql,
+        args: [
+          record.id,
+          record.article_id,
+          record.entity_text,
+          record.entity_text_normalized,
+          record.entity_type,
+          record.tfidf_score,
+          record.ner_confidence,
+        ],
+      })),
+      "write"
+    )
 
     console.log(
       `✅ Stored ${topicRecords.length} topics for article ${articleId}`
@@ -120,110 +128,44 @@ export async function updateTrendingTopics(
   entities: ExtractedEntity[]
 ): Promise<void> {
   try {
-    for (const entity of entities) {
+    const statements = entities.map((entity) => {
       const normalizedText = normalizeEntityText(entity.text)
       const tfidfScore = entity.tfidfScore || 0.0
-
-      // Use INSERT OR IGNORE with UPDATE to handle race conditions
       const topicId = `trending_${Date.now()}_${Math.abs(
         normalizedText.split("").reduce((a, b) => a + b.charCodeAt(0), 0)
       )}_${Math.random().toString(36).substring(2, 9)}`
 
-      try {
-        // Try to insert first (this will fail if topic exists due to UNIQUE constraint)
-        await db.execute(
-          "INSERT OR IGNORE INTO trending_topics (id, topic_text, entity_type, occurrence_count, avg_tfidf_score) VALUES (?, ?, ?, ?, ?)",
-          [topicId, normalizedText, entity.type, 1, tfidfScore]
-        )
-
-        // Then update (this will work whether insert succeeded or was ignored)
-        const existingResult = await db.execute(
-          "SELECT id, occurrence_count, avg_tfidf_score FROM trending_topics WHERE topic_text = ?",
-          [normalizedText]
-        )
-
-        if (existingResult.rows.length > 0) {
-          const existing = existingResult.rows[0] as any
-
-          // If this isn't the record we just inserted, update it
-          if (existing.occurrence_count > 1 || existing.id !== topicId) {
-            const newCount = existing.occurrence_count + 1
-            const newAvgScore =
-              (existing.avg_tfidf_score * existing.occurrence_count +
-                tfidfScore) /
-              newCount
-
-            await db.execute(
-              "UPDATE trending_topics SET occurrence_count = ?, avg_tfidf_score = ?, last_seen_at = CURRENT_TIMESTAMP WHERE topic_text = ?",
-              [newCount, newAvgScore, normalizedText]
-            )
-          }
-        }
-      } catch (insertError) {
-        // If insert fails for any reason, try update directly
-        const existingResult = await db.execute(
-          "SELECT id, occurrence_count, avg_tfidf_score FROM trending_topics WHERE topic_text = ?",
-          [normalizedText]
-        )
-
-        if (existingResult.rows.length > 0) {
-          const existing = existingResult.rows[0] as any
-          const newCount = existing.occurrence_count + 1
-          const newAvgScore =
-            (existing.avg_tfidf_score * existing.occurrence_count +
-              tfidfScore) /
-            newCount
-
-          await db.execute(
-            "UPDATE trending_topics SET occurrence_count = ?, avg_tfidf_score = ?, last_seen_at = CURRENT_TIMESTAMP WHERE id = ?",
-            [newCount, newAvgScore, existing.id]
+      return {
+        sql: `
+          INSERT INTO trending_topics (
+            id, topic_text, entity_type, occurrence_count,
+            avg_tfidf_score, ranking_score
           )
-        }
+          VALUES (?, ?, ?, 1, ?, LOG(2) * ?)
+          ON CONFLICT(topic_text) DO UPDATE SET
+            entity_type = excluded.entity_type,
+            avg_tfidf_score = (
+              trending_topics.avg_tfidf_score * trending_topics.occurrence_count
+              + excluded.avg_tfidf_score
+            ) / (trending_topics.occurrence_count + 1),
+            ranking_score = LOG(trending_topics.occurrence_count + 2) * (
+              trending_topics.avg_tfidf_score * trending_topics.occurrence_count
+              + excluded.avg_tfidf_score
+            ) / (trending_topics.occurrence_count + 1),
+            occurrence_count = trending_topics.occurrence_count + 1,
+            last_seen_at = CURRENT_TIMESTAMP
+        `,
+        args: [topicId, normalizedText, entity.type, tfidfScore, tfidfScore],
       }
-    }
+    })
+
+    await db.batch(statements, "write")
 
     console.log(`✅ Updated trending topics for ${entities.length} entities`)
   } catch (error) {
     console.error("Error updating trending topics:", error)
     // Don't throw - allow the process to continue
   }
-}
-
-/**
- * Term-frequency scores for entities in an article (no corpus-wide IDF — avoids heavy reads).
- * TF = (occurrences in article) / (word count).
- */
-function calculateTfIdfScores(
-  entities: ExtractedEntity[],
-  articleText: string
-): Map<string, number> {
-  const scores = new Map<string, number>()
-
-  try {
-    const normalizedText = articleText.toLowerCase()
-    const words = normalizedText.split(/\s+/)
-
-    for (const entity of entities) {
-      const normalizedEntity = normalizeEntityText(entity.text)
-
-      const entityWords = normalizedEntity.split(/\s+/)
-      let termFrequency = 0
-
-      for (let i = 0; i <= words.length - entityWords.length; i++) {
-        const slice = words.slice(i, i + entityWords.length).join(" ")
-        if (slice.includes(normalizedEntity)) {
-          termFrequency++
-        }
-      }
-
-      const tf = termFrequency / Math.max(words.length, 1)
-      scores.set(normalizedEntity, tf)
-    }
-  } catch (error) {
-    console.error("Error calculating TF scores:", error)
-  }
-
-  return scores
 }
 
 /**
@@ -235,10 +177,12 @@ export async function extractAndStoreTopics(
   content: string
 ): Promise<void> {
   try {
-    const entities = await extractEntitiesFromArticle(title, content)
+    const entities = deduplicateEntities(
+      await extractEntitiesFromArticle(title, content)
+    )
     if (entities.length > 0) {
       const articleText = `${title} ${content}`
-      const tfidfScores = calculateTfIdfScores(entities, articleText)
+      const tfidfScores = calculateTermFrequencyScores(entities, articleText)
 
       // Add TF scores (stored in tfidf_score column for compatibility)
       const entitiesWithScores = entities.map((entity) => ({
@@ -268,7 +212,8 @@ export async function getTrendingTopics(options?: {
 
   try {
     let query = `
-      SELECT id, topic_text, entity_type, occurrence_count, avg_tfidf_score, last_seen_at, created_at
+      SELECT id, topic_text, entity_type, occurrence_count, avg_tfidf_score,
+             ranking_score, last_seen_at, created_at
       FROM trending_topics
       WHERE last_seen_at > datetime('now', '-${timeWindow} hours')
     `
@@ -286,7 +231,7 @@ export async function getTrendingTopics(options?: {
     }
 
     query += `
-      ORDER BY (LOG(occurrence_count + 1) * avg_tfidf_score) DESC
+      ORDER BY ranking_score DESC
       LIMIT ?
     `
     params.push(limit)
@@ -299,6 +244,7 @@ export async function getTrendingTopics(options?: {
       entity_type: row.entity_type as string,
       occurrence_count: row.occurrence_count as number,
       avg_tfidf_score: row.avg_tfidf_score as number,
+      ranking_score: row.ranking_score as number,
       article_ids: "", // Not needed for this query
       last_seen_at: row.last_seen_at as string,
       created_at: row.created_at as string,

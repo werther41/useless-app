@@ -1,4 +1,3 @@
-import { normalizeEntityText } from "./entity-normalize"
 import { db } from "./db"
 
 export async function initializeDatabase() {
@@ -90,7 +89,7 @@ export async function initializeDatabase() {
         source TEXT NOT NULL,
         published_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        embedding F32_BLOB
+        embedding F32_BLOB(768)
       )
     `)
 
@@ -104,7 +103,22 @@ export async function initializeDatabase() {
     `)
 
     await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_news_articles_published_at ON news_articles(published_at DESC)
+    `)
+
+    await db.execute(`
       CREATE INDEX IF NOT EXISTS idx_news_articles_source ON news_articles(source)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_news_articles_embedding ON news_articles(
+        libsql_vector_idx(
+          embedding,
+          'metric=cosine',
+          'compress_neighbors=float1bit',
+          'max_neighbors=32'
+        )
+      )
     `)
 
     // Create article_topics table
@@ -122,20 +136,6 @@ export async function initializeDatabase() {
       )
     `)
 
-    try {
-      await db.execute(`
-        ALTER TABLE article_topics ADD COLUMN entity_text_normalized TEXT NOT NULL DEFAULT ''
-      `)
-      console.log("Added entity_text_normalized column to article_topics table")
-    } catch (error: any) {
-      if (!error.message?.includes("duplicate column name")) {
-        console.log(
-          "entity_text_normalized column may already exist:",
-          error.message
-        )
-      }
-    }
-
     // Create trending_topics table
     await db.execute(`
       CREATE TABLE IF NOT EXISTS trending_topics (
@@ -144,6 +144,7 @@ export async function initializeDatabase() {
         entity_type TEXT,
         occurrence_count INTEGER DEFAULT 1,
         avg_tfidf_score REAL,
+        ranking_score REAL NOT NULL DEFAULT 0,
         article_ids TEXT,
         last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -163,41 +164,14 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_article_topics_entity_type ON article_topics(entity_type)
     `)
 
-    // Backfill entity_text_normalized for legacy rows (batched); index created after backfill
-    try {
-      const batchSize = 500
-      let pending = true
-      while (pending) {
-        const rows = await db.execute({
-          sql: `SELECT id, entity_text FROM article_topics WHERE entity_text_normalized = '' LIMIT ?`,
-          args: [batchSize],
-        })
-        if (rows.rows.length === 0) {
-          pending = false
-          break
-        }
-        for (const row of rows.rows) {
-          const id = row.id as string
-          const entityText = row.entity_text as string
-          const normalized =
-            normalizeEntityText(entityText) ||
-            entityText.toLowerCase().trim() ||
-            "_"
-          await db.execute(
-            `UPDATE article_topics SET entity_text_normalized = ? WHERE id = ?`,
-            [normalized, id]
-          )
-        }
-        if (rows.rows.length < batchSize) {
-          pending = false
-        }
-      }
-    } catch (error) {
-      console.error("Backfill entity_text_normalized:", error)
-    }
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_article_topics_entity_text_normalized
+      ON article_topics(entity_text_normalized, article_id, tfidf_score DESC)
+    `)
 
     await db.execute(`
-      CREATE INDEX IF NOT EXISTS idx_article_topics_entity_text_normalized ON article_topics(entity_text_normalized)
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_article_topics_article_entity
+      ON article_topics(article_id, entity_text_normalized)
     `)
 
     // Create indexes for trending_topics table
@@ -207,6 +181,15 @@ export async function initializeDatabase() {
 
     await db.execute(`
       CREATE INDEX IF NOT EXISTS idx_trending_topics_count ON trending_topics(occurrence_count DESC)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_trending_topics_last_seen ON trending_topics(last_seen_at DESC)
+    `)
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_trending_topics_ranking
+      ON trending_topics(ranking_score DESC, last_seen_at DESC)
     `)
 
     console.log("Database initialized successfully")

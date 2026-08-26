@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { getTopicStats } from "@/lib/topic-extraction"
 
 // Cache for 5 minutes
+export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 export async function GET() {

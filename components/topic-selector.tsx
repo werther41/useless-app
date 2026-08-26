@@ -156,19 +156,11 @@ export function TopicSelector({
             ? `&topicTypes=${selectedTopicTypes.join(",")}`
             : ""
 
-        // Add cache-busting parameter to prevent stale cache issues
-        const timestamp = Date.now()
         const url = enableDiversity
-          ? `/api/topics?limit=20&timeWindow=48&diverse=true&cache_bust=${timestamp}${topicTypesParam}`
-          : `/api/topics?limit=20&timeWindow=48&cache_bust=${timestamp}${topicTypesParam}`
+          ? `/api/topics?limit=20&timeWindow=48&diverse=true${topicTypesParam}`
+          : `/api/topics?limit=20&timeWindow=48${topicTypesParam}`
 
-        const response = await fetch(url, {
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-          },
-        })
+        const response = await fetch(url)
 
         if (!response.ok) {
           throw new Error(`Failed to fetch topics: ${response.status}`)
@@ -304,23 +296,14 @@ export function TopicSelector({
         clearSearch()
       }
 
-      const topicTypesParam =
-        selectedTopicTypes.length > 0
-          ? `&topicTypes=${selectedTopicTypes.join(",")}`
-          : ""
-
-      const url = enableDiversity
-        ? `/api/topics?limit=20&timeWindow=48&diverse=true&_t=${Date.now()}${topicTypesParam}`
-        : `/api/topics?limit=20&timeWindow=48&_t=${Date.now()}${topicTypesParam}`
-
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch topics: ${response.status}`)
-      }
-
-      const data = await response.json()
-      setTopics(data.topics || [])
+      setTopics((currentTopics) => {
+        const shuffled = [...currentTopics]
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        }
+        return shuffled
+      })
     } catch (err) {
       console.error("Error randomizing topics:", err)
       setError(
@@ -361,22 +344,15 @@ export function TopicSelector({
                 setError("")
                 setIsLoading(true)
                 // Trigger a new fetch by updating a dependency
-                const timestamp = Date.now()
                 const topicTypesParam =
                   selectedTopicTypes.length > 0
                     ? `&topicTypes=${selectedTopicTypes.join(",")}`
                     : ""
                 const url = enableDiversity
-                  ? `/api/topics?limit=20&timeWindow=48&diverse=true&cache_bust=${timestamp}${topicTypesParam}`
-                  : `/api/topics?limit=20&timeWindow=48&cache_bust=${timestamp}${topicTypesParam}`
+                  ? `/api/topics?limit=20&timeWindow=48&diverse=true${topicTypesParam}`
+                  : `/api/topics?limit=20&timeWindow=48${topicTypesParam}`
 
-                fetch(url, {
-                  cache: "no-store",
-                  headers: {
-                    "Cache-Control": "no-cache",
-                    Pragma: "no-cache",
-                  },
-                })
+                fetch(url)
                   .then((response) => {
                     if (!response.ok)
                       throw new Error(
