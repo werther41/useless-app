@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Generate the streaming response using Gemini
     console.log(`🚀 Starting AI generation with Gemini...`)
     const aiResult = await streamText({
-      model: google("models/gemini-2.0-flash-lite"),
+      model: google("models/gemini-3.5-flash-lite"),
       system: systemPrompt,
       prompt: userPrompt,
     })

@@ -47,7 +47,7 @@ export async function extractEntitiesFromArticle(
     )
 
     const result = await generateObject({
-      model: google("models/gemini-2.0-flash-lite"),
+      model: google("models/gemini-3.5-flash-lite"),
       prompt,
       schema: NERResponseSchema,
     })
