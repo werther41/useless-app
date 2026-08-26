@@ -783,7 +783,7 @@ Uses Turso's native vector search with cosine similarity to find the most releva
 ### AI Integration
 
 - **Embedding Model**: Google Gemini `gemini-embedding-001` (768 dimensions)
-- **LLM**: Google Gemini `gemini-2.0-flash-lite`
+- **LLM**: Google Gemini `gemini-3.5-flash-lite`
 - **Streaming**: Real-time fact generation with word-by-word display
 
 ## Development

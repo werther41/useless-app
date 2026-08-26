@@ -13,7 +13,7 @@ Next.js 13 app with AI-powered fact generation, topic extraction (NER/TF-IDF), a
 
 - **Frontend**: Next.js 13 (App Router), React 18, TypeScript, Tailwind CSS + shadcn/ui
 - **Backend**: Next.js API Routes, Turso (libSQL) database
-- **AI/ML**: Google Gemini 2.0 Flash Lite for NER, OpenAI embeddings
+- **AI/ML**: Google Gemini 3.5 Flash Lite for NER, OpenAI embeddings
 - **Styling**: Tailwind CSS with custom CSS variables, shadcn/ui components
 - **Validation**: Zod schemas for type-safe data validation
 - **Deployment**: Vercel with automatic CI/CD
