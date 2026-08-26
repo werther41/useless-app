@@ -19,12 +19,12 @@ export async function findSimilarArticle(
     // Get top 10 most similar articles from specified time window and randomly pick one for variety
     const result = await db.execute({
       sql: `
-        SELECT id, title, content, url, source, published_at, created_at, embedding
+        SELECT id, title, content, url, source, published_at, created_at
         FROM news_articles 
         WHERE embedding IS NOT NULL 
           AND published_at >= datetime('now', '-${timeWindow} days')
         ORDER BY 
-          vector_distance_cos(embedding, ?) ASC,
+          vector_distance_cos(embedding, vector32(?)) ASC,
           published_at DESC
         LIMIT 10
       `,
@@ -47,7 +47,7 @@ export async function findSimilarArticle(
       source: row.source as string,
       published_at: row.published_at as string,
       created_at: row.created_at as string,
-      embedding: JSON.parse(row.embedding as string) as number[],
+      embedding: [],
     }
   } catch (error) {
     console.error("Error finding similar article:", error)
@@ -72,12 +72,12 @@ export async function findSimilarArticles(
 
     const result = await db.execute({
       sql: `
-        SELECT id, title, content, url, source, published_at, created_at, embedding
+        SELECT id, title, content, url, source, published_at, created_at
         FROM news_articles 
         WHERE embedding IS NOT NULL 
           AND published_at >= datetime('now', '-${timeWindow} days')
         ORDER BY 
-          vector_distance_cos(embedding, ?) ASC,
+          vector_distance_cos(embedding, vector32(?)) ASC,
           published_at DESC
         LIMIT ?
       `,
@@ -92,7 +92,7 @@ export async function findSimilarArticles(
       source: row.source as string,
       published_at: row.published_at as string,
       created_at: row.created_at as string,
-      embedding: JSON.parse(row.embedding as string) as number[],
+      embedding: [],
     }))
   } catch (error) {
     console.error("Error finding similar articles:", error)
@@ -111,7 +111,7 @@ export async function getRandomArticle(
   try {
     const result = await db.execute({
       sql: `
-        SELECT id, title, content, url, source, published_at, created_at, embedding
+        SELECT id, title, content, url, source, published_at, created_at
         FROM news_articles 
         WHERE embedding IS NOT NULL 
           AND published_at >= datetime('now', '-${timeWindow} days')
@@ -134,7 +134,7 @@ export async function getRandomArticle(
       source: row.source as string,
       published_at: row.published_at as string,
       created_at: row.created_at as string,
-      embedding: JSON.parse(row.embedding as string) as number[],
+      embedding: [],
     }
   } catch (error) {
     console.error("Error getting random article:", error)

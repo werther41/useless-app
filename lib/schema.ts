@@ -72,6 +72,7 @@ export interface TrendingTopic {
   entity_type: string
   occurrence_count: number
   avg_tfidf_score: number
+  ranking_score: number
   article_ids: string
   last_seen_at: string
   created_at: string

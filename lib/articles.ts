@@ -1,7 +1,7 @@
 import { db } from "./db"
 import { executeWithRetry } from "./db-utils"
-import { normalizeEntityText } from "./entity-normalize"
 import { generateEmbedding } from "./embeddings"
+import { normalizeTopicInputs } from "./entity-normalize"
 import { NewsArticle } from "./schema"
 
 export interface ArticleWithRelevance extends NewsArticle {
@@ -23,7 +23,7 @@ export interface ArticleSearchResult {
 
 /**
  * Get articles by selected topics with intelligent matching
- * Tries ALL match first, falls back to ANY if < 3 results
+ * Ranks all matching articles in one query, preferring more topic matches.
  */
 export async function getArticlesByTopics(
   topics: string[],
@@ -40,11 +40,12 @@ export async function getArticlesByTopics(
   }
 
   try {
-    const normalizedTopics = topics.map((text) => normalizeEntityText(text))
+    const normalizedTopics = normalizeTopicInputs(topics)
+    if (normalizedTopics.length === 0) return []
 
     // Build time filter clause
     const timeFilter = timeWindow
-      ? `AND na.published_at > datetime('now', '-${timeWindow} hours')`
+      ? "AND na.published_at > datetime('now', ?)"
       : ""
 
     // Build topic type filter clause
@@ -53,58 +54,48 @@ export async function getArticlesByTopics(
         ? `AND at.entity_type IN (${topicTypes.map(() => "?").join(", ")})`
         : ""
 
-    // Try ALL match first
-    let query = `
-      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
-             GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-             COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
-             AVG(at.tfidf_score) as avg_tfidf_score,
-             MAX(at.tfidf_score) as max_tfidf_score
-      FROM news_articles na
-      INNER JOIN article_topics at ON na.id = at.article_id
-      WHERE at.entity_text_normalized IN (${normalizedTopics
-        .map(() => "?")
-        .join(", ")})
-      ${timeFilter}
-      ${topicTypeFilter}
-      GROUP BY na.id
-      HAVING topic_matches = ?
-      ORDER BY topic_matches DESC, avg_tfidf_score DESC, na.published_at DESC
-      LIMIT ?
+    const query = `
+      WITH ranked_articles AS (
+        SELECT
+          at.article_id,
+          GROUP_CONCAT(DISTINCT at.entity_text) AS matched_topics,
+          COUNT(DISTINCT at.entity_text_normalized) AS topic_matches,
+          AVG(at.tfidf_score) AS avg_tfidf_score,
+          MAX(at.tfidf_score) AS max_tfidf_score,
+          na.published_at
+        FROM article_topics at
+        INNER JOIN news_articles na ON na.id = at.article_id
+        WHERE at.entity_text_normalized IN (${normalizedTopics
+          .map(() => "?")
+          .join(", ")})
+        ${timeFilter}
+        ${topicTypeFilter}
+        GROUP BY at.article_id
+        ORDER BY topic_matches DESC, max_tfidf_score DESC, na.published_at DESC
+        LIMIT ?
+      )
+      SELECT
+        na.id, na.title, na.content, na.url, na.source,
+        na.published_at, na.created_at,
+        ranked_articles.matched_topics,
+        ranked_articles.topic_matches,
+        ranked_articles.avg_tfidf_score,
+        ranked_articles.max_tfidf_score
+      FROM ranked_articles
+      INNER JOIN news_articles na ON na.id = ranked_articles.article_id
+      ORDER BY ranked_articles.topic_matches DESC,
+               ranked_articles.max_tfidf_score DESC,
+               ranked_articles.published_at DESC
     `
 
-    let params = [
+    const params = [
       ...normalizedTopics,
+      ...(timeWindow ? [`-${timeWindow} hours`] : []),
       ...topicTypes,
-      normalizedTopics.length,
       limit,
     ]
 
-    let result = await executeWithRetry(query, params)
-
-    // If we got < 3 results, fall back to ANY match
-    if (result.rows.length < 3) {
-      query = `
-          SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
-                 GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-                 COUNT(DISTINCT at.entity_text_normalized) as topic_matches,
-                 AVG(at.tfidf_score) as avg_tfidf_score,
-                 MAX(at.tfidf_score) as max_tfidf_score
-          FROM news_articles na
-          INNER JOIN article_topics at ON na.id = at.article_id
-          WHERE at.entity_text_normalized IN (${normalizedTopics
-            .map(() => "?")
-            .join(", ")})
-          ${timeFilter}
-          ${topicTypeFilter}
-          GROUP BY na.id
-          ORDER BY topic_matches DESC, max_tfidf_score DESC, na.published_at DESC
-          LIMIT ?
-        `
-
-      params = [...normalizedTopics, ...topicTypes, limit]
-      result = await executeWithRetry(query, params)
-    }
+    const result = await executeWithRetry(query, params)
 
     return result.rows.map((row) => {
       const article: NewsArticle = {
@@ -124,7 +115,7 @@ export async function getArticlesByTopics(
       const maxTfidfScore = row.max_tfidf_score as number
 
       // Calculate relevance score: (topic_matches / total_topics) * avg_tfidf_score * recency_factor
-      const topicMatchRatio = topicMatches / topics.length
+      const topicMatchRatio = topicMatches / normalizedTopics.length
       const recencyFactor = timeWindow ? 1.0 : 0.8 // Slight penalty for older articles
       const relevanceScore =
         topicMatchRatio * (avgTfidfScore || maxTfidfScore) * recencyFactor
@@ -158,21 +149,32 @@ export async function getRecentArticles(
   try {
     // Build time filter clause
     const timeFilter = timeWindow
-      ? `WHERE na.published_at > datetime('now', '-${timeWindow} hours')`
+      ? "WHERE published_at > datetime('now', ?)"
       : ""
 
     const query = `
-      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
+      WITH recent_articles AS (
+        SELECT id, title, content, url, source, published_at, created_at
+        FROM news_articles
+        ${timeFilter}
+        ORDER BY published_at DESC
+        LIMIT ?
+      )
+      SELECT
+             recent_articles.id, recent_articles.title, recent_articles.content,
+             recent_articles.url, recent_articles.source,
+             recent_articles.published_at, recent_articles.created_at,
              GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics
-      FROM news_articles na
-      LEFT JOIN article_topics at ON na.id = at.article_id
-      ${timeFilter}
-      GROUP BY na.id
-      ORDER BY na.published_at DESC
-      LIMIT ?
+      FROM recent_articles
+      LEFT JOIN article_topics at ON recent_articles.id = at.article_id
+      GROUP BY recent_articles.id
+      ORDER BY recent_articles.published_at DESC
     `
 
-    const result = await executeWithRetry(query, [limit])
+    const result = await executeWithRetry(query, [
+      ...(timeWindow ? [`-${timeWindow} hours`] : []),
+      limit,
+    ])
 
     return result.rows.map((row) => {
       const article: NewsArticle = {
@@ -224,29 +226,56 @@ export async function searchArticlesByText(
     // Generate embedding for the query
     const queryEmbedding = await generateEmbedding(query)
 
-    // Build time filter clause
-    const timeFilter = timeWindow
-      ? `AND na.published_at > datetime('now', '-${timeWindow} hours')`
-      : ""
-
-    // Search using vector similarity
     const embeddingJson = JSON.stringify(queryEmbedding)
+    const candidateLimit = Math.max(limit * 5, 100)
 
-    const query_sql = `
-      SELECT na.id, na.title, na.content, na.url, na.source, na.published_at, na.created_at,
-             GROUP_CONCAT(DISTINCT at.entity_text) as matched_topics,
-             COUNT(DISTINCT at.entity_text) as topic_matches,
-             AVG(at.tfidf_score) as avg_tfidf_score
-      FROM news_articles na
+    const nearestQuery = timeWindow
+      ? `
+          SELECT
+            id AS article_id,
+            vector_distance_cos(embedding, vector32(?)) AS distance
+          FROM news_articles
+          WHERE embedding IS NOT NULL
+            AND published_at > datetime('now', ?)
+          ORDER BY distance ASC
+          LIMIT ?
+        `
+      : `
+          SELECT
+            na.id AS article_id,
+            vector_distance_cos(na.embedding, vector32(?)) AS distance
+          FROM vector_top_k(
+            'idx_news_articles_embedding',
+            vector32(?),
+            ?
+          ) AS nearest
+          INNER JOIN news_articles na ON na.rowid = nearest.id
+          ORDER BY distance ASC
+          LIMIT ?
+        `
+
+    const querySql = `
+      WITH nearest_articles AS (
+        ${nearestQuery}
+      )
+      SELECT
+        na.id, na.title, na.content, na.url, na.source,
+        na.published_at, na.created_at,
+        nearest_articles.distance,
+        GROUP_CONCAT(DISTINCT at.entity_text) AS matched_topics
+      FROM nearest_articles
+      INNER JOIN news_articles na ON na.id = nearest_articles.article_id
       LEFT JOIN article_topics at ON na.id = at.article_id
-      WHERE na.embedding IS NOT NULL
-      ${timeFilter}
       GROUP BY na.id
-      ORDER BY vector_distance_cos(na.embedding, ?) ASC
+      ORDER BY nearest_articles.distance ASC
       LIMIT ?
     `
 
-    const result = await executeWithRetry(query_sql, [embeddingJson, limit])
+    const params = timeWindow
+      ? [embeddingJson, `-${timeWindow} hours`, candidateLimit, limit]
+      : [embeddingJson, embeddingJson, candidateLimit, candidateLimit, limit]
+
+    const result = await executeWithRetry(querySql, params)
 
     return result.rows.map((row) => {
       const article: NewsArticle = {
@@ -262,13 +291,8 @@ export async function searchArticlesByText(
 
       const matchedTopics =
         (row.matched_topics as string)?.split(",").filter(Boolean) || []
-      const topicMatches = row.topic_matches as number
-      const avgTfidfScore = row.avg_tfidf_score as number
-
-      // For text search, relevance is based on vector similarity (inverse of distance)
-      // We'll use a placeholder score since we don't have the actual distance
-      const relevanceScore =
-        1.0 - (result.rows.indexOf(row) / result.rows.length) * 0.5
+      const distance = Number(row.distance)
+      const relevanceScore = Math.max(0, Math.min(1, 1 - distance / 2))
 
       return {
         ...article,

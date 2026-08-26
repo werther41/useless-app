@@ -81,7 +81,7 @@ export async function fetchAndStoreNews(): Promise<{
           await db.execute({
             sql: `
               INSERT INTO news_articles (id, title, content, url, source, published_at, embedding)
-              VALUES (?, ?, ?, ?, ?, ?, ?)
+              VALUES (?, ?, ?, ?, ?, ?, vector32(?))
             `,
             args: [
               articleId,
@@ -90,7 +90,7 @@ export async function fetchAndStoreNews(): Promise<{
               item.link,
               feed.source,
               publishedAt,
-              JSON.stringify(embedding), // Store as JSON string for now
+              JSON.stringify(embedding),
             ],
           })
 

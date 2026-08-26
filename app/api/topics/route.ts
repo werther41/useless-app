@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     const topicTypes =
       searchParams.get("topicTypes")?.split(",").filter(Boolean) || undefined
     const diverse = searchParams.get("diverse") === "true"
-    const randomize = searchParams.get("_t") !== null // If timestamp parameter exists, randomize
 
     // Validate parameters
     if (timeWindow < 1 || timeWindow > 168) {
@@ -44,7 +43,6 @@ export async function GET(request: NextRequest) {
             timeWindow,
             limit,
             entityType,
-            randomize,
             topicTypes,
           })
         : await getTrendingTopics({ timeWindow, limit, entityType, topicTypes })
@@ -89,9 +87,7 @@ export async function GET(request: NextRequest) {
         lastSeenAt:
           "lastSeenAt" in topic ? topic.lastSeenAt : topic.last_seen_at,
         combinedScore:
-          "combinedScore" in topic
-            ? topic.combinedScore
-            : Math.log(topic.occurrence_count + 1) * topic.avg_tfidf_score,
+          "combinedScore" in topic ? topic.combinedScore : topic.ranking_score,
       })),
       metadata: {
         timeWindow,
@@ -99,7 +95,6 @@ export async function GET(request: NextRequest) {
         entityType,
         topicTypes,
         diverse,
-        randomize,
         totalTopics: topics.length,
         generatedAt: new Date().toISOString(),
       },

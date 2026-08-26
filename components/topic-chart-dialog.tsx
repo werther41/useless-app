@@ -59,14 +59,7 @@ export function TopicChartDialog({
     try {
       // Fetch topics for visualization
       const response = await fetch(
-        `/api/topics?limit=180&timeWindow=168&diverse=true&cache_bust=${Date.now()}`,
-        {
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-          },
-        }
+        "/api/topics?limit=180&timeWindow=168&diverse=true"
       )
 
       if (!response.ok) {

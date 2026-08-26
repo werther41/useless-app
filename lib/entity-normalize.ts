@@ -3,8 +3,15 @@
  */
 export function normalizeEntityText(text: string): string {
   return text
+    .normalize("NFKC")
     .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove punctuation
+    .replace(/[^\p{L}\p{N}_\s]/gu, " ")
     .trim()
-    .replace(/\s+/g, " ") // Normalize whitespace
+    .replace(/\s+/g, " ")
+}
+
+export function normalizeTopicInputs(topics: string[]): string[] {
+  return Array.from(
+    new Set(topics.map(normalizeEntityText).filter((topic) => topic.length > 0))
+  )
 }
